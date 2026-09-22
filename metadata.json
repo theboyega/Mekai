@@ -1,0 +1,6 @@
+{
+  "name": "Mekai",
+  "description": "Diagnostic intelligence for the modern workshop by Cestcore Limited.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
