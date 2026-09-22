@@ -162,7 +162,7 @@ export function DesignTokensDrawer() {
               </div>
 
               {/* Layout Grid & Structure */}
-              <div className="py-6 border-b border-[#1C2121]">
+              <div className="py-6">
                 <h4 className="text-xs font-bold uppercase tracking-[0.16em] text-[#A3B18A] mb-4">
                   Sectional Layout Breakdown
                 </h4>
@@ -172,44 +172,6 @@ export function DesignTokensDrawer() {
                       <span className="font-semibold text-white block">{item.section}</span>
                       <span className="text-[#8F9999] text-[11px]">{item.desc}</span>
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Authorized Workshop Access Codes */}
-              <div className="py-6">
-                <h4 className="text-xs font-bold uppercase tracking-[0.16em] text-[#A3B18A] mb-4">
-                  Authorized Workshop Access Codes (10)
-                </h4>
-                <p className="text-[11px] text-[#8F9999] mb-3">
-                  Click any code to copy. Validated on Login &amp; Sign-up workflows.
-                </p>
-                <div className="grid grid-cols-2 gap-2">
-                  {[
-                    'CST-9482-K8X2',
-                    'CST-3105-M9P4',
-                    'CST-7621-R4L7',
-                    'CST-5839-W6H1',
-                    'CST-2490-B3N8',
-                    'CST-8164-T5J9',
-                    'CST-6312-X7Q3',
-                    'CST-4927-H2V6',
-                    'CST-1753-L8D5',
-                    'CST-9046-P1F8',
-                  ].map((code) => (
-                    <button
-                      key={code}
-                      type="button"
-                      onClick={() => copyToClipboard(code, code)}
-                      className="flex items-center justify-between p-2 rounded-lg bg-[#141818] border border-[#1E2424] hover:border-[#A3B18A] text-xs font-mono text-[#D0DADA] transition-colors"
-                    >
-                      <span>{code}</span>
-                      {copiedKey === code ? (
-                        <Check className="w-3.5 h-3.5 text-[#A3B18A]" />
-                      ) : (
-                        <Copy className="w-3.5 h-3.5 text-[#6E7B7B]" />
-                      )}
-                    </button>
                   ))}
                 </div>
               </div>

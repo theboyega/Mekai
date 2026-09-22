@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { X, ArrowRight, CheckCircle2, KeyRound, AlertCircle, Sparkles, Copy, Check } from 'lucide-react';
+import { X, ArrowRight, CheckCircle2, KeyRound, AlertCircle } from 'lucide-react';
 import { MekaiLogo } from './MekaiLogo';
-import { VALID_ACCESS_CODES, isValidAccessCode, formatAccessCodeInput } from '../data/accessCodes';
+import { isValidAccessCode, formatAccessCodeInput } from '../data/accessCodes';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -24,8 +24,6 @@ export function AuthModal({
   const [accessCode, setAccessCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [verifiedCode, setVerifiedCode] = useState<string | null>(activeCode);
-  const [showCodePicker, setShowCodePicker] = useState(false);
-  const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
   useEffect(() => {
     if (controlledMode) {
@@ -51,18 +49,6 @@ export function AuthModal({
     const formatted = formatAccessCodeInput(raw);
     setAccessCode(formatted);
     if (error) setError(null);
-  };
-
-  const handleSelectCode = (code: string) => {
-    setAccessCode(code);
-    setError(null);
-  };
-
-  const copyCode = (code: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    navigator.clipboard.writeText(code);
-    setCopiedCode(code);
-    setTimeout(() => setCopiedCode(null), 1500);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -190,15 +176,6 @@ export function AuthModal({
                     <KeyRound className="w-3.5 h-3.5 text-[#A3B18A]" />
                     <span>Workshop Access Code</span>
                   </label>
-
-                  <button
-                    type="button"
-                    onClick={() => setShowCodePicker(!showCodePicker)}
-                    className="text-xs text-[#A3B18A] hover:text-white flex items-center gap-1 font-medium transition-colors"
-                  >
-                    <Sparkles className="w-3 h-3" />
-                    <span>{showCodePicker ? 'Hide codes' : 'Available codes (10)'}</span>
-                  </button>
                 </div>
 
                 <div className="relative">
@@ -230,47 +207,6 @@ export function AuthModal({
                 )}
               </div>
 
-              {/* Collapsible / Expandable Quick-Fill Access Codes */}
-              {showCodePicker && (
-                <div className="bg-[#161B1B] border border-[#252D2D] rounded-xl p-3.5 space-y-2 animate-fadeIn">
-                  <div className="flex items-center justify-between text-[11px] text-[#7A8686] uppercase tracking-wider font-semibold">
-                    <span>Authorized Preview Codes</span>
-                    <span>Click to fill</span>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-1.5 max-h-44 overflow-y-auto pr-1">
-                    {VALID_ACCESS_CODES.map((code) => {
-                      const isSelected = accessCode === code;
-                      return (
-                        <button
-                          key={code}
-                          type="button"
-                          onClick={() => handleSelectCode(code)}
-                          className={`flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-mono transition-all text-left ${
-                            isSelected
-                              ? 'bg-[#A3B18A] text-[#0E1111] font-bold shadow-sm'
-                              : 'bg-[#1C2222] text-[#B0BABA] hover:text-white hover:bg-[#232B2B] border border-[#273030]'
-                          }`}
-                        >
-                          <span className="truncate">{code}</span>
-                          <span
-                            onClick={(e) => copyCode(code, e)}
-                            title="Copy code"
-                            className="p-0.5 hover:text-white ml-1 opacity-70 hover:opacity-100"
-                          >
-                            {copiedCode === code ? (
-                              <Check className="w-3 h-3 text-white" />
-                            ) : (
-                              <Copy className="w-3 h-3" />
-                            )}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
               <button
                 id="submit-access-code-btn"
                 type="submit"
@@ -292,14 +228,6 @@ export function AuthModal({
                   {activeMode === 'signup' ? 'Log in' : 'Activate code'}
                 </button>
               </span>
-
-              <button
-                type="button"
-                onClick={() => setShowCodePicker(true)}
-                className="text-xs text-[#7E8B8B] hover:text-white underline underline-offset-2"
-              >
-                Need a code?
-              </button>
             </div>
           </div>
         )}
