@@ -17,7 +17,7 @@ export function Footer() {
 
   return (
     <footer id="main-footer" className="pt-16 sm:pt-20 pb-12 border-t border-[#1C2121]">
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+      <div className="w-full px-6 sm:px-10 lg:px-14 xl:px-20">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-16 pb-16">
           
           {/* Left Column: Brand, Mission, & Socials */}
@@ -90,7 +90,7 @@ export function Footer() {
 
           {/* Middle Column: Company */}
           <div className="md:col-span-3 lg:col-span-3">
-            <h4 className="text-xs font-bold tracking-[0.16em] uppercase text-white/90 mb-5">
+            <h4 className="text-xs font-bold tracking-[0.16em] uppercase text-[#A3B18A] font-heading mb-5">
               Company
             </h4>
             <ul className="space-y-3.5 text-sm text-[#8F9999]">
@@ -106,7 +106,7 @@ export function Footer() {
 
           {/* Right Column: Legal */}
           <div className="md:col-span-3 lg:col-span-2">
-            <h4 className="text-xs font-bold tracking-[0.16em] uppercase text-white/90 mb-5">
+            <h4 className="text-xs font-bold tracking-[0.16em] uppercase text-[#A3B18A] font-heading mb-5">
               Legal
             </h4>
             <ul className="space-y-3.5 text-sm text-[#8F9999]">

@@ -22,7 +22,7 @@ export function WorkflowArchitecture() {
 
   return (
     <section id="workflow-section" className="py-16 sm:py-20 lg:py-24 border-t border-[#1C2121]/60">
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+      <div className="w-full px-6 sm:px-10 lg:px-14 xl:px-20">
         {/* Section Header */}
         <div id="workflow-header" className="mb-10 sm:mb-12">
           <p className="text-xs font-bold tracking-[0.18em] uppercase text-[#A3B18A] mb-3 font-heading">

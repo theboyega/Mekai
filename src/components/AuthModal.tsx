@@ -158,7 +158,7 @@ export function AuthModal({
           <div>
             <div className="mb-6">
               <MekaiLogo iconSize={26} textSize="text-lg tracking-wider" />
-              <h3 id="auth-modal-title" className="text-2xl font-extrabold text-white mt-4 tracking-tight">
+              <h3 id="auth-modal-title" className="text-2xl font-extrabold text-[#A3B18A] mt-4 tracking-tight">
                 {activeMode === 'signup' ? 'Activate Workshop Access' : 'Technician Login'}
               </h3>
               <p className="text-xs sm:text-sm text-[#8F9999] mt-1.5 leading-relaxed">

@@ -4,6 +4,7 @@ interface MekaiLogoProps {
   showText?: boolean;
   textSize?: string;
   iconColor?: string;
+  textColor?: string;
 }
 
 export function MekaiLogo({
@@ -12,6 +13,7 @@ export function MekaiLogo({
   showText = true,
   textSize = 'text-xl tracking-wider',
   iconColor = '#A3B18A',
+  textColor = 'text-[#A3B18A]',
 }: MekaiLogoProps) {
   return (
     <div id="mekai-brand-logo" className={`inline-flex items-center gap-3.5 select-none ${className}`}>
@@ -33,7 +35,7 @@ export function MekaiLogo({
       </svg>
 
       {showText && (
-        <span className={`font-extrabold uppercase text-white font-heading tracking-widest ${textSize}`}>
+        <span className={`font-extrabold uppercase font-heading tracking-widest ${textColor} ${textSize}`}>
           MEKAI
         </span>
       )}

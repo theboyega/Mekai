@@ -34,8 +34,8 @@ export function DesignTokensDrawer() {
     ],
     spacing: [
       { name: 'Section Vertical Padding', value: 'py-16 sm:py-20 lg:py-24 (80px–96px)' },
-      { name: 'Container Max Width', value: 'max-w-7xl (1280px) mx-auto' },
-      { name: 'Container Horizontal Padding', value: 'px-6 sm:px-8 lg:px-12 (24px–48px)' },
+      { name: 'Container Width', value: 'w-full (Full Width Edge-to-Edge)' },
+      { name: 'Container Horizontal Padding', value: 'px-6 sm:px-10 lg:px-14 xl:px-20 (24px–80px)' },
       { name: 'Card Internal Padding', value: 'p-7 sm:p-8 (28px–32px)' },
       { name: 'Grid Gaps', value: 'gap-6 lg:gap-7 (24px–28px)' },
       { name: 'Corner Radii', value: 'Cards: rounded-[22px] (22px) | Buttons: rounded-full' },

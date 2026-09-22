@@ -8,7 +8,7 @@ interface HeroSectionProps {
 export function HeroSection({ onGetStarted, onLearnMore }: HeroSectionProps) {
   return (
     <section id="hero-section" className="relative pt-12 sm:pt-16 lg:pt-20 pb-20 sm:pb-24 lg:pb-28">
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+      <div className="w-full px-6 sm:px-10 lg:px-14 xl:px-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           
           {/* Left Column: Hero Narrative & CTAs */}
@@ -22,7 +22,7 @@ export function HeroSection({ onGetStarted, onLearnMore }: HeroSectionProps) {
 
             <p
               id="hero-description"
-              className="text-base sm:text-lg text-[#9EA8A8] font-normal leading-relaxed mb-8 sm:mb-10 max-w-xl"
+              className="text-base sm:text-lg text-[#9EA8A8] font-normal leading-relaxed mb-8 sm:mb-10 max-w-2xl"
             >
               Mekai is an automotive diagnostic assistant designed to analyze OBD-II trouble codes,
               engine acoustic signatures, and component images to deliver instant repair guidance.

@@ -8,6 +8,7 @@ import { MobileAppSection } from './components/MobileAppSection';
 import { Footer } from './components/Footer';
 import { AuthModal } from './components/AuthModal';
 import { DesignTokensDrawer } from './components/DesignTokensDrawer';
+import { AppDashboard } from './components/AppDashboard';
 
 export default function App() {
   const [authModalState, setAuthModalState] = useState<{
@@ -25,6 +26,9 @@ export default function App() {
       return null;
     }
   });
+
+  // Controls view mode: 'app' (main dashboard) or 'landing' (marketing homepage)
+  const [viewMode, setViewMode] = useState<'app' | 'landing'>('app');
 
   useEffect(() => {
     try {
@@ -48,10 +52,13 @@ export default function App() {
 
   const handleAuthenticated = (code: string) => {
     setActiveAccessCode(code);
+    setViewMode('app');
+    closeAuth();
   };
 
   const handleSignOut = () => {
     setActiveAccessCode(null);
+    setViewMode('landing');
   };
 
   const handleLearnMore = () => {
@@ -61,6 +68,20 @@ export default function App() {
     }
   };
 
+  // When authenticated and in app mode, render the App Dashboard
+  if (activeAccessCode && viewMode === 'app') {
+    return (
+      <div className="min-h-screen bg-[#0E1111] text-[#FFFFFF] font-sans selection:bg-[#A3B18A]/30 selection:text-[#FFFFFF] relative overflow-hidden">
+        <AppDashboard
+          activeCode={activeAccessCode}
+          onSignOut={handleSignOut}
+          onViewLanding={() => setViewMode('landing')}
+        />
+        <DesignTokensDrawer />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#0E1111] text-[#FFFFFF] font-sans selection:bg-[#A3B18A]/30 selection:text-[#FFFFFF] flex flex-col relative overflow-x-hidden">
       {/* 1. Global Navigation Bar */}
@@ -69,6 +90,7 @@ export default function App() {
         onLoginClick={() => openAuth('login')}
         activeCode={activeAccessCode}
         onSignOut={handleSignOut}
+        onOpenDashboard={() => setViewMode('app')}
       />
 
       {/* Main Semantic Page Content */}

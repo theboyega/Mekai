@@ -8,7 +8,7 @@ interface MobileAppSectionProps {
 export function MobileAppSection({ onAppStoreClick, onPlayStoreClick }: MobileAppSectionProps) {
   return (
     <section id="download-section" className="py-16 sm:py-20 lg:py-24 border-t border-[#1C2121]/60 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+      <div className="w-full px-6 sm:px-10 lg:px-14 xl:px-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           
           {/* Left Column: Download Narrative & Store Links */}
@@ -19,7 +19,7 @@ export function MobileAppSection({ onAppStoreClick, onPlayStoreClick }: MobileAp
             <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-extrabold text-white tracking-[-0.02em] leading-tight mb-4">
               Take mekai under<br className="hidden sm:inline" /> the bonnet.
             </h2>
-            <p className="text-sm sm:text-base text-[#8F9999] leading-relaxed mb-8 max-w-lg">
+            <p className="text-sm sm:text-base text-[#8F9999] leading-relaxed mb-8 max-w-xl">
               Record engine audio, capture components, and pull up repair history from anywhere in the shop.
               Available on iOS and Android.
             </p>
