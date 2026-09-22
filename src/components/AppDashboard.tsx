@@ -57,9 +57,9 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
           {/* Top Section */}
           <div className="p-6">
             {/* Logo and Collapse Toggle */}
-            <div className="flex items-center justify-between mb-10">
+            <div className="flex items-center justify-between mb-10 h-8">
               <div
-                className="cursor-pointer"
+                className="cursor-pointer h-8 flex items-center"
                 onClick={() => setActiveTab('new-diagnostics')}
                 title="New Diagnostics"
               >
@@ -98,13 +98,15 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
                 id="nav-new-diagnostics-btn"
                 type="button"
                 onClick={() => setActiveTab('new-diagnostics')}
-                className={`w-full flex items-center gap-3.5 text-left transition-colors font-heading text-sm ${
+                className={`w-full flex items-center gap-3.5 text-left transition-colors font-heading text-sm h-8 ${
                   activeTab === 'new-diagnostics'
                     ? 'text-[#A3B18A] font-bold'
                     : 'text-[#A3B18A]/90 hover:text-[#A3B18A] font-semibold'
                 }`}
               >
-                <SquarePen className="w-4 h-4 shrink-0 text-[#A3B18A]" />
+                <div className="w-8 h-8 flex items-center justify-center shrink-0">
+                  <SquarePen className="w-4 h-4 text-[#A3B18A]" />
+                </div>
                 <span className="text-[#A3B18A]">New Diagnostics</span>
               </button>
 
@@ -113,13 +115,15 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
                 id="nav-search-chats-btn"
                 type="button"
                 onClick={() => setActiveTab('search-chats')}
-                className={`w-full flex items-center gap-3.5 text-left transition-colors font-heading text-sm ${
+                className={`w-full flex items-center gap-3.5 text-left transition-colors font-heading text-sm h-8 ${
                   activeTab === 'search-chats'
                     ? 'text-[#A3B18A] font-bold'
                     : 'text-[#A3B18A]/90 hover:text-[#A3B18A] font-semibold'
                 }`}
               >
-                <Search className="w-4 h-4 shrink-0 text-[#A3B18A]" />
+                <div className="w-8 h-8 flex items-center justify-center shrink-0">
+                  <Search className="w-4 h-4 text-[#A3B18A]" />
+                </div>
                 <span className="text-[#A3B18A]">Search Chats</span>
               </button>
             </nav>
@@ -166,60 +170,66 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
         /* CLOSED SIDEBAR RAIL (Matching 'app close sidebar.png') */
         <aside
           id="dashboard-sidebar-closed"
-          className="w-18 sm:w-20 bg-[#0E1111] border-r border-[#192220] flex flex-col justify-between items-center py-6 shrink-0 select-none z-20 transition-all duration-200"
+          className="w-20 bg-[#0E1111] border-r border-[#192220] flex flex-col justify-between shrink-0 select-none z-20 transition-all duration-200"
         >
-          {/* Top: Logo as expand toggle */}
-          <div className="flex flex-col items-center">
-            <button
-              id="expand-sidebar-logo-btn"
-              type="button"
-              onClick={() => setIsSidebarOpen(true)}
-              className="cursor-pointer group p-1.5 rounded-xl hover:bg-[#161D1A] transition-colors focus:outline-none"
-              title="Expand sidebar"
-              aria-label="Expand sidebar"
-            >
-              <MekaiLogo iconSize={32} showText={false} />
-            </button>
+          {/* Top Section */}
+          <div className="p-6">
+            {/* Logo as expand toggle - Exact same position and height as open sidebar */}
+            <div className="flex items-center mb-10 h-8">
+              <button
+                id="expand-sidebar-logo-btn"
+                type="button"
+                onClick={() => setIsSidebarOpen(true)}
+                className="cursor-pointer group flex items-center justify-center focus:outline-none"
+                title="Expand sidebar"
+                aria-label="Expand sidebar"
+              >
+                <MekaiLogo iconSize={32} showText={false} />
+              </button>
+            </div>
 
-            {/* Middle Nav Icons */}
-            <div className="mt-14 space-y-6 flex flex-col items-center">
+            {/* Navigation Actions - Exact same size, vertical spacing and horizontal position as open sidebar */}
+            <nav className="space-y-4">
               <button
                 type="button"
                 onClick={() => setActiveTab('new-diagnostics')}
-                className={`p-2 rounded-xl transition-colors ${
+                className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
                   activeTab === 'new-diagnostics'
                     ? 'text-[#A3B18A] bg-[#161E1B]'
-                    : 'text-[#A3B18A]/80 hover:text-[#A3B18A] hover:bg-[#151C1A]'
+                    : 'text-[#A3B18A]/90 hover:text-[#A3B18A] hover:bg-[#151C1A]'
                 }`}
                 title="New Diagnostics"
+                aria-label="New Diagnostics"
               >
-                <SquarePen className="w-5 h-5 text-[#A3B18A]" />
+                <SquarePen className="w-4 h-4 text-[#A3B18A]" />
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveTab('search-chats')}
-                className={`p-2 rounded-xl transition-colors ${
+                className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
                   activeTab === 'search-chats'
                     ? 'text-[#A3B18A] bg-[#161E1B]'
-                    : 'text-[#A3B18A]/80 hover:text-[#A3B18A] hover:bg-[#151C1A]'
+                    : 'text-[#A3B18A]/90 hover:text-[#A3B18A] hover:bg-[#151C1A]'
                 }`}
                 title="Search Chats"
+                aria-label="Search Chats"
               >
-                <Search className="w-5 h-5 text-[#A3B18A]" />
+                <Search className="w-4 h-4 text-[#A3B18A]" />
               </button>
-            </div>
+            </nav>
           </div>
 
-          {/* Bottom Icons: Settings above Avatar */}
-          <div className="flex flex-col items-center gap-5">
+          {/* Bottom Icons: Settings above Avatar, displayed as it is with same sizing as open sidebar */}
+          <div className="p-6 border-t border-[#192220]/60 flex flex-col items-center gap-4">
             <button
               type="button"
               onClick={() => setShowSettingsModal(true)}
               className="text-[#8A9A78] hover:text-[#A3B18A] transition-colors p-1.5 rounded-lg hover:bg-[#161D1B]"
               title="Workshop Settings & Profile"
+              aria-label="Workshop Settings"
             >
-              <Settings className="w-5 h-5" />
+              <Settings className="w-4 h-4" />
             </button>
 
             <button
