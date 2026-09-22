@@ -27,6 +27,14 @@ export default function App() {
     }
   });
 
+  const [technicianName, setTechnicianName] = useState<string>(() => {
+    try {
+      return localStorage.getItem('mekai_technician_name') || 'Adeyemi Tomiwa';
+    } catch {
+      return 'Adeyemi Tomiwa';
+    }
+  });
+
   // Controls view mode: 'app' (main dashboard) or 'landing' (marketing homepage)
   const [viewMode, setViewMode] = useState<'app' | 'landing'>('app');
 
@@ -50,8 +58,11 @@ export default function App() {
     setAuthModalState((prev) => ({ ...prev, isOpen: false }));
   };
 
-  const handleAuthenticated = (code: string) => {
+  const handleAuthenticated = (code: string, name?: string) => {
     setActiveAccessCode(code);
+    if (name) {
+      setTechnicianName(name);
+    }
     setViewMode('app');
     closeAuth();
   };
@@ -74,6 +85,7 @@ export default function App() {
       <div className="min-h-screen bg-[#0E1111] text-[#FFFFFF] font-sans selection:bg-[#A3B18A]/30 selection:text-[#FFFFFF] relative overflow-hidden">
         <AppDashboard
           activeCode={activeAccessCode}
+          technicianName={technicianName}
           onSignOut={handleSignOut}
           onViewLanding={() => setViewMode('landing')}
         />

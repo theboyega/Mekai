@@ -15,11 +15,19 @@ import { MekaiLogo } from './MekaiLogo';
 
 interface AppDashboardProps {
   activeCode: string | null;
+  technicianName?: string;
   onSignOut: () => void;
   onViewLanding?: () => void;
 }
 
-export function AppDashboard({ activeCode, onSignOut, onViewLanding }: AppDashboardProps) {
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return 'T';
+  if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+}
+
+export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLanding }: AppDashboardProps) {
   // 1. Sidebar open by default on desktop viewports
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   // 2. Active tab: 'new-diagnostics' or 'search-chats'
@@ -29,6 +37,11 @@ export function AppDashboard({ activeCode, onSignOut, onViewLanding }: AppDashbo
   const [searchQuery, setSearchQuery] = useState('');
   // Settings menu modal/popover
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+
+  // Resolved technician name and first name for prompt greeting
+  const displayName = technicianName || 'Adeyemi Tomiwa';
+  const firstName = displayName.trim().split(/\s+/)[0] || 'Adeyemi';
+  const initials = getInitials(displayName);
 
   return (
     <div id="app-dashboard" className="h-screen w-screen bg-[#0E1111] text-white flex overflow-hidden font-sans selection:bg-[#A3B18A]/30 selection:text-white">
@@ -53,12 +66,12 @@ export function AppDashboard({ activeCode, onSignOut, onViewLanding }: AppDashbo
                 <MekaiLogo iconSize={32} showText={true} textSize="text-xl tracking-widest font-heading font-extrabold" />
               </div>
 
-              {/* Sidebar Collapse Toggle Button */}
+              {/* Sidebar Collapse Toggle Button: Nudged up a little bit to be horizontally centered with the logo */}
               <button
                 id="collapse-sidebar-btn"
                 type="button"
                 onClick={() => setIsSidebarOpen(false)}
-                className="text-[#8A9A78] hover:text-white p-1.5 rounded-lg hover:bg-[#151B1A] transition-colors"
+                className="text-[#8A9A78] hover:text-[#A3B18A] p-1.5 rounded-lg hover:bg-[#151B1A] transition-colors -translate-y-1"
                 title="Collapse sidebar"
                 aria-label="Collapse sidebar"
               >
@@ -87,12 +100,12 @@ export function AppDashboard({ activeCode, onSignOut, onViewLanding }: AppDashbo
                 onClick={() => setActiveTab('new-diagnostics')}
                 className={`w-full flex items-center gap-3.5 text-left transition-colors font-heading text-sm ${
                   activeTab === 'new-diagnostics'
-                    ? 'text-white font-bold'
-                    : 'text-[#A0ABA8] hover:text-white font-semibold'
+                    ? 'text-[#A3B18A] font-bold'
+                    : 'text-[#A3B18A]/90 hover:text-[#A3B18A] font-semibold'
                 }`}
               >
-                <SquarePen className={`w-4 h-4 shrink-0 ${activeTab === 'new-diagnostics' ? 'text-[#A3B18A]' : 'text-[#8A9A78]'}`} />
-                <span>New Diagnostics</span>
+                <SquarePen className="w-4 h-4 shrink-0 text-[#A3B18A]" />
+                <span className="text-[#A3B18A]">New Diagnostics</span>
               </button>
 
               {/* Search Chats */}
@@ -102,12 +115,12 @@ export function AppDashboard({ activeCode, onSignOut, onViewLanding }: AppDashbo
                 onClick={() => setActiveTab('search-chats')}
                 className={`w-full flex items-center gap-3.5 text-left transition-colors font-heading text-sm ${
                   activeTab === 'search-chats'
-                    ? 'text-white font-bold'
-                    : 'text-[#A0ABA8] hover:text-white font-semibold'
+                    ? 'text-[#A3B18A] font-bold'
+                    : 'text-[#A3B18A]/90 hover:text-[#A3B18A] font-semibold'
                 }`}
               >
-                <Search className={`w-4 h-4 shrink-0 ${activeTab === 'search-chats' ? 'text-[#A3B18A]' : 'text-[#8A9A78]'}`} />
-                <span>Search Chats</span>
+                <Search className="w-4 h-4 shrink-0 text-[#A3B18A]" />
+                <span className="text-[#A3B18A]">Search Chats</span>
               </button>
             </nav>
 
@@ -124,10 +137,15 @@ export function AppDashboard({ activeCode, onSignOut, onViewLanding }: AppDashbo
           {/* Bottom Profile Section */}
           <div className="p-6 border-t border-[#192220]/60 flex items-center justify-between">
             <div className="flex items-center gap-3 min-w-0">
-              {/* Sage Green Avatar */}
-              <div className="w-7 h-7 rounded-full bg-[#A3B18A] shrink-0" />
-              <span className="font-heading font-bold text-sm text-white truncate">
-                Adeyemi Tomiwa
+              {/* Sage Green Avatar with Initials */}
+              <div
+                className="w-7 h-7 rounded-full bg-[#A3B18A] text-[#0E1111] font-heading font-extrabold text-xs flex items-center justify-center shrink-0 select-none tracking-tight shadow-sm"
+                aria-label={`Profile for ${displayName}`}
+              >
+                {initials}
+              </div>
+              <span className="font-heading font-bold text-sm text-[#A3B18A] truncate">
+                {displayName}
               </span>
             </div>
 
@@ -136,7 +154,7 @@ export function AppDashboard({ activeCode, onSignOut, onViewLanding }: AppDashbo
               id="sidebar-settings-btn"
               type="button"
               onClick={() => setShowSettingsModal(true)}
-              className="text-[#8A9A78] hover:text-white transition-colors p-1.5 rounded-lg hover:bg-[#161D1B]"
+              className="text-[#8A9A78] hover:text-[#A3B18A] transition-colors p-1.5 rounded-lg hover:bg-[#161D1B]"
               title="Workshop Settings & Profile"
               aria-label="Workshop Settings"
             >
@@ -171,11 +189,11 @@ export function AppDashboard({ activeCode, onSignOut, onViewLanding }: AppDashbo
                 className={`p-2 rounded-xl transition-colors ${
                   activeTab === 'new-diagnostics'
                     ? 'text-[#A3B18A] bg-[#161E1B]'
-                    : 'text-[#8A9A78] hover:text-white hover:bg-[#151C1A]'
+                    : 'text-[#A3B18A]/80 hover:text-[#A3B18A] hover:bg-[#151C1A]'
                 }`}
                 title="New Diagnostics"
               >
-                <SquarePen className="w-5 h-5" />
+                <SquarePen className="w-5 h-5 text-[#A3B18A]" />
               </button>
 
               <button
@@ -184,11 +202,11 @@ export function AppDashboard({ activeCode, onSignOut, onViewLanding }: AppDashbo
                 className={`p-2 rounded-xl transition-colors ${
                   activeTab === 'search-chats'
                     ? 'text-[#A3B18A] bg-[#161E1B]'
-                    : 'text-[#8A9A78] hover:text-white hover:bg-[#151C1A]'
+                    : 'text-[#A3B18A]/80 hover:text-[#A3B18A] hover:bg-[#151C1A]'
                 }`}
                 title="Search Chats"
               >
-                <Search className="w-5 h-5" />
+                <Search className="w-5 h-5 text-[#A3B18A]" />
               </button>
             </div>
           </div>
@@ -198,7 +216,7 @@ export function AppDashboard({ activeCode, onSignOut, onViewLanding }: AppDashbo
             <button
               type="button"
               onClick={() => setShowSettingsModal(true)}
-              className="text-[#8A9A78] hover:text-white transition-colors p-1.5 rounded-lg hover:bg-[#161D1B]"
+              className="text-[#8A9A78] hover:text-[#A3B18A] transition-colors p-1.5 rounded-lg hover:bg-[#161D1B]"
               title="Workshop Settings & Profile"
             >
               <Settings className="w-5 h-5" />
@@ -207,9 +225,12 @@ export function AppDashboard({ activeCode, onSignOut, onViewLanding }: AppDashbo
             <button
               type="button"
               onClick={() => setIsSidebarOpen(true)}
-              className="w-7 h-7 rounded-full bg-[#A3B18A] shrink-0 hover:ring-2 hover:ring-[#A3B18A]/50 transition-all"
-              title="Adeyemi Tomiwa (Click to expand sidebar)"
-            />
+              className="w-7 h-7 rounded-full bg-[#A3B18A] text-[#0E1111] font-heading font-extrabold text-xs flex items-center justify-center shrink-0 hover:ring-2 hover:ring-[#A3B18A]/50 transition-all select-none tracking-tight shadow-sm"
+              title={`${displayName} (Click to expand sidebar)`}
+              aria-label={`Profile for ${displayName}`}
+            >
+              {initials}
+            </button>
           </div>
         </aside>
       )}
@@ -238,7 +259,7 @@ export function AppDashboard({ activeCode, onSignOut, onViewLanding }: AppDashbo
               id="diagnostics-prompt-heading"
               className="text-3xl sm:text-4xl lg:text-[42px] font-extrabold text-[#A3B18A] font-heading tracking-tight mb-8 sm:mb-10 text-center leading-tight select-none"
             >
-              Ready for diagnostics, Adeyemi?
+              Ready for diagnostics, {firstName}?
             </h1>
 
             {/* Input Pill Bar */}
@@ -296,14 +317,14 @@ export function AppDashboard({ activeCode, onSignOut, onViewLanding }: AppDashbo
           </div>
         ) : (
           /* ──────── VIEW B: SEARCH CHATS (Matching 'app search chats.png') ──────── */
-          <div className="flex-1 flex flex-col px-6 sm:px-12 lg:px-16 pt-6 sm:pt-10 max-w-4xl w-full">
-            {/* Search Input Bar */}
-            <div className="w-full">
+          <div className="flex-1 flex flex-col items-center px-6 sm:px-12 max-w-4xl mx-auto w-full pt-8 sm:pt-12">
+            {/* Search Input Bar - Centered */}
+            <div className="w-full max-w-2xl mx-auto">
               <div
                 id="search-chats-pill"
-                className="w-full max-w-2xl rounded-full border border-[#23312C] bg-[#0E1312] hover:border-[#354841] focus-within:border-[#A3B18A] px-5 sm:px-6 py-3 sm:py-3.5 flex items-center gap-3.5 transition-all shadow-lg"
+                className="w-full rounded-full border border-[#23312C] bg-[#0E1312] hover:border-[#354841] focus-within:border-[#A3B18A] px-5 sm:px-6 py-3.5 sm:py-4 flex items-center gap-3.5 transition-all shadow-lg mx-auto"
               >
-                <Search className="w-5 h-5 text-[#8A9A78] shrink-0 stroke-[2]" />
+                <Search className="w-5 h-5 text-[#A3B18A] shrink-0 stroke-[2]" />
                 <input
                   id="search-chats-input"
                   type="text"
@@ -317,7 +338,7 @@ export function AppDashboard({ activeCode, onSignOut, onViewLanding }: AppDashbo
             </div>
 
             {/* Recent Section Header */}
-            <div className="mt-8 sm:mt-10">
+            <div className="w-full max-w-2xl mx-auto mt-8 sm:mt-10">
               <h2
                 id="recent-chats-heading"
                 className="text-xl sm:text-2xl font-extrabold text-[#A3B18A] font-heading tracking-tight"
@@ -325,7 +346,7 @@ export function AppDashboard({ activeCode, onSignOut, onViewLanding }: AppDashbo
                 Recent
               </h2>
 
-              {/* Empty list container as specified: "dont include anything in the recent or search chats the ill send the function that calls all the recent chats later" */}
+              {/* Empty list container as specified */}
               <div id="recent-chats-container" className="mt-4">
                 {/* Clean empty state awaiting external function binding */}
               </div>
@@ -342,7 +363,9 @@ export function AppDashboard({ activeCode, onSignOut, onViewLanding }: AppDashbo
           <div className="w-full max-w-md bg-[#121616] border border-[#26312E] rounded-2xl p-6 shadow-2xl animate-fadeIn">
             <div className="flex items-center justify-between pb-4 border-b border-[#202927]">
               <div className="flex items-center gap-2.5">
-                <div className="w-6 h-6 rounded-full bg-[#A3B18A]" />
+                <div className="w-6 h-6 rounded-full bg-[#A3B18A] text-[#0E1111] font-heading font-extrabold text-[10px] flex items-center justify-center shrink-0 select-none">
+                  {initials}
+                </div>
                 <h3 className="font-heading font-extrabold text-base text-white">Technician Workshop</h3>
               </div>
               <button
@@ -359,7 +382,7 @@ export function AppDashboard({ activeCode, onSignOut, onViewLanding }: AppDashbo
                 <div className="text-[11px] uppercase tracking-wider text-[#8A9A78] font-semibold mb-1">
                   Active Technician
                 </div>
-                <div className="font-heading font-bold text-white text-base">Adeyemi Tomiwa</div>
+                <div className="font-heading font-bold text-white text-base">{displayName}</div>
                 <div className="text-xs text-[#8F9999] mt-0.5">Senior Diagnostic Specialist</div>
               </div>
 

@@ -63,7 +63,7 @@ export function FloorValidation({ onSignUpClick }: FloorValidationProps) {
             </div>
 
             <div className="self-start">
-              <div className="w-11 h-11 rounded-full bg-[#0E1111] flex items-center justify-center text-white transition-transform duration-200 group-hover:translate-x-1.5 shadow-sm">
+              <div className="w-11 h-11 rounded-full bg-[#0E1111] flex items-center justify-center text-[#A3B18A] transition-transform duration-200 group-hover:translate-x-1.5 shadow-sm">
                 <ArrowRight className="w-5 h-5" />
               </div>
             </div>
