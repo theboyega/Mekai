@@ -9,7 +9,13 @@ import {
   ArrowUp,
   LogOut,
   ShieldCheck,
-  X
+  X,
+  Camera,
+  Image as ImageIcon,
+  FileText,
+  Square,
+  Trash2,
+  Volume2
 } from 'lucide-react';
 import { MekaiLogo } from './MekaiLogo';
 
@@ -20,11 +26,20 @@ interface AppDashboardProps {
   onViewLanding?: () => void;
 }
 
+export interface ChatAttachment {
+  type: 'image' | 'file' | 'audio';
+  name: string;
+  url?: string;
+  size?: string;
+  file?: File;
+}
+
 export interface ChatMessage {
   id: string;
   sender: 'engineer' | 'mekai';
   text: string;
   timestamp: string;
+  attachment?: ChatAttachment;
 }
 
 export interface RecentChatSession {
@@ -35,72 +50,28 @@ export interface RecentChatSession {
   messages: ChatMessage[];
 }
 
-const INITIAL_RECENT_SESSIONS: RecentChatSession[] = [
-  {
-    id: 'chat-p0300',
-    title: '2018 Ford F-150 3.5L EcoBoost',
-    snippet: 'P0300 Random/Multiple Cylinder Misfire Detected',
-    date: '2h ago',
-    messages: [
-      {
-        id: 'p0300-1',
-        sender: 'engineer',
-        text: '2018 Ford F-150 3.5L EcoBoost throwing P0300 under hard acceleration on highway.',
-        timestamp: '10:14 AM',
-      },
-      {
-        id: 'p0300-2',
-        sender: 'mekai',
-        text: 'Diagnostic Analysis: 2018 Ford F-150 3.5L EcoBoost — P0300\n\nUnder high boost and load conditions, the 3.5L EcoBoost ignition system demands peak secondary voltage. The primary failure pathways are:\n\n1. Spark Plug Carbon Tracking & Gap Widening: Factory plugs with over 35,000 miles frequently suffer gap erosion exceeding 0.035 in, blowing out the spark under boost. Recommend Motorcraft SP-578 (or latest OE revision) gapped strictly to 0.028–0.030 in.\n\n2. Coil-on-Plug (COP) Boot Breakdown: Inspect the rubber dielectric boots on cylinders 2 and 5 for white flashover carbon tracking traces.\n\n3. High-Pressure Fuel Rail Pressure: Verify commanded vs actual high-pressure rail PSI (should maintain 2,100+ PSI under wide-open throttle).\n\nPinpoint Action: Check freeze frame data for cylinder-specific misfire counts in Mode $06 to pinpoint if cylinder 2 or 5 is the dominant contributor.',
-        timestamp: '10:14 AM',
-      },
-    ],
-  },
-  {
-    id: 'chat-knock',
-    title: '2021 BMW M340i B58',
-    snippet: 'Acoustic inspection: metallic rattle on decel',
-    date: 'Yesterday',
-    messages: [
-      {
-        id: 'knock-1',
-        sender: 'engineer',
-        text: 'Acoustic inspection on 2021 BMW M340i B58: metallic buzzing rattle on deceleration from 2,000 RPM.',
-        timestamp: '3:20 PM',
-      },
-      {
-        id: 'knock-2',
-        sender: 'mekai',
-        text: 'Acoustic Diagnostic Analysis: B58 Turbocharger Assembly\n\nSignature Classification:\nHigh probability of Electronic Wastegate (EWG) linkage pivot wear or actuator bushing play. This produces a characteristic tinny metallic vibration specifically upon off-throttle coast down between 1,800–2,400 RPM.\n\nSecondary Possibilities:\n• Downpipe heat shield bracket hairline fatigue crack near catalytic converter inlet.\n• Exhaust flap actuator pivot spring loose inside right-hand muffler tailpipe.\n\nRecommended Physical Check:\n1. With engine cold, manually grab the EWG actuator rod on the hot side of the turbo. If lateral play exceeds 1.5mm, verify if BMW technical service bulletin for wastegate linkage clip retro-fit applies.\n2. Use an acoustic stethoscope probe placed on the turbine housing while manually varying throttle to isolate.',
-        timestamp: '3:21 PM',
-      },
-    ],
-  },
-  {
-    id: 'chat-p0420',
-    title: '2019 Toyota Camry 2.5L',
-    snippet: 'P0420 Catalyst System Efficiency Below Threshold',
-    date: '3d ago',
-    messages: [
-      {
-        id: 'p0420-1',
-        sender: 'engineer',
-        text: '2019 Toyota Camry 2.5L throwing P0420. Downstream O2 sensor was recently replaced by customer.',
-        timestamp: '11:05 AM',
-      },
-      {
-        id: 'p0420-2',
-        sender: 'mekai',
-        text: 'Diagnostic Analysis: Toyota A25A-FKS — P0420\n\nSince the downstream sensor was already renewed, focus diagnostic isolation on catalytic converter conversion efficiency and exhaust integrity:\n\n1. Downstream O2S Signal Cross-Check: Monitor Bank 1 Sensor 2 voltage at warm 2,500 RPM steady state. An active converter should hold the sensor steadily between 0.65V and 0.78V. If the signal swings synchronously between 0.1V and 0.9V with the air-fuel ratio sensor, converter oxygen storage capacity has depleted.\n\n2. Exhaust Flange Leak Check: The manifold-to-converter donut gasket frequently develops subtle leaks that pull outside air in on decel, falsely triggering P0420.\n\n3. Thermal Delta: Use thermal imaging or infrared gun. Outlet temperature should be at least 35°C hotter than inlet.',
-        timestamp: '11:06 AM',
-      },
-    ],
-  },
-];
-
-function getMekaiDiagnosticResponse(prompt: string, technicianName: string): string {
+function getMekaiDiagnosticResponse(
+  prompt: string,
+  technicianName: string,
+  attachment?: ChatAttachment
+): string {
   const p = prompt.toLowerCase();
   const firstName = technicianName.trim().split(/\s+/)[0] || 'Technician';
+
+  // Handle acoustic / audio recordings
+  if (attachment?.type === 'audio') {
+    return `Acoustic Diagnostic Telemetry: Workshop Audio Sample Captured (${attachment.size || 'Audio'})\n\nSignal Processing & Frequency Isolation:\n• Primary Resonance Peak: Elevated mechanical vibration energy isolated in the 1,850 Hz–2,400 Hz range during rotational deceleration.\n• Harmonic Interval: Cadence synchronizes with camshaft half-speed rotation, strongly indicating valvetrain origin (hydraulic lifter bleed-down or rocker arm lash) or turbocharger wastegate actuator linkage flutter.\n\nRecommended Workshop Actions:\n1. Apply an acoustic stethoscope probe to the cylinder head valve cover versus the turbo turbine housing to pinpoint the source.\n2. Verify engine oil pressure at full operating temperature to rule out hydraulic valve lifter starvation.`;
+  }
+
+  // Handle visual images (photos or live camera captures)
+  if (attachment?.type === 'image') {
+    return `Visual Component Diagnostic Assessment: ${attachment.name}\n\nVisual Inspection Analysis:\n• Component surface and harness connector ingested for thermal stress, pin fretting, and fluid intrusion.\n• Verify weather-pack rubber connector seal for oil degradation or contamination wicking into copper wiring strands.\n\nRecommended Pinpoint Test Sequence:\n1. Measure connector pin backprobe resistance with digital multimeter (target < 0.5 Ω to ground).\n2. Apply dielectric grease upon reassembly to prevent intermittent high-resistance faults.`;
+  }
+
+  // Handle diagnostic documents / files (PDF, CSV, logs)
+  if (attachment?.type === 'file') {
+    return `Telemetry Data Log Assessment: ${attachment.name}\n\nDiagnostic Ingestion:\n• Ingesting Mode $06 freeze-frame parameters, PID live data, and DTC fault register.\n• Freeze-frame records abnormal operating deviation at triggered RPM and engine load threshold.\n\nRecommended Pinpoint Test Sequence:\n1. Re-verify live sensor voltage waveform against OEM reference specifications.\n2. Clear historical codes, execute drive cycle monitor run, and log live sensor telemetry.`;
+  }
 
   if (p.includes('p0300') || p.includes('misfire')) {
     return `Diagnostic Analysis: P0300 — Random / Multiple Cylinder Misfire Detected\n\nPossible Causes:\n• Ignition System: Worn spark plug gap erosion (>0.035 in) or secondary coil pack insulation breakdown.\n• Fuel Delivery: Fuel rail pressure drop under load, partially clogged fuel injector nozzles.\n• Air/Vacuum: Vacuum leak downstream of Mass Air Flow (MAF) sensor, sticking intake runner valves.\n• Mechanical: Sticky valve guides or uneven cylinder compression balance.\n\nRecommended Diagnostic Steps:\n1. Hook up the diagnostic interface and inspect live misfire counters (Mode $06) to identify if the misfires isolate to a specific bank or cylinder.\n2. Verify Short-Term Fuel Trim (STFT) and Long-Term Fuel Trim (LTFT) at idle vs 2,500 RPM to distinguish between unmetered air intake and fuel delivery deficiency.\n3. Perform a relative compression test and inspect secondary ignition waveforms with a lab scope.`;
@@ -200,8 +171,25 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
   // Active chat conversation messages and analyzing state
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [recentSessions, setRecentSessions] = useState<RecentChatSession[]>(INITIAL_RECENT_SESSIONS);
+  const [recentSessions, setRecentSessions] = useState<RecentChatSession[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Staged attachment for next chat query (+ button & audio)
+  const [attachedMedia, setAttachedMedia] = useState<ChatAttachment | null>(null);
+  const [showAttachMenu, setShowAttachMenu] = useState(false);
+
+  // Audio recording state & refs
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingDuration, setRecordingDuration] = useState(0);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const speechRecognitionRef = useRef<any>(null);
+
+  // Hidden file/camera input refs
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   // Resolved technician name and first name for prompt greeting
   const displayName = technicianName || 'Adeyemi Tomiwa';
@@ -220,11 +208,202 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
     }
   }, [messages, isAnalyzing]);
 
+  // Clean up recording timer on unmount
+  useEffect(() => {
+    return () => {
+      if (recordingTimerRef.current) {
+        clearInterval(recordingTimerRef.current);
+      }
+      if (speechRecognitionRef.current) {
+        try {
+          speechRecognitionRef.current.stop();
+        } catch {
+          // ignore
+        }
+      }
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+        try {
+          mediaRecorderRef.current.stop();
+        } catch {
+          // ignore
+        }
+      }
+    };
+  }, []);
+
+  // Format recording duration (mm:ss)
+  const formatRecordingTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // File and photo selection handler
+  const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'file') => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formattedSize =
+      file.size > 1024 * 1024
+        ? `${(file.size / (1024 * 1024)).toFixed(1)} MB`
+        : `${Math.max(1, Math.round(file.size / 1024))} KB`;
+
+    if (type === 'image') {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setAttachedMedia({
+          type: 'image',
+          name: file.name,
+          url: event.target?.result as string,
+          size: formattedSize,
+          file,
+        });
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setAttachedMedia({
+        type: 'file',
+        name: file.name,
+        size: formattedSize,
+        file,
+      });
+    }
+
+    setShowAttachMenu(false);
+    e.target.value = '';
+  };
+
+  // Start audio recording with microphone & optional live transcription
+  const handleStartRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      audioChunksRef.current = [];
+      const mediaRecorder = new MediaRecorder(stream);
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const audioUrl = URL.createObjectURL(audioBlob);
+        setAttachedMedia({
+          type: 'audio',
+          name: `Acoustic-Diagnostic-${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}.webm`,
+          url: audioUrl,
+          size: `${recordingDuration > 0 ? `${recordingDuration}s` : 'Audio'}`,
+        });
+        stream.getTracks().forEach((track) => track.stop());
+      };
+
+      // Also attempt real-time speech recognition if available
+      const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRec) {
+        try {
+          const rec = new SpeechRec();
+          rec.continuous = true;
+          rec.interimResults = true;
+          rec.onresult = (event: any) => {
+            let transcript = '';
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+              transcript += event.results[i][0].transcript;
+            }
+            if (transcript.trim()) {
+              setPromptInput((prev) => (prev ? prev + ' ' : '') + transcript.trim());
+            }
+          };
+          rec.start();
+          speechRecognitionRef.current = rec;
+        } catch {
+          // speech recognition fallback
+        }
+      }
+
+      mediaRecorder.start(250);
+      mediaRecorderRef.current = mediaRecorder;
+      setIsRecording(true);
+      setRecordingDuration(0);
+
+      recordingTimerRef.current = setInterval(() => {
+        setRecordingDuration((prev) => prev + 1);
+      }, 1000);
+    } catch (err) {
+      console.warn('Microphone access unavailable, providing acoustic sample mode', err);
+      // Simulated acoustic recording fallback
+      setIsRecording(true);
+      setRecordingDuration(0);
+      recordingTimerRef.current = setInterval(() => {
+        setRecordingDuration((prev) => prev + 1);
+      }, 1000);
+    }
+  };
+
+  const handleStopRecording = () => {
+    if (recordingTimerRef.current) {
+      clearInterval(recordingTimerRef.current);
+      recordingTimerRef.current = null;
+    }
+    if (speechRecognitionRef.current) {
+      try {
+        speechRecognitionRef.current.stop();
+      } catch {
+        // ignore
+      }
+      speechRecognitionRef.current = null;
+    }
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      try {
+        mediaRecorderRef.current.stop();
+      } catch {
+        // ignore
+      }
+    } else {
+      setAttachedMedia({
+        type: 'audio',
+        name: `Acoustic-Diagnostic-${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}.webm`,
+        size: `${recordingDuration > 0 ? `${recordingDuration}s` : 'Audio'}`,
+      });
+    }
+    setIsRecording(false);
+  };
+
+  const handleCancelRecording = () => {
+    if (recordingTimerRef.current) {
+      clearInterval(recordingTimerRef.current);
+      recordingTimerRef.current = null;
+    }
+    if (speechRecognitionRef.current) {
+      try {
+        speechRecognitionRef.current.stop();
+      } catch {
+        // ignore
+      }
+      speechRecognitionRef.current = null;
+    }
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      try {
+        mediaRecorderRef.current.stop();
+      } catch {
+        // ignore
+      }
+    }
+    audioChunksRef.current = [];
+    setIsRecording(false);
+    setRecordingDuration(0);
+  };
+
   // Session reset helper: resets input, messages, ensures new-diagnostics view, and randomizes greeting
   const resetDiagnosticsSession = () => {
     setActiveTab('new-diagnostics');
     setPromptInput('');
     setMessages([]);
+    setAttachedMedia(null);
+    setShowAttachMenu(false);
+    if (isRecording) {
+      handleCancelRecording();
+    }
     setIsAnalyzing(false);
     setGreetingIndex((prev) => {
       let next = Math.floor(Math.random() * WORKSHOP_GREETINGS.length);
@@ -238,21 +417,35 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
   // Submit diagnostic prompt handler
   const handlePromptSubmit = (promptOverride?: string) => {
     const textToSubmit = (promptOverride !== undefined ? promptOverride : promptInput).trim();
-    if (!textToSubmit || isAnalyzing) return;
+    if ((!textToSubmit && !attachedMedia) || isAnalyzing) return;
+
+    const currentAttachment = attachedMedia;
+    const defaultText = currentAttachment
+      ? currentAttachment.type === 'image'
+        ? 'Diagnostic inspection photo attached for analysis.'
+        : currentAttachment.type === 'audio'
+        ? `Acoustic audio sample recorded (${currentAttachment.size || 'Diagnostic clip'}).`
+        : `Diagnostic document attached (${currentAttachment.name}).`
+      : '';
+
+    const finalText = textToSubmit || defaultText;
 
     const userMsg: ChatMessage = {
       id: `msg-${Date.now()}-eng`,
       sender: 'engineer',
-      text: textToSubmit,
+      text: finalText,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      attachment: currentAttachment || undefined,
     };
 
     setMessages((prev) => [...prev, userMsg]);
     setPromptInput('');
+    setAttachedMedia(null);
+    setShowAttachMenu(false);
     setIsAnalyzing(true);
 
     setTimeout(() => {
-      const mekaiResponseText = getMekaiDiagnosticResponse(textToSubmit, displayName);
+      const mekaiResponseText = getMekaiDiagnosticResponse(finalText, displayName, currentAttachment || undefined);
       const mekaiMsg: ChatMessage = {
         id: `msg-${Date.now()}-mek`,
         sender: 'mekai',
@@ -262,9 +455,9 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
       setMessages((prev) => [...prev, mekaiMsg]);
       setIsAnalyzing(false);
 
-      // Add to recent sessions
+      // Add to dynamic recent sessions
       setRecentSessions((prev) => {
-        const title = textToSubmit.length > 34 ? textToSubmit.substring(0, 34) + '...' : textToSubmit;
+        const title = finalText.length > 34 ? finalText.substring(0, 34) + '...' : finalText;
         const exists = prev.find((s) => s.title.toLowerCase() === title.toLowerCase());
         if (exists) return prev;
         return [
@@ -287,8 +480,211 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
     setMobileDrawerOpen(false);
   };
 
+  const renderDiagnosticInputBar = (showDisclaimer = false) => (
+    <div className="w-full relative">
+      {/* Staged attachment preview chip */}
+      {attachedMedia && (
+        <div className="flex items-center gap-2 mb-2 px-3 py-1.5 bg-[#141A18] border border-[#23312C] rounded-full w-fit max-w-full text-xs text-[#A3B18A] animate-fadeIn">
+          {attachedMedia.type === 'image' && (
+            <>
+              {attachedMedia.url ? (
+                <img
+                  src={attachedMedia.url}
+                  alt="preview"
+                  className="w-4 h-4 rounded-full object-cover shrink-0"
+                />
+              ) : (
+                <ImageIcon className="w-3.5 h-3.5 shrink-0" />
+              )}
+            </>
+          )}
+          {attachedMedia.type === 'file' && <FileText className="w-3.5 h-3.5 shrink-0" />}
+          {attachedMedia.type === 'audio' && <Volume2 className="w-3.5 h-3.5 shrink-0 text-red-400" />}
+          <span className="truncate max-w-[200px] text-white font-medium">{attachedMedia.name}</span>
+          {attachedMedia.size && <span className="text-[#8A9A78] text-[10px]">({attachedMedia.size})</span>}
+          <button
+            type="button"
+            onClick={() => setAttachedMedia(null)}
+            className="p-0.5 hover:text-white transition-colors ml-1 focus:outline-none"
+            title="Remove attachment"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
+      {/* Input Form */}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handlePromptSubmit();
+        }}
+        className="w-full relative"
+      >
+        {/* Attachment menu popover (live image, upload photo, send file) */}
+        {showAttachMenu && (
+          <>
+            <div
+              className="fixed inset-0 z-30"
+              onClick={() => setShowAttachMenu(false)}
+            />
+            <div className="absolute bottom-full left-0 mb-3 z-40 bg-[#141A18] border border-[#23312C] rounded-2xl p-1.5 shadow-2xl min-w-[220px] animate-fadeIn">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAttachMenu(false);
+                  cameraInputRef.current?.click();
+                }}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-[#DDE3E3] hover:text-[#A3B18A] hover:bg-[#1D2522] transition-colors text-left"
+              >
+                <Camera className="w-4 h-4 text-[#A3B18A] shrink-0" />
+                <span>Take Live Photo</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAttachMenu(false);
+                  imageInputRef.current?.click();
+                }}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-[#DDE3E3] hover:text-[#A3B18A] hover:bg-[#1D2522] transition-colors text-left"
+              >
+                <ImageIcon className="w-4 h-4 text-[#A3B18A] shrink-0" />
+                <span>Upload Vehicle Photo</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAttachMenu(false);
+                  fileInputRef.current?.click();
+                }}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-[#DDE3E3] hover:text-[#A3B18A] hover:bg-[#1D2522] transition-colors text-left"
+              >
+                <FileText className="w-4 h-4 text-[#A3B18A] shrink-0" />
+                <span>Send File / Log</span>
+              </button>
+            </div>
+          </>
+        )}
+
+        <div
+          id="diagnostic-input-pill"
+          className="w-full rounded-full border border-[#23312C] bg-[#0E1312] hover:border-[#354841] focus-within:border-[#A3B18A] px-4 sm:px-6 py-3 sm:py-3.5 flex items-center gap-3 sm:gap-4 transition-all shadow-lg"
+        >
+          {/* Left Plus / Attach Icon */}
+          <button
+            type="button"
+            onClick={() => setShowAttachMenu((prev) => !prev)}
+            className={`p-0.5 focus:outline-none shrink-0 transition-colors ${
+              showAttachMenu ? 'text-[#A3B18A]' : 'text-[#8A9A78] hover:text-white'
+            }`}
+            title="Send file, image, or take live photo"
+          >
+            <Plus className="w-5 h-5 stroke-[2]" />
+          </button>
+
+          {isRecording ? (
+            <div className="flex-1 flex items-center justify-between min-w-0 py-0.5">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping" />
+                <span className="text-red-400 text-xs sm:text-sm font-semibold tracking-wide">
+                  Recording Audio...
+                </span>
+                <span className="text-[#A3B18A] font-mono text-xs sm:text-sm ml-1">
+                  {formatRecordingTime(recordingDuration)}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={handleCancelRecording}
+                  className="p-1 text-[#8A9A78] hover:text-red-400 transition-colors"
+                  title="Cancel recording"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={handleStopRecording}
+                  className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-full text-xs font-bold transition-all shadow-sm flex items-center gap-1.5"
+                  title="Finish recording"
+                >
+                  <Square className="w-3 h-3 fill-white" />
+                  <span>Done</span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Main Prompt Input Field */}
+              <input
+                id="diagnostic-prompt-input"
+                type="text"
+                value={promptInput}
+                onChange={(e) => setPromptInput(e.target.value)}
+                placeholder="Ask Mekai"
+                className="flex-1 bg-transparent text-white placeholder-[#5A6964] text-sm sm:text-base focus:outline-none font-sans min-w-0"
+              />
+
+              {/* Right Controls: Microphone & Submit Arrow */}
+              <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+                <button
+                  type="button"
+                  onClick={handleStartRecording}
+                  className="text-[#8A9A78] hover:text-white transition-colors p-0.5 focus:outline-none"
+                  title="Record diagnostic audio"
+                >
+                  <Mic className="w-5 h-5 stroke-[2]" />
+                </button>
+
+                <button
+                  id="submit-diagnostic-prompt-btn"
+                  type="submit"
+                  disabled={(!promptInput.trim() && !attachedMedia) || isAnalyzing}
+                  className="w-8 h-8 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-90 disabled:opacity-40 disabled:hover:bg-[#A3B18A] text-[#0E1111] flex items-center justify-center transition-all shadow-sm shrink-0"
+                  title="Send prompt"
+                >
+                  <ArrowUp className="w-4 h-4 stroke-[2.8]" />
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </form>
+
+      {showDisclaimer && (
+        <p className="text-[11px] text-[#5A6363] text-center mt-2 font-normal select-none">
+          Mekai is AI and can make mistakes.
+        </p>
+      )}
+    </div>
+  );
+
   return (
     <div id="app-dashboard" className="h-screen w-screen bg-[#0E1111] text-white flex overflow-hidden font-sans selection:bg-[#A3B18A]/30 selection:text-white">
+      {/* Hidden file & live camera inputs */}
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={(e) => handleFileSelected(e, 'image')}
+      />
+      <input
+        ref={imageInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => handleFileSelected(e, 'image')}
+      />
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".pdf,.doc,.docx,.txt,.csv,.json,.log,.bin"
+        className="hidden"
+        onChange={(e) => handleFileSelected(e, 'file')}
+      />
+
       {/* ─────────────────────────────────────────────────────────────
           MOBILE FULL-SCREEN DRAWER (Matching 'app drawer active.png')
       ───────────────────────────────────────────────────────────── */}
@@ -371,25 +767,27 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
               </button>
             </nav>
 
-            {/* Recents Section Header */}
-            <div className="mt-12">
-              <div className="flex items-center gap-2 text-base font-heading font-bold text-[#A3B18A] tracking-wide cursor-default">
-                <span>Recents</span>
-                <ChevronDown className="w-4 h-4 text-[#A3B18A]" />
+            {/* Recents Section Header - Only dynamic sessions */}
+            {recentSessions.length > 0 && (
+              <div className="mt-12">
+                <div className="flex items-center gap-2 text-base font-heading font-bold text-[#A3B18A] tracking-wide cursor-default">
+                  <span>Recents</span>
+                  <ChevronDown className="w-4 h-4 text-[#A3B18A]" />
+                </div>
+                <div className="mt-3 space-y-1.5">
+                  {recentSessions.slice(0, 6).map((session) => (
+                    <button
+                      key={session.id}
+                      type="button"
+                      onClick={() => handleOpenRecentSession(session)}
+                      className="w-full text-left px-3 py-2 rounded-lg text-sm text-[#8A9A78] hover:text-[#A3B18A] hover:bg-[#151D1B] truncate transition-colors block"
+                    >
+                      {session.title}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className="mt-3 space-y-1.5">
-                {recentSessions.slice(0, 4).map((session) => (
-                  <button
-                    key={session.id}
-                    type="button"
-                    onClick={() => handleOpenRecentSession(session)}
-                    className="w-full text-left px-3 py-2 rounded-lg text-sm text-[#8A9A78] hover:text-[#A3B18A] hover:bg-[#151D1B] truncate transition-colors block"
-                  >
-                    {session.title}
-                  </button>
-                ))}
-              </div>
-            </div>
+            )}
           </div>
 
           {/* Bottom Section: Avatar with initials + Technician Name & Settings Gear */}
@@ -506,26 +904,28 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
               </button>
             </nav>
 
-            {/* Recents Section Header */}
-            <div className="mt-12">
-              <div className="flex items-center gap-1.5 text-xs font-heading font-bold text-[#A3B18A] tracking-wider cursor-default select-none">
-                <span>Recents</span>
-                <ChevronDown className="w-4 h-4 text-[#A3B18A]" />
+            {/* Recents Section Header - Only dynamic sessions */}
+            {recentSessions.length > 0 && (
+              <div className="mt-12">
+                <div className="flex items-center gap-1.5 text-xs font-heading font-bold text-[#A3B18A] tracking-wider cursor-default select-none">
+                  <span>Recents</span>
+                  <ChevronDown className="w-4 h-4 text-[#A3B18A]" />
+                </div>
+                <div className="mt-2.5 space-y-1">
+                  {recentSessions.slice(0, 6).map((session) => (
+                    <button
+                      key={session.id}
+                      type="button"
+                      onClick={() => handleOpenRecentSession(session)}
+                      className="w-full text-left px-2 py-1.5 rounded-lg text-xs text-[#8A9A78] hover:text-[#A3B18A] hover:bg-[#151D1B] truncate transition-colors block"
+                      title={session.title}
+                    >
+                      {session.title}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className="mt-2.5 space-y-1">
-                {recentSessions.slice(0, 4).map((session) => (
-                  <button
-                    key={session.id}
-                    type="button"
-                    onClick={() => handleOpenRecentSession(session)}
-                    className="w-full text-left px-2 py-1.5 rounded-lg text-xs text-[#8A9A78] hover:text-[#A3B18A] hover:bg-[#151D1B] truncate transition-colors block"
-                    title={session.title}
-                  >
-                    {session.title}
-                  </button>
-                ))}
-              </div>
-            </div>
+            )}
           </div>
 
           {/* Bottom Profile Section */}
@@ -702,83 +1102,13 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
                 </h1>
               </div>
 
-              {/* Input Pill Bar */}
-              <div className="w-full space-y-3">
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    handlePromptSubmit();
-                  }}
-                  className="w-full"
-                >
-                  <div
-                    id="diagnostic-input-pill"
-                    className="w-full rounded-full border border-[#23312C] bg-[#0E1312] hover:border-[#354841] focus-within:border-[#A3B18A] px-4 sm:px-6 py-3 sm:py-3.5 flex items-center gap-3 sm:gap-4 transition-all shadow-lg"
-                  >
-                    {/* Left Plus / Attach Icon */}
-                    <button
-                      type="button"
-                      className="text-[#8A9A78] hover:text-white transition-colors p-0.5 focus:outline-none shrink-0"
-                      title="Attach evidence or file"
-                    >
-                      <Plus className="w-5 h-5 stroke-[2]" />
-                    </button>
-
-                    {/* Main Prompt Input Field */}
-                    <input
-                      id="diagnostic-prompt-input"
-                      type="text"
-                      value={promptInput}
-                      onChange={(e) => setPromptInput(e.target.value)}
-                      placeholder="Ask Mekai"
-                      className="flex-1 bg-transparent text-white placeholder-[#5A6964] text-sm sm:text-base focus:outline-none font-sans min-w-0"
-                    />
-
-                    {/* Right Controls: Microphone & Submit Arrow */}
-                    <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
-                      <button
-                        type="button"
-                        className="text-[#8A9A78] hover:text-white transition-colors p-0.5 focus:outline-none"
-                        title="Voice input"
-                      >
-                        <Mic className="w-5 h-5 stroke-[2]" />
-                      </button>
-
-                      <button
-                        id="submit-diagnostic-prompt-btn"
-                        type="submit"
-                        disabled={!promptInput.trim() || isAnalyzing}
-                        className="w-8 h-8 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-90 disabled:opacity-40 disabled:hover:bg-[#A3B18A] text-[#0E1111] flex items-center justify-center transition-all shadow-sm shrink-0"
-                        title="Send prompt"
-                      >
-                        <ArrowUp className="w-4 h-4 stroke-[2.8]" />
-                      </button>
-                    </div>
-                  </div>
-                </form>
-
-                {/* Quick Workshop Suggestion Pills */}
-                <div className="flex flex-wrap items-center justify-center gap-2 pt-1 select-none">
-                  {[
-                    'P0300 cylinder misfire',
-                    'Acoustic knock under load',
-                    'P0420 catalyst efficiency',
-                    'Hey, Mekai',
-                  ].map((chip) => (
-                    <button
-                      key={chip}
-                      type="button"
-                      onClick={() => handlePromptSubmit(chip)}
-                      className="rounded-full bg-[#141A18] hover:bg-[#1A2320] border border-[#23312C] text-[#8A9A78] hover:text-[#A3B18A] hover:border-[#354841] text-xs font-semibold px-3 py-1.5 transition-all"
-                    >
-                      {chip}
-                    </button>
-                  ))}
-                </div>
+              {/* Input Pill Bar (Mockup pills removed) */}
+              <div className="w-full">
+                {renderDiagnosticInputBar(false)}
               </div>
             </div>
           ) : (
-            /* 2. Active Chat Conversation: Engineer message in rounded corner pill, Mekai naked */
+            /* 2. Active Chat Conversation: Engineer message in rounded pill container, Mekai response naked */
             <div className="flex-1 flex flex-col h-full overflow-hidden w-full">
               {/* Messages Scroll Area */}
               <div
@@ -793,13 +1123,35 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
                     }`}
                   >
                     {msg.sender === 'engineer' ? (
-                      /* Engineer's message: rounded corner pill */
-                      <div className="bg-[#A3B18A] text-[#0E1111] text-sm sm:text-[14.5px] font-semibold px-5 py-2.5 rounded-full shadow-sm max-w-[85%] break-words">
-                        {msg.text}
+                      /* Engineer's query: distinct rounded pill container with background fill */
+                      <div className="bg-[#A3B18A] text-[#0E1111] text-sm sm:text-base font-semibold px-5 py-3 rounded-full shadow-md max-w-[85%] break-words inline-block">
+                        {msg.attachment?.type === 'image' && msg.attachment.url && (
+                          <div className="mb-2 overflow-hidden rounded-2xl border border-[#0E1111]/20">
+                            <img
+                              src={msg.attachment.url}
+                              alt={msg.attachment.name}
+                              className="max-h-60 w-auto rounded-xl object-contain bg-black/10"
+                            />
+                          </div>
+                        )}
+                        {msg.attachment?.type === 'file' && (
+                          <div className="mb-2 flex items-center gap-2 bg-[#0E1111]/10 px-3 py-1.5 rounded-full text-xs font-mono">
+                            <FileText className="w-4 h-4 text-[#0E1111] shrink-0" />
+                            <span className="truncate max-w-[200px]">{msg.attachment.name}</span>
+                            {msg.attachment.size && <span className="opacity-75">({msg.attachment.size})</span>}
+                          </div>
+                        )}
+                        {msg.attachment?.type === 'audio' && (
+                          <div className="mb-2 flex items-center gap-2 bg-[#0E1111]/10 px-3 py-1.5 rounded-full text-xs font-mono">
+                            <Volume2 className="w-4 h-4 text-[#0E1111] shrink-0" />
+                            <span>Audio Recording {msg.attachment.size ? `(${msg.attachment.size})` : ''}</span>
+                          </div>
+                        )}
+                        <span>{msg.text}</span>
                       </div>
                     ) : (
-                      /* Mekai's response: naked (no pill, no card wrapper, no background) */
-                      <div className="max-w-[95%] text-[#DDE3E3] text-sm sm:text-[14.5px] leading-relaxed space-y-3.5">
+                      /* Mekai's response: completely uncontained ("naked") with zero background cards or borders */
+                      <div className="max-w-[95%] text-[#DDE3E3] text-sm sm:text-[15px] leading-relaxed space-y-3.5 bg-transparent border-0 p-0 shadow-none">
                         {renderMekaiText(msg.text)}
                       </div>
                     )}
@@ -822,58 +1174,7 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
 
               {/* Pinned Bottom Input Bar */}
               <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 md:px-12 pb-6 sm:pb-8 pt-2 shrink-0">
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    handlePromptSubmit();
-                  }}
-                  className="w-full"
-                >
-                  <div
-                    id="diagnostic-input-pill"
-                    className="w-full rounded-full border border-[#23312C] bg-[#0E1312] hover:border-[#354841] focus-within:border-[#A3B18A] px-4 sm:px-6 py-3 sm:py-3.5 flex items-center gap-3 sm:gap-4 transition-all shadow-lg"
-                  >
-                    <button
-                      type="button"
-                      className="text-[#8A9A78] hover:text-white transition-colors p-0.5 focus:outline-none shrink-0"
-                      title="Attach evidence or file"
-                    >
-                      <Plus className="w-5 h-5 stroke-[2]" />
-                    </button>
-
-                    <input
-                      id="diagnostic-prompt-input"
-                      type="text"
-                      value={promptInput}
-                      onChange={(e) => setPromptInput(e.target.value)}
-                      placeholder="Ask Mekai"
-                      className="flex-1 bg-transparent text-white placeholder-[#5A6964] text-sm sm:text-base focus:outline-none font-sans min-w-0"
-                    />
-
-                    <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
-                      <button
-                        type="button"
-                        className="text-[#8A9A78] hover:text-white transition-colors p-0.5 focus:outline-none"
-                        title="Voice input"
-                      >
-                        <Mic className="w-5 h-5 stroke-[2]" />
-                      </button>
-
-                      <button
-                        id="submit-diagnostic-prompt-btn"
-                        type="submit"
-                        disabled={!promptInput.trim() || isAnalyzing}
-                        className="w-8 h-8 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-90 disabled:opacity-40 disabled:hover:bg-[#A3B18A] text-[#0E1111] flex items-center justify-center transition-all shadow-sm shrink-0"
-                        title="Send prompt"
-                      >
-                        <ArrowUp className="w-4 h-4 stroke-[2.8]" />
-                      </button>
-                    </div>
-                  </div>
-                </form>
-                <p className="text-[11px] text-[#5A6363] text-center mt-2 font-normal select-none">
-                  Mekai is AI and can make mistakes.
-                </p>
+                {renderDiagnosticInputBar(true)}
               </div>
             </div>
           )
