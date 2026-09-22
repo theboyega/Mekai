@@ -40,7 +40,7 @@ export function FloorValidation({ onSignUpClick }: FloorValidationProps) {
             <div
               key={item.id}
               id={`stat-card-${item.id}`}
-              className="rounded-[22px] bg-[#131616] border border-[#222828] p-7 sm:p-8 flex flex-col justify-between min-h-[230px] transition-all duration-300 hover:border-[#333C3C] hover:bg-[#151919]"
+              className="rounded-[22px] bg-[#131616] border border-[#222828] p-7 sm:p-8 flex flex-col justify-between min-h-[290px] transition-all duration-300 hover:border-[#333C3C] hover:bg-[#151919]"
             >
               <div className="text-4xl sm:text-[46px] font-extrabold text-white tracking-tight font-heading">
                 {item.value}
@@ -56,7 +56,7 @@ export function FloorValidation({ onSignUpClick }: FloorValidationProps) {
             id="stat-cta-card-signup"
             type="button"
             onClick={onSignUpClick}
-            className="rounded-[22px] bg-[#A3B18A] p-7 sm:p-8 flex flex-col justify-between min-h-[230px] text-left transition-all duration-300 hover:bg-[#94A27B] hover:-translate-y-1 active:scale-[0.98] group shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            className="rounded-[22px] bg-[#A3B18A] p-7 sm:p-8 flex flex-col justify-between min-h-[290px] text-left transition-all duration-300 hover:bg-[#94A27B] hover:-translate-y-1 active:scale-[0.98] group shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
           >
             <div className="text-2xl sm:text-3xl font-extrabold text-[#0E1111] leading-tight tracking-tight font-heading">
               Sign up now

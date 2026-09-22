@@ -7,7 +7,6 @@ import { FloorValidation } from './components/FloorValidation';
 import { MobileAppSection } from './components/MobileAppSection';
 import { Footer } from './components/Footer';
 import { AuthModal } from './components/AuthModal';
-import { DesignTokensDrawer } from './components/DesignTokensDrawer';
 import { AppDashboard } from './components/AppDashboard';
 
 export default function App() {
@@ -89,7 +88,6 @@ export default function App() {
           onSignOut={handleSignOut}
           onViewLanding={() => setViewMode('landing')}
         />
-        <DesignTokensDrawer />
       </div>
     );
   }
@@ -140,9 +138,6 @@ export default function App() {
         onAuthenticated={handleAuthenticated}
         activeCode={activeAccessCode}
       />
-
-      {/* Design System & Tokens Inspector (Toggleable drawer) */}
-      <DesignTokensDrawer />
     </div>
   );
 }
