@@ -113,9 +113,9 @@ export function AuthModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="auth-modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-all"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-all animate-fadeIn"
     >
-      <div className="w-full max-w-lg bg-[#121515] border border-[#252C2C] rounded-[24px] p-6 sm:p-8 shadow-2xl relative text-white max-h-[90vh] overflow-y-auto">
+      <div className="w-full max-w-lg bg-[#121515] border border-[#252C2C] rounded-[24px] p-6 sm:p-8 shadow-2xl relative text-white max-h-[90vh] overflow-y-auto animate-modal-pop">
         {/* Close Button */}
         <button
           type="button"

@@ -27,7 +27,7 @@ export function DocsPage({
         activeCode={activeCode}
       />
 
-      <main className="flex-1 w-full px-6 sm:px-10 lg:px-14 xl:px-20 max-w-7xl mx-auto py-12">
+      <main className="flex-1 w-full px-6 sm:px-10 lg:px-14 xl:px-20 max-w-7xl mx-auto py-12 animate-fade-in-up">
         {/* Content placeholder - ready for your custom content */}
       </main>
 

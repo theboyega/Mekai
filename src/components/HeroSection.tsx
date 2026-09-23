@@ -7,12 +7,18 @@ interface HeroSectionProps {
 
 export function HeroSection({ onGetStarted, onLearnMore }: HeroSectionProps) {
   return (
-    <section id="hero-section" className="relative pt-12 sm:pt-16 lg:pt-20 pb-20 sm:pb-24 lg:pb-28">
-      <div className="w-full px-6 sm:px-10 lg:px-14 xl:px-20">
+    <section id="hero-section" className="relative pt-12 sm:pt-16 lg:pt-20 pb-20 sm:pb-24 lg:pb-28 overflow-hidden">
+      {/* Subtle ambient lighting orb */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute top-10 left-1/2 -translate-x-1/2 lg:left-1/3 w-[620px] h-[480px] bg-[#A3B18A]/[0.07] rounded-full blur-[140px] animate-ambient-glow"
+      />
+
+      <div className="w-full px-6 sm:px-10 lg:px-14 xl:px-20 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           
-          {/* Left Column: Hero Narrative & CTAs */}
-          <div id="hero-content" className="lg:col-span-6 flex flex-col justify-center">
+          {/* Left Column: Hero Narrative & CTAs with entrance animation */}
+          <div id="hero-content" className="lg:col-span-6 flex flex-col justify-center animate-fade-in-up">
             <h1
               id="hero-heading"
               className="text-4xl sm:text-5xl lg:text-[54px] font-extrabold text-white tracking-[-0.03em] leading-[1.08] mb-6"
@@ -34,7 +40,7 @@ export function HeroSection({ onGetStarted, onLearnMore }: HeroSectionProps) {
                 id="hero-get-started-btn"
                 type="button"
                 onClick={() => onGetStarted?.()}
-                className="px-7 py-3.5 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] font-bold text-sm font-heading transition-all duration-200 inline-flex items-center gap-2 group shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-white cursor-pointer"
+                className="px-7 py-3.5 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] font-bold text-sm font-heading transition-all duration-200 inline-flex items-center gap-2 group shadow-sm hover:shadow-[0_0_20px_rgba(163,177,138,0.25)] focus:outline-none focus-visible:ring-2 focus-visible:ring-white cursor-pointer"
               >
                 <span>Get started</span>
                 <span className="transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
@@ -51,17 +57,17 @@ export function HeroSection({ onGetStarted, onLearnMore }: HeroSectionProps) {
             </div>
           </div>
 
-          {/* Right Column: Diagnostic Session Mockup (Purely for design, non-clickable) */}
-          <div id="hero-mockup-wrapper" className="lg:col-span-6 pointer-events-none select-none">
+          {/* Right Column: Diagnostic Session Mockup */}
+          <div id="hero-mockup-wrapper" className="lg:col-span-6 pointer-events-none select-none animate-scale-in" style={{ animationDelay: '150ms' }}>
             <div
               id="diagnostic-session-card"
-              className="w-full bg-[#101414] border border-[#202727] rounded-[24px] p-6 sm:p-7 shadow-2xl"
+              className="w-full bg-[#101414] border border-[#202727] rounded-[24px] p-6 sm:p-7 shadow-2xl transition-all duration-500 hover:border-[#2D3636] hover:shadow-[0_12px_40px_rgba(0,0,0,0.6)]"
               aria-hidden="true"
             >
               {/* Session Card Header */}
               <div id="session-card-header" className="flex items-center gap-2.5 pb-6">
                 <div className="flex items-center gap-1.5" aria-hidden="true">
-                  <span className="w-2 h-2 rounded-full bg-[#4A5555]" />
+                  <span className="w-2 h-2 rounded-full bg-[#A3B18A] animate-pulse" />
                   <span className="w-2 h-2 rounded-full bg-[#4A5555]" />
                   <span className="w-2 h-2 rounded-full bg-[#4A5555]" />
                 </div>
@@ -73,14 +79,14 @@ export function HeroSection({ onGetStarted, onLearnMore }: HeroSectionProps) {
               {/* Chat Session Messages Container */}
               <div id="session-card-messages" className="py-4 sm:py-6 flex flex-col gap-6">
                 {/* User Message Bubble */}
-                <div id="session-user-bubble" className="self-end max-w-[85%]">
+                <div id="session-user-bubble" className="self-end max-w-[85%] animate-fade-in-up" style={{ animationDelay: '250ms' }}>
                   <div className="bg-[#A3B18A] text-[#0E1111] text-xs sm:text-sm font-semibold px-5 py-2.5 rounded-full shadow-sm">
                     Hey, Mekai.
                   </div>
                 </div>
 
                 {/* Assistant Message Content (Exact text from design) */}
-                <div id="session-assistant-message" className="self-start max-w-[95%] space-y-3.5 text-[#B8C2BF] text-xs sm:text-[13.5px] leading-relaxed">
+                <div id="session-assistant-message" className="self-start max-w-[95%] space-y-3.5 text-[#B8C2BF] text-xs sm:text-[13.5px] leading-relaxed animate-fade-in-up" style={{ animationDelay: '350ms' }}>
                   <p>
                     Hello! I am Mekai, your automotive diagnostic assistant from Cestcore Limited.
                   </p>
@@ -91,10 +97,10 @@ export function HeroSection({ onGetStarted, onLearnMore }: HeroSectionProps) {
               </div>
 
               {/* Static Design Mockup Input Bar (Purely visual, non-clickable) */}
-              <div id="session-input-container" className="pt-2">
+              <div id="session-input-container" className="pt-2 animate-fade-in-up" style={{ animationDelay: '450ms' }}>
                 <div
                   id="session-input-bar"
-                  className="bg-[#141818] border border-[#242C2C] rounded-full px-4 py-2.5 flex items-center justify-between gap-3 text-xs sm:text-sm text-[#5C6767]"
+                  className="bg-[#141818] border border-[#242C2C] rounded-full px-4 py-2.5 flex items-center justify-between gap-3 text-xs sm:text-sm text-[#5C6767] transition-colors"
                 >
                   <div className="flex items-center gap-2.5 min-w-0 flex-1">
                     <span className="w-5 h-5 flex items-center justify-center text-[#6A7777] shrink-0">

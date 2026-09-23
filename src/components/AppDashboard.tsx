@@ -17,7 +17,9 @@ import {
   Volume2,
   AlertCircle,
   Car,
-  Check
+  Check,
+  Play,
+  Pause
 } from 'lucide-react';
 import { MekaiLogo } from './MekaiLogo';
 
@@ -343,6 +345,75 @@ function getInitials(name: string): string {
   if (parts.length === 0) return 'T';
   if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
   return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+}
+
+function AudioMessagePlayer({ url, duration }: { url?: string; duration?: string }) {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const togglePlay = () => {
+    if (!audioRef.current) return;
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      audioRef.current.play().catch((err) => {
+        console.warn('Audio play error:', err);
+        setIsPlaying(false);
+      });
+      setIsPlaying(true);
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-3 bg-[#151D1B] border border-[#23312C] rounded-2xl px-4 py-3 shadow-md min-w-[220px] sm:min-w-[260px] text-white">
+      {url && (
+        <audio
+          ref={audioRef}
+          src={url}
+          onEnded={() => setIsPlaying(false)}
+          onPause={() => setIsPlaying(false)}
+          onError={() => setIsPlaying(false)}
+        />
+      )}
+      <button
+        type="button"
+        onClick={togglePlay}
+        className="w-9 h-9 rounded-full bg-[#A3B18A] hover:bg-[#92A177] text-[#0E1111] flex items-center justify-center shrink-0 transition-transform active:scale-95 shadow-sm focus:outline-none"
+        title={isPlaying ? 'Pause' : 'Play audio recording'}
+        aria-label={isPlaying ? 'Pause audio recording' : 'Play audio recording'}
+      >
+        {isPlaying ? (
+          <Pause className="w-4 h-4 fill-current" />
+        ) : (
+          <Play className="w-4 h-4 fill-current ml-0.5" />
+        )}
+      </button>
+
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1 h-6">
+          {[35, 70, 50, 95, 60, 100, 75, 40, 85, 60, 90, 45, 65, 30, 70, 50].map((h, i) => (
+            <span
+              key={i}
+              className={`w-1 rounded-full transition-all duration-300 ${
+                isPlaying ? 'bg-[#A3B18A] animate-pulse' : 'bg-[#283631]'
+              }`}
+              style={{
+                height: isPlaying ? `${Math.max(25, (h * (0.6 + Math.sin(i * 1.2))) % 100)}%` : `${h}%`,
+              }}
+            />
+          ))}
+        </div>
+        <div className="flex items-center justify-between text-[11px] text-[#8A9A78] mt-1 font-mono">
+          <span className="flex items-center gap-1">
+            <Volume2 className="w-3 h-3 text-[#A3B18A]" />
+            Audio Recording
+          </span>
+          {duration && <span>{duration}</span>}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export const WORKSHOP_GREETINGS: Array<(name: string) => string> = [
@@ -1565,40 +1636,73 @@ export function AppDashboard({
                 id="diagnostic-chat-messages"
                 className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 md:px-12 w-full max-w-2xl mx-auto py-4 space-y-5 overscroll-contain"
               >
-                {messages.map((msg) => (
-                  <div
-                    key={msg.id}
-                    className={`w-full flex ${
-                      msg.sender === 'engineer' ? 'justify-end' : 'justify-start'
-                    }`}
-                  >
-                    {msg.sender === 'engineer' ? (
-                      <div className="bg-[#A3B18A] text-[#0E1111] text-sm sm:text-base font-semibold px-5 py-3 rounded-full shadow-md max-w-[85%] break-words inline-block">
-                        {msg.attachment?.type === 'image' && msg.attachment.url && (
-                          <div className="mb-2 overflow-hidden rounded-2xl border border-[#0E1111]/20">
-                            <img
-                              src={msg.attachment.url}
-                              alt={msg.attachment.name}
-                              className="max-h-60 w-auto rounded-xl object-contain bg-black/10"
+                {messages.map((msg) => {
+                  const isImage = msg.attachment?.type === 'image';
+                  const isAudio = msg.attachment?.type === 'audio';
+                  const isFile = msg.attachment?.type === 'file';
+                  const isDefaultImageText = msg.text === 'Diagnostic inspection photo attached for analysis.';
+                  const isDefaultAudioText = msg.text.startsWith('Acoustic audio sample recorded');
+                  const isDefaultDocText = msg.text.startsWith('Diagnostic document attached');
+                  const hasCustomCaption = msg.text && !isDefaultImageText && !isDefaultAudioText && !isDefaultDocText;
+
+                  return (
+                    <div
+                      key={msg.id}
+                      className={`w-full flex ${
+                        msg.sender === 'engineer' ? 'justify-end' : 'justify-start'
+                      } animate-message-in`}
+                    >
+                      {msg.sender === 'engineer' ? (
+                        isImage && msg.attachment?.url ? (
+                          <div className="flex flex-col items-end gap-2 max-w-[85%]">
+                            <div className="overflow-hidden rounded-2xl border border-[#23312C] shadow-lg bg-[#141A18]">
+                              <img
+                                src={msg.attachment.url}
+                                alt={msg.attachment.name || 'Inspection image'}
+                                className="max-h-72 w-auto max-w-full rounded-2xl object-cover"
+                              />
+                            </div>
+                            {hasCustomCaption && (
+                              <div className="bg-[#A3B18A] text-[#0E1111] text-sm sm:text-base font-semibold px-5 py-3 rounded-full shadow-md break-words">
+                                <span>{msg.text}</span>
+                              </div>
+                            )}
+                          </div>
+                        ) : isAudio ? (
+                          <div className="flex flex-col items-end gap-2 max-w-[85%]">
+                            <AudioMessagePlayer
+                              url={msg.attachment?.url}
+                              duration={msg.attachment?.size}
                             />
+                            {hasCustomCaption && (
+                              <div className="bg-[#A3B18A] text-[#0E1111] text-sm sm:text-base font-semibold px-5 py-3 rounded-full shadow-md break-words">
+                                <span>{msg.text}</span>
+                              </div>
+                            )}
                           </div>
-                        )}
-                        {msg.attachment?.type === 'file' && (
-                          <div className="mb-2 flex items-center gap-2 bg-[#0E1111]/10 px-3 py-1.5 rounded-full text-xs font-mono">
-                            <FileText className="w-4 h-4 text-[#0E1111] shrink-0" />
-                            <span className="truncate max-w-[200px]">{msg.attachment.name}</span>
-                            {msg.attachment.size && <span className="opacity-75">({msg.attachment.size})</span>}
+                        ) : isFile ? (
+                          <div className="flex flex-col items-end gap-2 max-w-[85%]">
+                            <div className="flex items-center gap-2.5 bg-[#151D1B] border border-[#23312C] px-4 py-2.5 rounded-2xl text-xs font-mono text-[#A3B18A] shadow-md">
+                              <FileText className="w-4 h-4 text-[#A3B18A] shrink-0" />
+                              <span className="truncate max-w-[200px] text-white font-medium">
+                                {msg.attachment?.name}
+                              </span>
+                              {msg.attachment?.size && (
+                                <span className="text-[#8A9A78]">({msg.attachment.size})</span>
+                              )}
+                            </div>
+                            {hasCustomCaption && (
+                              <div className="bg-[#A3B18A] text-[#0E1111] text-sm sm:text-base font-semibold px-5 py-3 rounded-full shadow-md break-words">
+                                <span>{msg.text}</span>
+                              </div>
+                            )}
                           </div>
-                        )}
-                        {msg.attachment?.type === 'audio' && (
-                          <div className="mb-2 flex items-center gap-2 bg-[#0E1111]/10 px-3 py-1.5 rounded-full text-xs font-mono">
-                            <Volume2 className="w-4 h-4 text-[#0E1111] shrink-0" />
-                            <span>Audio Recording {msg.attachment.size ? `(${msg.attachment.size})` : ''}</span>
+                        ) : (
+                          <div className="bg-[#A3B18A] text-[#0E1111] text-sm sm:text-base font-semibold px-5 py-3 rounded-full shadow-md max-w-[85%] break-words inline-block">
+                            <span>{msg.text}</span>
                           </div>
-                        )}
-                        <span>{msg.text}</span>
-                      </div>
-                    ) : (
+                        )
+                      ) : (
                       /* Mekai response strictly in sage green (#A3B18A) */
                       <div className={`max-w-[95%] text-sm sm:text-[15px] leading-relaxed space-y-3.5 bg-transparent border-0 p-0 shadow-none ${
                         msg.isError ? 'text-red-400 flex items-start gap-2.5' : 'text-[#A3B18A]'
@@ -1612,7 +1716,8 @@ export function AppDashboard({
                       </div>
                     )}
                   </div>
-                ))}
+                );
+              })}
 
                 {isAnalyzing && (
                   <div className="w-full flex justify-start">

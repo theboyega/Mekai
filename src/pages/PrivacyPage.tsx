@@ -27,7 +27,7 @@ export function PrivacyPage({
         activeCode={activeCode}
       />
 
-      <main className="flex-1 w-full px-6 sm:px-10 lg:px-14 xl:px-20 max-w-4xl mx-auto py-12 sm:py-16">
+      <main className="flex-1 w-full px-6 sm:px-10 lg:px-14 xl:px-20 max-w-4xl mx-auto py-12 sm:py-16 animate-fade-in-up">
         {/* Document Header */}
         <div className="border-b border-[#1E2525] pb-8 mb-10">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-[-0.03em] font-heading mb-4">
