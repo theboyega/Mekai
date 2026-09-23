@@ -1,6 +1,5 @@
 import React from 'react';
 import { MekaiLogo } from '../components/MekaiLogo';
-import { ArrowLeft, ArrowRight, Home } from 'lucide-react';
 
 interface PageHeaderProps {
   title: string;
@@ -22,7 +21,7 @@ export function PageHeader({
   return (
     <header className="w-full bg-[#0E1111]/95 backdrop-blur-md sticky top-0 z-40 border-b border-[#1C2121]/80">
       <div className="w-full px-6 sm:px-10 lg:px-14 xl:px-20 h-20 sm:h-24 flex items-center justify-between">
-        {/* Left: Brand Logo & Breadcrumb */}
+        {/* Left: Brand Logo (Navigates to Homepage) & Breadcrumb */}
         <div className="flex items-center gap-4 sm:gap-6">
           <a
             href="#"
@@ -30,8 +29,8 @@ export function PageHeader({
               e.preventDefault();
               onNavigateHome();
             }}
-            className="group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3B18A] rounded-lg"
-            aria-label="Back to Homepage"
+            className="group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3B18A] rounded-lg cursor-pointer"
+            aria-label="Return to Homepage"
           >
             <MekaiLogo iconSize={32} textSize="text-xl tracking-widest font-heading font-extrabold" />
           </a>
@@ -49,24 +48,14 @@ export function PageHeader({
 
         {/* Right: Actions */}
         <div className="flex items-center gap-3 sm:gap-5">
-          <button
-            type="button"
-            onClick={onNavigateHome}
-            className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold font-heading text-[#9EA8A8] hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-[#181D1D]"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span className="hidden xs:inline">Back to</span> Home
-          </button>
-
           {activeCode ? (
             onOpenDashboard && (
               <button
                 type="button"
                 onClick={onOpenDashboard}
-                className="px-4 py-2 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] font-heading font-bold text-xs sm:text-sm transition-all shadow-sm flex items-center gap-1.5"
+                className="px-5 py-2.5 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] font-heading font-bold text-xs sm:text-sm transition-all shadow-sm cursor-pointer"
               >
                 <span>Launch App</span>
-                <ArrowRight className="w-3.5 h-3.5" />
               </button>
             )
           ) : (
@@ -74,10 +63,9 @@ export function PageHeader({
               <button
                 type="button"
                 onClick={() => onOpenAuth('signup')}
-                className="px-4 py-2 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] font-heading font-bold text-xs sm:text-sm transition-all shadow-sm flex items-center gap-1.5"
+                className="px-5 py-2.5 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] font-heading font-bold text-xs sm:text-sm transition-all shadow-sm cursor-pointer"
               >
                 <span>Get Started</span>
-                <ArrowRight className="w-3.5 h-3.5" />
               </button>
             )
           )}
