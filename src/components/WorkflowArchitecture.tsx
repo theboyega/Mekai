@@ -4,21 +4,18 @@ export function WorkflowArchitecture() {
   const steps = [
     {
       step: 'CAPTURE',
-      stepNum: '01',
       title: 'Feed Mekai the evidence',
       description:
         'Enter trouble codes, record the engine, snap a photo of the component, or just describe the symptom in the chat.',
     },
     {
       step: 'REASON',
-      stepNum: '02',
       title: 'It thinks like a master tech',
       description:
         'Mekai correlates codes, acoustics, imagery, and prior session history to isolate the most probable root cause.',
     },
     {
       step: 'EXECUTE',
-      stepNum: '03',
       title: 'Follow the exact procedure',
       description:
         'Receive an ordered repair plan with torque specs and localized parts sourcing, ready for the shop floor.',
@@ -48,12 +45,9 @@ export function WorkflowArchitecture() {
                 id={`workflow-card-${index + 1}`}
                 className="rounded-[22px] bg-[#131616] border border-[#222828] p-7 sm:p-8 flex flex-col justify-start min-h-[220px] h-full transition-all duration-300 hover:border-[#384343] hover:bg-[#151919] hover:-translate-y-1.5 hover:shadow-[0_16px_36px_rgba(0,0,0,0.5)] group relative"
               >
-                <div className="flex items-center justify-between mb-5">
+                <div className="mb-5">
                   <span className="text-xs font-bold tracking-[0.16em] uppercase text-[#A3B18A] font-heading group-hover:text-[#B4C09E] transition-colors">
                     {item.step}
-                  </span>
-                  <span className="text-xs font-mono font-bold text-[#424D4D] group-hover:text-[#A3B18A]/60 transition-colors">
-                    {item.stepNum}
                   </span>
                 </div>
                 <h3 className="text-lg sm:text-xl font-bold text-white mb-3 tracking-tight group-hover:text-white transition-colors">

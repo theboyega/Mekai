@@ -49,6 +49,7 @@ export interface ChatMessage {
   timestamp: string;
   attachment?: ChatAttachment;
   isError?: boolean;
+  isTyping?: boolean;
 }
 
 export interface RecentChatSession {
@@ -284,7 +285,10 @@ async function callMekaiWebhook(
 }
 
 function parseFormattedText(line: string) {
-  const parts = line.split(/(\*\*.*?\*\*)/g);
+  // If line has an odd number of '**', append temporary closing '**' so partial markdown bold renders smoothly while typing
+  const asterisksCount = (line.match(/\*\*/g) || []).length;
+  const safeLine = asterisksCount % 2 !== 0 ? line + '**' : line;
+  const parts = safeLine.split(/(\*\*.*?\*\*)/g);
   return parts.map((part, i) => {
     if (part.startsWith('**') && part.endsWith('**')) {
       return (
@@ -297,39 +301,92 @@ function parseFormattedText(line: string) {
   });
 }
 
-// Mekai response rendered in sage green
-function renderMekaiText(text: string) {
+// Mekai response rendered in sage green with optional typewriter cursor
+function renderMekaiText(text: string, isTyping: boolean = false) {
+  if (!text || !text.trim()) {
+    if (isTyping) {
+      return (
+        <span
+          className="inline-block w-2 h-4 bg-[#A3B18A] align-middle rounded-[1px] animate-pulse shadow-[0_0_8px_rgba(163,177,138,0.6)]"
+          aria-hidden="true"
+        />
+      );
+    }
+    return null;
+  }
+
   const paragraphs = text.split(/\n\n+/);
   return (
     <>
-      {paragraphs.map((p, idx) => {
+      {paragraphs.map((p, pIdx) => {
         const lines = p.split('\n');
+        const isLastParagraph = pIdx === paragraphs.length - 1;
+
         return (
-          <div key={idx} className="space-y-1.5">
+          <div key={pIdx} className="space-y-1.5">
             {lines.map((line, lineIdx) => {
+              const isLastLine = isLastParagraph && lineIdx === lines.length - 1;
               const trimmed = line.trim();
+
+              if (!trimmed) {
+                return (
+                  <div key={lineIdx} className="h-2">
+                    {isTyping && isLastLine && (
+                      <span
+                        className="inline-block w-2 h-4 bg-[#A3B18A] align-middle rounded-[1px] animate-pulse shadow-[0_0_8px_rgba(163,177,138,0.6)]"
+                        aria-hidden="true"
+                      />
+                    )}
+                  </div>
+                );
+              }
+
               if (trimmed.startsWith('• ') || trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
                 const content = trimmed.replace(/^[•\-*]\s*/, '');
                 return (
                   <div key={lineIdx} className="flex items-start gap-2 pl-2">
                     <span className="text-[#A3B18A] mt-1 shrink-0 font-bold">•</span>
-                    <span className="text-[#A3B18A]">{parseFormattedText(content)}</span>
+                    <span className="text-[#A3B18A]">
+                      {parseFormattedText(content)}
+                      {isTyping && isLastLine && (
+                        <span
+                          className="inline-block w-2 h-4 ml-1 bg-[#A3B18A] align-middle rounded-[1px] animate-pulse shadow-[0_0_8px_rgba(163,177,138,0.6)]"
+                          aria-hidden="true"
+                        />
+                      )}
+                    </span>
                   </div>
                 );
               }
+
               if (/^\d+\.\s/.test(trimmed)) {
                 const num = trimmed.match(/^(\d+)\.\s/)?.[1];
                 const content = trimmed.replace(/^\d+\.\s*/, '');
                 return (
                   <div key={lineIdx} className="flex items-start gap-2 pl-2">
                     <span className="text-[#A3B18A] font-semibold font-mono shrink-0">{num}.</span>
-                    <span className="text-[#A3B18A]">{parseFormattedText(content)}</span>
+                    <span className="text-[#A3B18A]">
+                      {parseFormattedText(content)}
+                      {isTyping && isLastLine && (
+                        <span
+                          className="inline-block w-2 h-4 ml-1 bg-[#A3B18A] align-middle rounded-[1px] animate-pulse shadow-[0_0_8px_rgba(163,177,138,0.6)]"
+                          aria-hidden="true"
+                        />
+                      )}
+                    </span>
                   </div>
                 );
               }
+
               return (
                 <p key={lineIdx} className="text-[#A3B18A] leading-relaxed">
                   {parseFormattedText(line)}
+                  {isTyping && isLastLine && (
+                    <span
+                      className="inline-block w-2 h-4 ml-1 bg-[#A3B18A] align-middle rounded-[1px] animate-pulse shadow-[0_0_8px_rgba(163,177,138,0.6)]"
+                      aria-hidden="true"
+                    />
+                  )}
                 </p>
               );
             })}
@@ -337,6 +394,80 @@ function renderMekaiText(text: string) {
         );
       })}
     </>
+  );
+}
+
+interface MekaiResponseViewProps {
+  text: string;
+  isTyping?: boolean;
+  onDoneTyping?: () => void;
+  onScrollRequested?: () => void;
+}
+
+function MekaiResponseView({
+  text,
+  isTyping = false,
+  onDoneTyping,
+  onScrollRequested,
+}: MekaiResponseViewProps) {
+  const [displayedCount, setDisplayedCount] = useState(() => (isTyping ? 1 : text.length));
+  const lastScrollRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (!isTyping) {
+      setDisplayedCount(text.length);
+      return;
+    }
+
+    setDisplayedCount(1);
+    const totalLength = text.length;
+    if (totalLength <= 1) {
+      setDisplayedCount(totalLength);
+      onDoneTyping?.();
+      return;
+    }
+
+    // Adaptive step size based on total text length so response renders fast and fluidly (~1.2s - 2.5s)
+    const stepSize = Math.max(1, Math.ceil(totalLength / 120));
+    const intervalTime = 16; // 60fps smooth progression
+
+    let current = 1;
+    const interval = setInterval(() => {
+      current = Math.min(totalLength, current + stepSize);
+      setDisplayedCount(current);
+
+      const now = Date.now();
+      if (now - lastScrollRef.current > 100 || current >= totalLength) {
+        lastScrollRef.current = now;
+        onScrollRequested?.();
+      }
+
+      if (current >= totalLength) {
+        clearInterval(interval);
+        onDoneTyping?.();
+      }
+    }, intervalTime);
+
+    return () => clearInterval(interval);
+  }, [text, isTyping]);
+
+  const currentlyTyping = isTyping && displayedCount < text.length;
+  const visibleText = text ? text.slice(0, displayedCount) : '';
+
+  return (
+    <div
+      onClick={() => {
+        if (currentlyTyping) {
+          setDisplayedCount(text.length);
+          onDoneTyping?.();
+          onScrollRequested?.();
+        }
+      }}
+      className={currentlyTyping ? 'cursor-pointer select-text' : 'select-text'}
+      title={currentlyTyping ? 'Click to show full response immediately' : undefined}
+    >
+      {renderMekaiText(visibleText, currentlyTyping)}
+    </div>
   );
 }
 
@@ -902,7 +1033,11 @@ export function AppDashboard({
       attachment: currentAttachment || undefined,
     };
 
-    const newMessages = [...messages, userMsg];
+    // Ensure any previously active typing effect is completed when new input is submitted
+    const newMessages: ChatMessage[] = [
+      ...messages.map((m) => ({ ...m, isTyping: false })),
+      userMsg,
+    ];
     setMessages(newMessages);
     setPromptInput('');
     setAttachedMedia(null);
@@ -922,6 +1057,7 @@ export function AppDashboard({
         sender: 'mekai',
         text: webhookResult.text,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        isTyping: true,
       };
 
       const finalMessages = [...newMessages, mekaiMsg];
@@ -938,7 +1074,10 @@ export function AppDashboard({
 
       setCurrentSessionTitle(sessionNameFromMekai);
 
-      // Update recent sessions with the Mekai-logged session title
+      // Update recent sessions with the Mekai-logged session title (persisted without isTyping flag)
+      const storedMessages = finalMessages.map((m) =>
+        m.id === mekaiMsg.id ? { ...m, isTyping: false } : m
+      );
       setRecentSessions((prev) => {
         const filtered = prev.filter((s) => s.id !== currentSessionId);
         return [
@@ -947,7 +1086,7 @@ export function AppDashboard({
             title: sessionNameFromMekai,
             snippet: webhookResult.text.substring(0, 70) + '...',
             date: 'Just now',
-            messages: finalMessages,
+            messages: storedMessages,
             updatedAt: Date.now(),
           },
           ...filtered,
@@ -1650,7 +1789,7 @@ export function AppDashboard({
                       key={msg.id}
                       className={`w-full flex ${
                         msg.sender === 'engineer' ? 'justify-end' : 'justify-start'
-                      } animate-message-in`}
+                      }`}
                     >
                       {msg.sender === 'engineer' ? (
                         isImage && msg.attachment?.url ? (
@@ -1703,7 +1842,7 @@ export function AppDashboard({
                           </div>
                         )
                       ) : (
-                      /* Mekai response strictly in sage green (#A3B18A) */
+                      /* Mekai response strictly in sage green (#A3B18A) with typed rendering */
                       <div className={`max-w-[95%] text-sm sm:text-[15px] leading-relaxed space-y-3.5 bg-transparent border-0 p-0 shadow-none ${
                         msg.isError ? 'text-red-400 flex items-start gap-2.5' : 'text-[#A3B18A]'
                       }`}>
@@ -1711,7 +1850,22 @@ export function AppDashboard({
                           <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
                         )}
                         <div className="flex-1 text-[#A3B18A]">
-                          {renderMekaiText(msg.text)}
+                          {msg.isError ? (
+                            <p className="text-red-400">{msg.text}</p>
+                          ) : (
+                            <MekaiResponseView
+                              text={msg.text}
+                              isTyping={Boolean(msg.isTyping)}
+                              onDoneTyping={() => {
+                                setMessages((prev) =>
+                                  prev.map((m) => (m.id === msg.id ? { ...m, isTyping: false } : m))
+                                );
+                              }}
+                              onScrollRequested={() => {
+                                messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+                              }}
+                            />
+                          )}
                         </div>
                       </div>
                     )}
