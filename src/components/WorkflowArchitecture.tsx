@@ -1,4 +1,4 @@
-import { Reveal } from './Reveal';
+import { ScrollReveal } from './ScrollReveal';
 
 export function WorkflowArchitecture() {
   const steps = [
@@ -26,7 +26,7 @@ export function WorkflowArchitecture() {
     <section id="workflow-section" className="py-16 sm:py-20 lg:py-24 border-t border-[#1C2121]/60">
       <div className="w-full px-6 sm:px-10 lg:px-14 xl:px-20">
         {/* Section Header */}
-        <Reveal>
+        <ScrollReveal animation="fade-up" duration={480} delay={0}>
           <div id="workflow-header" className="mb-10 sm:mb-12">
             <p className="text-xs font-bold tracking-[0.18em] uppercase text-[#A3B18A] mb-3 font-heading">
               Workflow Architecture
@@ -35,29 +35,33 @@ export function WorkflowArchitecture() {
               From raw data to<br className="hidden sm:inline" /> repair directive.
             </h2>
           </div>
-        </Reveal>
+        </ScrollReveal>
 
         {/* 3 Steps Grid */}
         <div id="workflow-grid" className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-7">
           {steps.map((item, index) => (
-            <Reveal key={item.step} delay={index * 120}>
+            <ScrollReveal
+              key={item.step}
+              animation="fade-up"
+              duration={480}
+              delay={index * 90}
+              className="h-full"
+            >
               <div
                 id={`workflow-card-${index + 1}`}
-                className="rounded-[22px] bg-[#131616] border border-[#222828] p-7 sm:p-8 flex flex-col justify-start min-h-[220px] h-full transition-all duration-300 hover:border-[#384343] hover:bg-[#151919] hover:-translate-y-1.5 hover:shadow-[0_16px_36px_rgba(0,0,0,0.5)] group relative"
+                className="h-full rounded-[22px] bg-[#131616] border border-[#222828] p-7 sm:p-8 flex flex-col justify-start min-h-[220px] transition-all duration-300 hover:border-[#333C3C] hover:bg-[#151919]"
               >
-                <div className="mb-5">
-                  <span className="text-xs font-bold tracking-[0.16em] uppercase text-[#A3B18A] font-heading group-hover:text-[#B4C09E] transition-colors">
-                    {item.step}
-                  </span>
-                </div>
-                <h3 className="text-lg sm:text-xl font-bold text-white mb-3 tracking-tight group-hover:text-white transition-colors">
+                <span className="text-xs font-bold tracking-[0.16em] uppercase text-[#A3B18A] mb-5 block font-heading">
+                  {item.step}
+                </span>
+                <h3 className="text-lg sm:text-xl font-bold text-white mb-3 tracking-tight">
                   {item.title}
                 </h3>
                 <p className="text-sm text-[#8F9999] leading-relaxed font-normal">
                   {item.description}
                 </p>
               </div>
-            </Reveal>
+            </ScrollReveal>
           ))}
         </div>
       </div>

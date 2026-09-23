@@ -1,5 +1,5 @@
 import { PhoneMockups } from './PhoneMockup';
-import { Reveal } from './Reveal';
+import { ScrollReveal } from './ScrollReveal';
 
 interface MobileAppSectionProps {
   onAppStoreClick?: () => void;
@@ -8,38 +8,37 @@ interface MobileAppSectionProps {
 
 export function MobileAppSection({ onAppStoreClick, onPlayStoreClick }: MobileAppSectionProps) {
   return (
-    <section id="download-section" className="relative py-16 sm:py-20 lg:py-24 border-t border-[#1C2121]/60 overflow-hidden w-full max-w-full">
-      {/* Background ambient glow behind phones */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute right-10 top-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#A3B18A]/[0.05] rounded-full blur-[130px] animate-ambient-glow"
-      />
-
-      <div className="w-full px-4 sm:px-8 lg:px-14 xl:px-20 max-w-7xl mx-auto relative z-10">
+    <section id="download-section" className="py-16 sm:py-20 lg:py-24 border-t border-[#1C2121]/60 overflow-hidden w-full max-w-full">
+      <div className="w-full px-4 sm:px-8 lg:px-14 xl:px-20 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
           
           {/* Left Column: Download Narrative & Store Links */}
           <div id="download-content" className="lg:col-span-6">
-            <Reveal>
+            <ScrollReveal animation="fade-up" duration={480} delay={0}>
               <p className="text-xs font-bold tracking-[0.18em] uppercase text-[#A3B18A] mb-3 font-heading">
                 Download
               </p>
               <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-extrabold text-white tracking-[-0.02em] leading-tight mb-4">
                 Take mekai under<br className="hidden sm:inline" /> the bonnet.
               </h2>
+            </ScrollReveal>
+
+            <ScrollReveal animation="fade-up" duration={480} delay={80}>
               <p className="text-sm sm:text-base text-[#8F9999] leading-relaxed mb-8 max-w-xl">
                 Record engine audio, capture components, and pull up repair history from anywhere in the shop.
                 Available on iOS and Android.
               </p>
+            </ScrollReveal>
 
-              {/* App Store & Play Store Buttons */}
+            {/* App Store & Play Store Buttons */}
+            <ScrollReveal animation="fade-up" duration={480} delay={140}>
               <div id="store-buttons" className="flex flex-wrap items-center gap-3.5">
                 {/* Apple App Store Button */}
                 <button
                   id="btn-app-store"
                   type="button"
                   onClick={onAppStoreClick}
-                  className="px-6 py-3 rounded-full bg-[#131616] border border-[#2B3232] hover:border-[#A3B18A]/70 hover:bg-[#181D1D] active:scale-95 text-white font-medium text-sm transition-all duration-200 inline-flex items-center gap-2.5 shadow-sm hover:shadow-[0_0_20px_rgba(163,177,138,0.15)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3B18A] cursor-pointer"
+                  className="px-6 py-3 rounded-full bg-[#131616] border border-[#2B3232] hover:border-[#A3B18A]/70 hover:bg-[#181D1D] active:scale-95 text-white font-medium text-sm transition-all duration-200 inline-flex items-center gap-2.5 shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3B18A] cursor-pointer"
                 >
                   {/* Apple Logo SVG */}
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-white">
@@ -53,7 +52,7 @@ export function MobileAppSection({ onAppStoreClick, onPlayStoreClick }: MobileAp
                   id="btn-play-store"
                   type="button"
                   onClick={onPlayStoreClick}
-                  className="px-6 py-3 rounded-full bg-[#131616] border border-[#2B3232] hover:border-[#A3B18A]/70 hover:bg-[#181D1D] active:scale-95 text-white font-medium text-sm transition-all duration-200 inline-flex items-center gap-2.5 shadow-sm hover:shadow-[0_0_20px_rgba(163,177,138,0.15)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3B18A] cursor-pointer"
+                  className="px-6 py-3 rounded-full bg-[#131616] border border-[#2B3232] hover:border-[#A3B18A]/70 hover:bg-[#181D1D] active:scale-95 text-white font-medium text-sm transition-all duration-200 inline-flex items-center gap-2.5 shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3B18A] cursor-pointer"
                 >
                   {/* Google Play Logo SVG */}
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-white">
@@ -62,14 +61,14 @@ export function MobileAppSection({ onAppStoreClick, onPlayStoreClick }: MobileAp
                   <span>Play Store</span>
                 </button>
               </div>
-            </Reveal>
+            </ScrollReveal>
           </div>
 
-          {/* Right Column: High-Fidelity Phone Mockups with Reveal */}
+          {/* Right Column: High-Fidelity Phone Mockups */}
           <div id="download-mockup-wrapper" className="lg:col-span-6 flex justify-center lg:justify-end w-full max-w-full overflow-hidden">
-            <Reveal variant="scale" delay={150}>
+            <ScrollReveal animation="scale-up" duration={550} delay={160}>
               <PhoneMockups />
-            </Reveal>
+            </ScrollReveal>
           </div>
 
         </div>
