@@ -44,11 +44,13 @@ export function AuthModal({
     if (isOpen) {
       setError(null);
       setStep('code');
-      if (activeCode) {
+      if (controlledMode === 'login' && activeCode) {
         setAccessCode(activeCode);
+      } else {
+        setAccessCode('');
       }
     }
-  }, [isOpen, activeCode]);
+  }, [isOpen, activeCode, controlledMode]);
 
   if (!isOpen) return null;
 
@@ -239,6 +241,7 @@ export function AuthModal({
                     </div>
                   )}
                 </div>
+
 
                 {error && (
                   <div className="flex items-center gap-1.5 text-xs text-red-400 mt-2 bg-red-950/30 border border-red-800/40 p-2.5 rounded-lg">

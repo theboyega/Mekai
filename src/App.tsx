@@ -67,7 +67,7 @@ export default function App() {
   });
 
   // Controls view mode: 'app' (main dashboard) or 'landing' (marketing & info pages)
-  const [viewMode, setViewMode] = useState<'app' | 'landing'>('app');
+  const [viewMode, setViewMode] = useState<'app' | 'landing'>('landing');
 
   // Active page routing based on URL hash
   const [activePage, setActivePage] = useState<AppPage>(() => {
@@ -171,11 +171,8 @@ export default function App() {
     if (query && query.trim()) {
       setDashboardInitialPrompt(query.trim());
     }
-    if (!activeAccessCode) {
-      setActiveAccessCode('CST-9482-K8X2');
-    }
-    setViewMode('app');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Open auth modal so the user inputs their workshop access code
+    openAuth('signup');
   };
 
   const handleLearnMore = () => {
