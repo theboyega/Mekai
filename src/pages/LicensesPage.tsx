@@ -96,10 +96,10 @@ export function LicensesPage({
             <p className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed pl-5 sm:pl-6 border-l border-[#1E2525]">
               Mekai is built with open-source software used under their respective licenses (including MIT, Apache 2.0, and BSD). Attributions are available on request at{' '}
               <a
-                href="mailto:legal@mekai.ai"
+                href="mailto:legal@cestcore.com"
                 className="text-[#A3B18A] hover:underline font-medium"
               >
-                legal@mekai.ai
+                legal@cestcore.com
               </a>.
             </p>
           </section>
@@ -113,10 +113,10 @@ export function LicensesPage({
             <p className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed pl-5 sm:pl-6 border-l border-[#1E2525]">
               For licensing or compliance enquiries, email{' '}
               <a
-                href="mailto:compliance@mekai.ai"
+                href="mailto:compliance@cestcore.com"
                 className="text-[#A3B18A] hover:underline font-medium"
               >
-                compliance@mekai.ai
+                compliance@cestcore.com
               </a>.
             </p>
           </section>

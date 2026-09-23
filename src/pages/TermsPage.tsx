@@ -205,10 +205,10 @@ export function TermsPage({
               <p className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed">
                 Questions about these Terms? Email{' '}
                 <a
-                  href="mailto:legal@mekai.ai"
+                  href="mailto:legal@cestcore.com"
                   className="text-[#A3B18A] hover:underline font-medium"
                 >
-                  legal@mekai.ai
+                  legal@cestcore.com
                 </a>
               </p>
             </div>
