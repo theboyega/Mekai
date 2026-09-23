@@ -8,9 +8,19 @@ interface NavbarProps {
   activeCode?: string | null;
   onSignOut?: () => void;
   onOpenDashboard?: () => void;
+  onNavigateHome?: () => void;
+  onNavigatePage?: (page: string) => void;
 }
 
-export function Navbar({ onSignUpClick, onLoginClick, activeCode, onSignOut, onOpenDashboard }: NavbarProps) {
+export function Navbar({
+  onSignUpClick,
+  onLoginClick,
+  activeCode,
+  onSignOut,
+  onOpenDashboard,
+  onNavigateHome,
+  onNavigatePage,
+}: NavbarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Prevent background scrolling when mobile menu drawer is open
@@ -48,6 +58,7 @@ export function Navbar({ onSignUpClick, onLoginClick, activeCode, onSignOut, onO
             aria-label="Mekai Homepage"
             onClick={(e) => {
               e.preventDefault();
+              if (onNavigateHome) onNavigateHome();
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
           >
@@ -228,6 +239,7 @@ export function Navbar({ onSignUpClick, onLoginClick, activeCode, onSignOut, onO
               onClick={(e) => {
                 e.preventDefault();
                 setIsMobileMenuOpen(false);
+                if (onNavigateHome) onNavigateHome();
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
             >

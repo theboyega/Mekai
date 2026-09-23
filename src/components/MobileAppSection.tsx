@@ -7,9 +7,9 @@ interface MobileAppSectionProps {
 
 export function MobileAppSection({ onAppStoreClick, onPlayStoreClick }: MobileAppSectionProps) {
   return (
-    <section id="download-section" className="py-16 sm:py-20 lg:py-24 border-t border-[#1C2121]/60 overflow-hidden">
-      <div className="w-full px-6 sm:px-10 lg:px-14 xl:px-20">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+    <section id="download-section" className="py-16 sm:py-20 lg:py-24 border-t border-[#1C2121]/60 overflow-hidden w-full max-w-full">
+      <div className="w-full px-4 sm:px-8 lg:px-14 xl:px-20 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
           
           {/* Left Column: Download Narrative & Store Links */}
           <div id="download-content" className="lg:col-span-6">
@@ -57,7 +57,7 @@ export function MobileAppSection({ onAppStoreClick, onPlayStoreClick }: MobileAp
           </div>
 
           {/* Right Column: High-Fidelity Phone Mockups */}
-          <div id="download-mockup-wrapper" className="lg:col-span-6 flex justify-center lg:justify-end">
+          <div id="download-mockup-wrapper" className="lg:col-span-6 flex justify-center lg:justify-end w-full max-w-full overflow-hidden">
             <PhoneMockups />
           </div>
 

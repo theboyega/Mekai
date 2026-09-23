@@ -1,28 +1,55 @@
 import { MekaiLogo } from './MekaiLogo';
 
-export function Footer() {
+interface FooterProps {
+  onNavigatePage?: (page: string) => void;
+}
+
+export function Footer({ onNavigatePage }: FooterProps) {
   const companyLinks = [
-    { label: 'Docs', href: '#docs' },
-    { label: 'Careers', href: '#careers' },
-    { label: 'Press', href: '#press' },
-    { label: 'Help', href: '#help' },
-    { label: 'Status', href: '#status' },
+    { label: 'Docs', id: 'docs', href: '#docs' },
+    { label: 'Careers', id: 'careers', href: '#careers' },
+    { label: 'Press', id: 'press', href: '#press' },
+    { label: 'Help', id: 'help', href: '#help' },
+    { label: 'Status', id: 'status', href: '#status' },
   ];
 
   const legalLinks = [
-    { label: 'Terms', href: '#terms' },
-    { label: 'Privacy', href: '#privacy' },
-    { label: 'Licenses', href: '#licenses' },
+    { label: 'Terms', id: 'terms', href: '#terms' },
+    { label: 'Privacy', id: 'privacy', href: '#privacy' },
+    { label: 'Licenses', id: 'licenses', href: '#licenses' },
   ];
 
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, pageId: string) => {
+    e.preventDefault();
+    window.location.hash = pageId;
+    if (onNavigatePage) {
+      onNavigatePage(pageId);
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    window.location.hash = '';
+    if (onNavigatePage) {
+      onNavigatePage('home');
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
-    <footer id="main-footer" className="pt-16 sm:pt-20 pb-12 border-t border-[#1C2121]">
+    <footer id="main-footer" className="pt-16 sm:pt-20 pb-12 border-t border-[#1C2121] bg-[#0E1111]">
       <div className="w-full px-6 sm:px-10 lg:px-14 xl:px-20">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-16 pb-16">
           
           {/* Left Column: Brand, Mission, & Socials */}
           <div className="md:col-span-6 lg:col-span-7">
-            <a href="#" className="inline-block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3B18A] rounded">
+            <a
+              href="#"
+              onClick={handleLogoClick}
+              className="inline-block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3B18A] rounded cursor-pointer"
+              aria-label="Mekai Homepage"
+            >
               <MekaiLogo iconSize={30} textSize="text-xl tracking-widest" />
             </a>
 
@@ -96,7 +123,11 @@ export function Footer() {
             <ul className="space-y-3.5 text-sm text-[#8F9999]">
               {companyLinks.map((link) => (
                 <li key={link.label}>
-                  <a href={link.href} className="hover:text-white transition-colors">
+                  <a
+                    href={link.href}
+                    onClick={(e) => handleLinkClick(e, link.id)}
+                    className="hover:text-white transition-colors cursor-pointer"
+                  >
                     {link.label}
                   </a>
                 </li>
@@ -112,7 +143,11 @@ export function Footer() {
             <ul className="space-y-3.5 text-sm text-[#8F9999]">
               {legalLinks.map((link) => (
                 <li key={link.label}>
-                  <a href={link.href} className="hover:text-white transition-colors">
+                  <a
+                    href={link.href}
+                    onClick={(e) => handleLinkClick(e, link.id)}
+                    className="hover:text-white transition-colors cursor-pointer"
+                  >
                     {link.label}
                   </a>
                 </li>

@@ -1,11 +1,21 @@
+import { useState } from 'react';
 import { Plus, Mic, ArrowUp } from 'lucide-react';
 
 interface HeroSectionProps {
-  onGetStarted?: () => void;
+  onGetStarted?: (initialQuery?: string) => void;
   onLearnMore?: () => void;
 }
 
 export function HeroSection({ onGetStarted, onLearnMore }: HeroSectionProps) {
+  const [heroInput, setHeroInput] = useState('');
+
+  const handleSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (onGetStarted) {
+      onGetStarted(heroInput.trim());
+    }
+  };
+
   return (
     <section id="hero-section" className="relative pt-12 sm:pt-16 lg:pt-20 pb-20 sm:pb-24 lg:pb-28">
       <div className="w-full px-6 sm:px-10 lg:px-14 xl:px-20">
@@ -33,7 +43,7 @@ export function HeroSection({ onGetStarted, onLearnMore }: HeroSectionProps) {
               <button
                 id="hero-get-started-btn"
                 type="button"
-                onClick={onGetStarted}
+                onClick={() => onGetStarted?.()}
                 className="px-7 py-3.5 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] font-bold text-sm font-heading transition-all duration-200 inline-flex items-center gap-2 group shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
               >
                 <span>Get started</span>
@@ -51,7 +61,7 @@ export function HeroSection({ onGetStarted, onLearnMore }: HeroSectionProps) {
             </div>
           </div>
 
-          {/* Right Column: Diagnostic Session Design Mockup */}
+          {/* Right Column: Diagnostic Session Design Representation */}
           <div id="hero-mockup-wrapper" className="lg:col-span-6">
             <div
               id="diagnostic-session-card"
@@ -78,53 +88,57 @@ export function HeroSection({ onGetStarted, onLearnMore }: HeroSectionProps) {
                   </div>
                 </div>
 
-                {/* Assistant Message Content */}
-                <div id="session-assistant-message" className="self-start max-w-[95%] space-y-3.5 text-[#DDE3E3] text-sm sm:text-[14.5px] leading-relaxed">
+                {/* Assistant Message Content (Matching live webhook response in sage green) */}
+                <div id="session-assistant-message" className="self-start max-w-[95%] space-y-3.5 text-[#A3B18A] text-sm sm:text-[14.5px] leading-relaxed">
                   <p>
-                    Hello! I am Mekai, your automotive diagnostic assistant from Cestcore Limited.
-                  </p>
-                  <p>
-                    It is great to connect with you. How are you doing today, and what vehicle or issue are we looking at in the workshop?
+                    Mekai here, good to have you in the bay. What are we looking at today?
                   </p>
                 </div>
               </div>
 
-              {/* Input Bar Design Representation */}
+              {/* Interactive Input Bar connected to Mekai */}
               <div id="session-input-container" className="pt-2">
-                <div
+                <form
+                  onSubmit={handleSubmit}
                   id="session-input-bar"
-                  className="bg-[#1A1F1F] border border-[#2B3232] rounded-full px-4 py-3 flex items-center justify-between gap-3 text-xs sm:text-sm text-[#778383] select-none"
+                  className="bg-[#1A1F1F] border border-[#2B3232] rounded-full px-4 py-3 flex items-center justify-between gap-3 text-xs sm:text-sm text-[#778383] transition-colors focus-within:border-[#A3B18A]"
                 >
                   <div className="flex items-center gap-3 min-w-0 flex-1">
                     <button
                       type="button"
+                      onClick={() => onGetStarted?.()}
                       aria-label="Add attachment"
-                      className="w-5 h-5 flex items-center justify-center text-[#7E8B8B] hover:text-white transition-colors"
+                      className="w-5 h-5 flex items-center justify-center text-[#7E8B8B] hover:text-white transition-colors shrink-0"
                     >
                       <Plus className="w-4 h-4" />
                     </button>
-                    <span className="truncate text-[#707C7C]">
-                      Describe the symptom, paste a code or attach evidence...
-                    </span>
+                    <input
+                      type="text"
+                      value={heroInput}
+                      onChange={(e) => setHeroInput(e.target.value)}
+                      placeholder="Describe symptom, code (e.g. P0300) or issue..."
+                      className="bg-transparent text-[#A3B18A] caret-[#A3B18A] placeholder-[#707C7C] focus:outline-none w-full text-xs sm:text-sm"
+                    />
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">
                     <button
                       type="button"
+                      onClick={() => onGetStarted?.()}
                       aria-label="Voice input"
                       className="p-1 text-[#7E8B8B] hover:text-white transition-colors"
                     >
                       <Mic className="w-4 h-4" />
                     </button>
                     <button
-                      type="button"
+                      type="submit"
                       aria-label="Send message"
                       className="w-7 h-7 rounded-full bg-[#272E2E] border border-[#3A4545] flex items-center justify-center text-white hover:bg-[#A3B18A] hover:text-[#0E1111] transition-colors"
                     >
                       <ArrowUp className="w-4 h-4" />
                     </button>
                   </div>
-                </div>
+                </form>
 
                 {/* Micro Disclaimer */}
                 <p id="session-disclaimer" className="text-[11px] text-[#5A6363] text-center mt-3 font-normal">

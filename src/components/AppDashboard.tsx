@@ -10,20 +10,26 @@ import {
   LogOut,
   ShieldCheck,
   X,
-  Camera,
   Image as ImageIcon,
   FileText,
   Square,
   Trash2,
-  Volume2
+  Volume2,
+  AlertCircle,
+  Car,
+  Check
 } from 'lucide-react';
 import { MekaiLogo } from './MekaiLogo';
+
+const MEKAI_WEBHOOK_URL = 'https://mekai-ai.app.n8n.cloud/webhook/5b01dd02-7501-46e9-ba90-f890e6a1c2bf/chat';
+const PROXY_WEBHOOK_URL = '/api/chat-webhook';
 
 interface AppDashboardProps {
   activeCode: string | null;
   technicianName?: string;
   onSignOut: () => void;
   onViewLanding?: () => void;
+  initialPrompt?: string;
 }
 
 export interface ChatAttachment {
@@ -40,64 +46,258 @@ export interface ChatMessage {
   text: string;
   timestamp: string;
   attachment?: ChatAttachment;
+  isError?: boolean;
 }
 
 export interface RecentChatSession {
   id: string;
   title: string;
+  vehicle?: string;
   snippet: string;
   date: string;
   messages: ChatMessage[];
+  updatedAt: number;
 }
 
-function getMekaiDiagnosticResponse(
-  prompt: string,
-  technicianName: string,
-  attachment?: ChatAttachment
+export interface WebhookResult {
+  text: string;
+  vehicle?: string;
+  title?: string;
+}
+
+const VEHICLE_MAKES = [
+  'Acura', 'Alfa Romeo', 'Aston Martin', 'Audi', 'Bentley', 'BMW', 'Buick', 'Cadillac',
+  'Chevrolet', 'Chevy', 'Chrysler', 'Dodge', 'Ferrari', 'Fiat', 'Ford', 'Genesis',
+  'GMC', 'Honda', 'Hyundai', 'Infiniti', 'Jaguar', 'Jeep', 'Kia', 'Lamborghini',
+  'Land Rover', 'Range Rover', 'Lexus', 'Lincoln', 'Maserati', 'Mazda', 'McLaren',
+  'Mercedes-Benz', 'Mercedes', 'Mini', 'Mitsubishi', 'Nissan', 'Polestar', 'Pontiac',
+  'Porsche', 'Ram', 'Rolls-Royce', 'Saab', 'Saturn', 'Scion', 'Subaru', 'Suzuki',
+  'Tesla', 'Toyota', 'Volkswagen', 'VW', 'Volvo'
+];
+
+function cleanMakeName(make: string): string {
+  const m = make.toLowerCase();
+  if (m === 'chevy') return 'Chevrolet';
+  if (m === 'mercedes') return 'Mercedes-Benz';
+  if (m === 'vw') return 'Volkswagen';
+  return make.charAt(0).toUpperCase() + make.slice(1);
+}
+
+// Extraction of vehicle details from conversation as fallback
+export function extractVehicleDetails(
+  userText: string,
+  mekaiText: string,
+  currentTitle?: string
+): string | null {
+  const combined = `${userText}\n${mekaiText}`;
+
+  for (const make of VEHICLE_MAKES) {
+    // 1. [Make] [Model words] [Year] -> e.g., "Ford Explorer 2014"
+    const yearLastRegex = new RegExp(
+      `\\b${make}\\s+([A-Za-z0-9\\-]+(?:\\s+[A-Za-z0-9\\-]+){0,2})\\s+(19\\d\\d|20\\d\\d)\\b`,
+      'i'
+    );
+    const m1 = combined.match(yearLastRegex);
+    if (m1) {
+      const model = m1[1].trim();
+      const year = m1[2];
+      return `${cleanMakeName(make)} ${model} ${year}`;
+    }
+
+    // 2. [Year] [Make] [Model words] -> e.g., "2014 Ford Explorer" -> "Ford Explorer 2014"
+    const yearFirstRegex = new RegExp(
+      `\\b(19\\d\\d|20\\d\\d)\\s+${make}\\s+([A-Za-z0-9\\-]+(?:\\s+[A-Za-z0-9\\-]+){0,2})\\b`,
+      'i'
+    );
+    const m2 = combined.match(yearFirstRegex);
+    if (m2) {
+      const year = m2[1];
+      const model = m2[2].trim();
+      return `${cleanMakeName(make)} ${model} ${year}`;
+    }
+
+    // 3. [Make] [Model words]
+    const makeModelRegex = new RegExp(
+      `\\b${make}\\s+([A-Za-z0-9\\-]+(?:\\s+[A-Za-z0-9\\-]+){0,1})\\b`,
+      'i'
+    );
+    const m3 = combined.match(makeModelRegex);
+    if (m3) {
+      const model = m3[1].trim();
+      const yearMatch = combined.match(/\b(19\\d\\d|20\\d\\d)\b/);
+      if (yearMatch) {
+        return `${cleanMakeName(make)} ${model} ${yearMatch[1]}`;
+      }
+      return `${cleanMakeName(make)} ${model}`;
+    }
+  }
+
+  if (currentTitle && !currentTitle.startsWith('Diagnostic') && !currentTitle.startsWith('New Diagnostic')) {
+    return currentTitle;
+  }
+
+  return null;
+}
+
+// Mekai logs the name of the session because it's configured in its prompt/workflow
+// e.g. "Got it, logging this session as Ford Explorer 2014."
+export function extractMekaiSessionName(
+  mekaiText: string,
+  userText: string,
+  webhookResult?: WebhookResult,
+  currentTitle?: string
 ): string {
-  const p = prompt.toLowerCase();
-  const firstName = technicianName.trim().split(/\s+/)[0] || 'Technician';
-
-  // Handle acoustic / audio recordings
-  if (attachment?.type === 'audio') {
-    return `Acoustic Diagnostic Telemetry: Workshop Audio Sample Captured (${attachment.size || 'Audio'})\n\nSignal Processing & Frequency Isolation:\n• Primary Resonance Peak: Elevated mechanical vibration energy isolated in the 1,850 Hz–2,400 Hz range during rotational deceleration.\n• Harmonic Interval: Cadence synchronizes with camshaft half-speed rotation, strongly indicating valvetrain origin (hydraulic lifter bleed-down or rocker arm lash) or turbocharger wastegate actuator linkage flutter.\n\nRecommended Workshop Actions:\n1. Apply an acoustic stethoscope probe to the cylinder head valve cover versus the turbo turbine housing to pinpoint the source.\n2. Verify engine oil pressure at full operating temperature to rule out hydraulic valve lifter starvation.`;
+  // 1. Direct explicit metadata from n8n webhook if returned
+  if (webhookResult?.title && webhookResult.title.trim()) {
+    return webhookResult.title.trim();
+  }
+  if (webhookResult?.vehicle && webhookResult.vehicle.trim()) {
+    return webhookResult.vehicle.trim();
   }
 
-  // Handle visual images (photos or live camera captures)
-  if (attachment?.type === 'image') {
-    return `Visual Component Diagnostic Assessment: ${attachment.name}\n\nVisual Inspection Analysis:\n• Component surface and harness connector ingested for thermal stress, pin fretting, and fluid intrusion.\n• Verify weather-pack rubber connector seal for oil degradation or contamination wicking into copper wiring strands.\n\nRecommended Pinpoint Test Sequence:\n1. Measure connector pin backprobe resistance with digital multimeter (target < 0.5 Ω to ground).\n2. Apply dielectric grease upon reassembly to prevent intermittent high-resistance faults.`;
+  // 2. Mekai's explicit logging pattern from its response (e.g. "logging this session as Ford Explorer 2014")
+  const loggingPatterns = [
+    /log(?:ging|ged)?\s+this\s+session\s+as\s+([^.,\n\?!]+)/i,
+    /log(?:ging|ged)?\s+this\s+as\s+([^.,\n\?!]+)/i,
+    /log(?:ging|ged)?\s+as\s+([^.,\n\?!]+)/i,
+    /session\s+logged\s+as\s+([^.,\n\?!]+)/i,
+    /session\s+name(?:\s+is)?\s+([^.,\n\?!]+)/i,
+    /naming\s+this\s+session\s+([^.,\n\?!]+)/i,
+    /tracking\s+this\s+as\s+([^.,\n\?!]+)/i,
+  ];
+
+  for (const pattern of loggingPatterns) {
+    const match = mekaiText.match(pattern);
+    if (match && match[1]) {
+      const cleanName = match[1].trim().replace(/^["']|["']$/g, '');
+      if (cleanName.length >= 2 && !cleanName.toLowerCase().startsWith('a diagnostic')) {
+        return cleanName;
+      }
+    }
   }
 
-  // Handle diagnostic documents / files (PDF, CSV, logs)
-  if (attachment?.type === 'file') {
-    return `Telemetry Data Log Assessment: ${attachment.name}\n\nDiagnostic Ingestion:\n• Ingesting Mode $06 freeze-frame parameters, PID live data, and DTC fault register.\n• Freeze-frame records abnormal operating deviation at triggered RPM and engine load threshold.\n\nRecommended Pinpoint Test Sequence:\n1. Re-verify live sensor voltage waveform against OEM reference specifications.\n2. Clear historical codes, execute drive cycle monitor run, and log live sensor telemetry.`;
+  // 3. Fallback vehicle extractor
+  const detectedVehicle = extractVehicleDetails(userText, mekaiText, currentTitle);
+  if (detectedVehicle) {
+    return detectedVehicle;
   }
 
-  if (p.includes('p0300') || p.includes('misfire')) {
-    return `Diagnostic Analysis: P0300 — Random / Multiple Cylinder Misfire Detected\n\nPossible Causes:\n• Ignition System: Worn spark plug gap erosion (>0.035 in) or secondary coil pack insulation breakdown.\n• Fuel Delivery: Fuel rail pressure drop under load, partially clogged fuel injector nozzles.\n• Air/Vacuum: Vacuum leak downstream of Mass Air Flow (MAF) sensor, sticking intake runner valves.\n• Mechanical: Sticky valve guides or uneven cylinder compression balance.\n\nRecommended Diagnostic Steps:\n1. Hook up the diagnostic interface and inspect live misfire counters (Mode $06) to identify if the misfires isolate to a specific bank or cylinder.\n2. Verify Short-Term Fuel Trim (STFT) and Long-Term Fuel Trim (LTFT) at idle vs 2,500 RPM to distinguish between unmetered air intake and fuel delivery deficiency.\n3. Perform a relative compression test and inspect secondary ignition waveforms with a lab scope.`;
+  // 4. Retain previous established title
+  if (currentTitle && !currentTitle.startsWith('Diagnostic') && !currentTitle.startsWith('New Diagnostic')) {
+    return currentTitle;
   }
 
-  if (p.includes('p0420') || p.includes('catalyst') || p.includes('catalytic')) {
-    return `Diagnostic Analysis: P0420 — Catalyst System Efficiency Below Threshold (Bank 1)\n\nPrimary Causes:\n• Catalytic Converter washcoat degradation or internal honeycombed ceramic substrate breakdown.\n• Downstream Oxygen Sensor (O2S Bank 1 Sensor 2) lazy switching response or heater circuit degradation.\n• Exhaust manifold crack or donut flange leak introducing ambient oxygen upstream of downstream sensor.\n\nRecommended Diagnostic Steps:\n1. Graph upstream Wideband Air-Fuel sensor and downstream O2 sensor voltages during steady 2,000 RPM cruise. Downstream sensor should maintain a steady 0.65V–0.78V voltage line without oscillating.\n2. Inspect fuel trim history to verify the engine has not suffered prior unburned fuel dumping or oil wash.\n3. Take infrared thermal measurements across converter inlet and outlet. Outlet must be 30°C–60°C hotter than inlet during active conversion.`;
+  // 5. Code or brief snippet
+  const dtcMatch = userText.match(/\b([PBCU]\d{4})\b/i);
+  if (dtcMatch) {
+    return `${dtcMatch[1].toUpperCase()} Diagnostics`;
   }
 
-  if (p.includes('p0171') || p.includes('lean')) {
-    return `Diagnostic Analysis: P0171 — System Too Lean (Bank 1)\n\nPrimary Causes:\n• Unmetered vacuum leak (PCV valve diaphragm, intake manifold runner gaskets, brake booster check valve).\n• Contaminated Mass Air Flow (MAF) sensor hot-wire under-reporting intake air volume.\n• Low fuel delivery pressure or restricted high-pressure fuel pump (HPFP).\n\nRecommended Diagnostic Steps:\n1. Compare Long-Term Fuel Trims (LTFT) at idle versus cruising speed. If trim improves significantly at high RPM, confirm a vacuum leak.\n2. Smoke test the intake tract downstream of the throttle body.\n3. Verify MAF sensor gram-per-second readings against OEM target specifications at operating temperature.`;
-  }
-
-  if (p.includes('hey') || p.includes('hello') || p.includes('mekai') || p.trim() === 'hi') {
-    return `Hello! I am Mekai, your automotive diagnostic assistant from Cestcore Limited.\n\nIt is great to connect with you, ${firstName}. How are you doing today, and what vehicle or issue are we looking at in the workshop?`;
-  }
-
-  if (p.includes('knock') || p.includes('noise') || p.includes('sound') || p.includes('rattle') || p.includes('acoustic')) {
-    return `Acoustic Diagnostic Analysis: Mechanical Noise Isolation\n\nSignature Classification:\n• Deep metallic hollow thud (100–300 Hz) that intensifies directly under torque load: High probability of connecting rod bearing clearance wear or crankshaft journal damage.\n• Sharp rhythmic ticking at half engine speed: Valve train origin (hydraulic lifter bleed-down, loose rocker arm, or cam lobe wear).\n• Light metallic buzzing during cold off-throttle decel: Common turbocharger electronic wastegate (EWG) linkage rattle or exhaust heat shield bracket fatigue.\n\nRecommended Pinpoint Steps:\n1. Perform cylinder power balance / drop test: if deep knock softens when cutting fuel/spark to an individual cylinder, isolate rod bearing on that pin.\n2. Cut open and inspect the oil filter element for non-ferrous bronze/copper glitter.`;
-  }
-
-  return `Diagnostic Assessment: "${prompt}"\n\n1. Initial Diagnostic Overview:\nAnalyzing vehicle operating parameters, sensor telemetry, and component failure probability for this reported condition.\n\n2. Pinpoint Test Sequence:\n• Connect diagnostic scan interface and poll all vehicle modules for active, pending, and permanent DTCs.\n• Review Freeze Frame data to isolate exact RPM, engine coolant temperature, and calculated engine load at the moment of failure.\n• Perform visual harness inspection and reference voltage backprobe at affected sensor connectors.\n\n3. Verification & Resolution:\nFollowing physical repair or component renewal, clear fault history, run OEM drive-cycle monitors, and verify live telemetry under road-test conditions.`;
+  return userText.length > 28 ? userText.substring(0, 28) + '...' : userText;
 }
 
+// Real API call to the Mekai n8n webhook
+async function callMekaiWebhook(
+  prompt: string,
+  sessionId: string,
+  technicianName: string,
+  activeCode: string | null,
+  attachment?: ChatAttachment
+): Promise<WebhookResult> {
+  const payload = {
+    chatInput: prompt,
+    message: prompt,
+    sessionId: sessionId,
+    technicianName: technicianName,
+    activeCode: activeCode || 'CST-ACTIVE-WORKSHOP',
+    attachment: attachment
+      ? {
+          type: attachment.type,
+          name: attachment.name,
+          size: attachment.size,
+          url: attachment.url?.startsWith('data:') ? attachment.url : undefined,
+        }
+      : undefined,
+  };
+
+  const executeRequest = async (endpointUrl: string): Promise<WebhookResult> => {
+    const res = await fetch(endpointUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    }
+
+    const contentType = res.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      const data = await res.json();
+      if (typeof data === 'string') return { text: data };
+      if (Array.isArray(data)) {
+        const first = data[0];
+        if (typeof first === 'string') return { text: first };
+        if (first && typeof first === 'object') {
+          return {
+            text: first.output || first.text || first.response || first.message || JSON.stringify(first),
+            vehicle: first.vehicle,
+            title: first.title || first.sessionTitle,
+          };
+        }
+        return { text: JSON.stringify(data) };
+      }
+      if (data && typeof data === 'object') {
+        return {
+          text:
+            data.output ||
+            data.text ||
+            data.response ||
+            data.message ||
+            data.result ||
+            data.data ||
+            JSON.stringify(data),
+          vehicle: data.vehicle,
+          title: data.title || data.sessionTitle || data.chatName,
+        };
+      }
+    }
+    const textResp = await res.text();
+    return { text: textResp };
+  };
+
+  try {
+    return await executeRequest(MEKAI_WEBHOOK_URL);
+  } catch (directErr) {
+    console.warn('Direct webhook call encountered issue, trying proxy fallback:', directErr);
+    try {
+      return await executeRequest(PROXY_WEBHOOK_URL);
+    } catch (proxyErr) {
+      console.error('All webhook endpoints failed:', proxyErr);
+      throw new Error('Unable to reach Mekai diagnostic engine. Please check network connection.');
+    }
+  }
+}
+
+function parseFormattedText(line: string) {
+  const parts = line.split(/(\*\*.*?\*\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return (
+        <strong key={i} className="font-bold text-white">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+    return part;
+  });
+}
+
+// Mekai response rendered in sage green
 function renderMekaiText(text: string) {
-  const paragraphs = text.split('\n\n');
+  const paragraphs = text.split(/\n\n+/);
   return (
     <>
       {paragraphs.map((p, idx) => {
@@ -105,27 +305,29 @@ function renderMekaiText(text: string) {
         return (
           <div key={idx} className="space-y-1.5">
             {lines.map((line, lineIdx) => {
-              if (line.startsWith('• ') || line.startsWith('- ')) {
+              const trimmed = line.trim();
+              if (trimmed.startsWith('• ') || trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+                const content = trimmed.replace(/^[•\-*]\s*/, '');
                 return (
                   <div key={lineIdx} className="flex items-start gap-2 pl-2">
                     <span className="text-[#A3B18A] mt-1 shrink-0 font-bold">•</span>
-                    <span className="text-[#DDE3E3]">{line.replace(/^[•-]\s*/, '')}</span>
+                    <span className="text-[#A3B18A]">{parseFormattedText(content)}</span>
                   </div>
                 );
               }
-              if (/^\d+\.\s/.test(line)) {
-                const num = line.match(/^(\d+)\.\s/)?.[1];
-                const content = line.replace(/^\d+\.\s*/, '');
+              if (/^\d+\.\s/.test(trimmed)) {
+                const num = trimmed.match(/^(\d+)\.\s/)?.[1];
+                const content = trimmed.replace(/^\d+\.\s*/, '');
                 return (
                   <div key={lineIdx} className="flex items-start gap-2 pl-2">
                     <span className="text-[#A3B18A] font-semibold font-mono shrink-0">{num}.</span>
-                    <span className="text-[#DDE3E3]">{content}</span>
+                    <span className="text-[#A3B18A]">{parseFormattedText(content)}</span>
                   </div>
                 );
               }
               return (
-                <p key={lineIdx} className="text-[#DDE3E3] leading-relaxed">
-                  {line}
+                <p key={lineIdx} className="text-[#A3B18A] leading-relaxed">
+                  {parseFormattedText(line)}
                 </p>
               );
             })}
@@ -143,7 +345,6 @@ function getInitials(name: string): string {
   return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
 }
 
-// Array of professional workshop variations always including the user's first name
 export const WORKSHOP_GREETINGS: Array<(name: string) => string> = [
   (name) => `Ready for diagnostics, ${name}?`,
   (name) => `What are we wrenching on today, ${name}?`,
@@ -155,51 +356,93 @@ export const WORKSHOP_GREETINGS: Array<(name: string) => string> = [
   (name) => `What problem are we solving today, ${name}?`,
 ];
 
-export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLanding }: AppDashboardProps) {
-  // 1. Sidebar open by default on desktop viewports
+export function AppDashboard({
+  activeCode,
+  technicianName,
+  onSignOut,
+  onViewLanding,
+  initialPrompt,
+}: AppDashboardProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  // Mobile drawer state
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
-  // 2. Active tab: 'new-diagnostics' or 'search-chats'
   const [activeTab, setActiveTab] = useState<'new-diagnostics' | 'search-chats'>('new-diagnostics');
-  // State for diagnostics prompt and search
   const [promptInput, setPromptInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  // Settings menu modal/popover
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+
+  // Collapsible state for Recents section (toggled by clicking Recents header)
+  const [isRecentsCollapsed, setIsRecentsCollapsed] = useState(false);
 
   // Active chat conversation messages and analyzing state
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [recentSessions, setRecentSessions] = useState<RecentChatSession[]>([]);
+  const [currentSessionId, setCurrentSessionId] = useState<string>(() => `session-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`);
+  const [currentSessionTitle, setCurrentSessionTitle] = useState<string>('');
+
+  // Persistent user chat sessions from localStorage
+  const [recentSessions, setRecentSessions] = useState<RecentChatSession[]>(() => {
+    try {
+      const stored = localStorage.getItem('mekai_diagnostic_sessions');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch {
+      // ignore
+    }
+    return [];
+  });
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Staged attachment for next chat query (+ button & audio)
+  // Staged attachment for next chat query (file & audio)
   const [attachedMedia, setAttachedMedia] = useState<ChatAttachment | null>(null);
-  const [showAttachMenu, setShowAttachMenu] = useState(false);
 
   // Audio recording state & refs
   const [isRecording, setIsRecording] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
+  const [liveTranscript, setLiveTranscript] = useState('');
+  const [audioVolume, setAudioVolume] = useState(0); // 0 to 100 for visual wave
+
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
   const speechRecognitionRef = useRef<any>(null);
+  const isRecordingRef = useRef(false);
+  const basePromptRef = useRef('');
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const animFrameRef = useRef<number | null>(null);
 
-  // Hidden file/camera input refs
+  // Hidden file input ref for direct file selection
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const imageInputRef = useRef<HTMLInputElement>(null);
-  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   // Resolved technician name and first name for prompt greeting
   const displayName = technicianName || 'Adeyemi Tomiwa';
   const firstName = displayName.trim().split(/\s+/)[0] || 'Adeyemi';
   const initials = getInitials(displayName);
 
-  // Dynamic greeting randomization: initial load / page refresh picks randomly
+  // Dynamic greeting randomization
   const [greetingIndex, setGreetingIndex] = useState(() =>
     Math.floor(Math.random() * WORKSHOP_GREETINGS.length)
   );
+
+  // Persist real sessions to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('mekai_diagnostic_sessions', JSON.stringify(recentSessions));
+    } catch {
+      // ignore
+    }
+  }, [recentSessions]);
+
+  // Handle initialPrompt if passed from landing hero or navigation
+  useEffect(() => {
+    if (initialPrompt && initialPrompt.trim()) {
+      handlePromptSubmit(initialPrompt.trim());
+    }
+  }, [initialPrompt]);
 
   // Auto-scroll chat to bottom when new messages arrive
   useEffect(() => {
@@ -208,14 +451,26 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
     }
   }, [messages, isAnalyzing]);
 
-  // Clean up recording timer on unmount
+  // Clean up recording timer and audio streams on unmount
   useEffect(() => {
     return () => {
+      isRecordingRef.current = false;
       if (recordingTimerRef.current) {
         clearInterval(recordingTimerRef.current);
       }
+      if (animFrameRef.current) {
+        cancelAnimationFrame(animFrameRef.current);
+      }
+      if (audioContextRef.current) {
+        try {
+          audioContextRef.current.close();
+        } catch {
+          // ignore
+        }
+      }
       if (speechRecognitionRef.current) {
         try {
+          speechRecognitionRef.current.onend = null;
           speechRecognitionRef.current.stop();
         } catch {
           // ignore
@@ -228,18 +483,19 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
           // ignore
         }
       }
+      if (mediaStreamRef.current) {
+        mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+      }
     };
   }, []);
 
-  // Format recording duration (mm:ss)
   const formatRecordingTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // File and photo selection handler
-  const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'file') => {
+  const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -248,7 +504,7 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
         ? `${(file.size / (1024 * 1024)).toFixed(1)} MB`
         : `${Math.max(1, Math.round(file.size / 1024))} KB`;
 
-    if (type === 'image') {
+    if (file.type.startsWith('image/')) {
       const reader = new FileReader();
       reader.onload = (event) => {
         setAttachedMedia({
@@ -269,119 +525,250 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
       });
     }
 
-    setShowAttachMenu(false);
     e.target.value = '';
   };
 
-  // Start audio recording with microphone & optional live transcription
   const handleStartRecording = async () => {
+    // If already recording, stop
+    if (isRecording) {
+      handleStopRecording();
+      return;
+    }
+
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      });
+      mediaStreamRef.current = stream;
       audioChunksRef.current = [];
-      const mediaRecorder = new MediaRecorder(stream);
+      isRecordingRef.current = true;
+      basePromptRef.current = promptInput;
+      setLiveTranscript('');
+      setIsRecording(true);
+      setRecordingDuration(0);
 
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
+      // 1. Audio Visualizer using Web Audio API to detect real sound levels
+      try {
+        const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+        if (AudioCtx) {
+          const audioCtx = new AudioCtx();
+          audioContextRef.current = audioCtx;
+          const analyser = audioCtx.createAnalyser();
+          analyser.fftSize = 64;
+          analyserRef.current = analyser;
+          const source = audioCtx.createMediaStreamSource(stream);
+          source.connect(analyser);
+
+          const dataArray = new Uint8Array(analyser.frequencyBinCount);
+          const updateAudioLevel = () => {
+            if (!isRecordingRef.current) return;
+            analyser.getByteFrequencyData(dataArray);
+            let sum = 0;
+            for (let i = 0; i < dataArray.length; i++) {
+              sum += dataArray[i];
+            }
+            const avg = sum / dataArray.length;
+            const normalized = Math.min(100, Math.round((avg / 128) * 100));
+            setAudioVolume(normalized);
+            animFrameRef.current = requestAnimationFrame(updateAudioLevel);
+          };
+          updateAudioLevel();
         }
-      };
+      } catch (audioErr) {
+        console.warn('AudioContext visualization setup warning:', audioErr);
+      }
 
-      mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-        const audioUrl = URL.createObjectURL(audioBlob);
-        setAttachedMedia({
-          type: 'audio',
-          name: `Acoustic-Diagnostic-${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}.webm`,
-          url: audioUrl,
-          size: `${recordingDuration > 0 ? `${recordingDuration}s` : 'Audio'}`,
-        });
-        stream.getTracks().forEach((track) => track.stop());
-      };
+      // 2. MediaRecorder for acoustic diagnostic audio file capture
+      try {
+        let options: MediaRecorderOptions = {};
+        if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+          options = { mimeType: 'audio/webm;codecs=opus' };
+        } else if (MediaRecorder.isTypeSupported('audio/webm')) {
+          options = { mimeType: 'audio/webm' };
+        } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+          options = { mimeType: 'audio/mp4' };
+        }
 
-      // Also attempt real-time speech recognition if available
+        const mediaRecorder = new MediaRecorder(stream, options);
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data && event.data.size > 0) {
+            audioChunksRef.current.push(event.data);
+          }
+        };
+
+        mediaRecorder.onstop = () => {
+          if (audioChunksRef.current.length > 0) {
+            const mimeType = mediaRecorder.mimeType || 'audio/webm';
+            const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
+            if (audioBlob.size > 200) {
+              const audioUrl = URL.createObjectURL(audioBlob);
+              setAttachedMedia({
+                type: 'audio',
+                name: `Acoustic-Diagnostic-${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}.webm`,
+                url: audioUrl,
+                size: `${recordingDuration > 0 ? `${recordingDuration}s` : 'Audio'}`,
+              });
+            }
+          }
+        };
+
+        mediaRecorder.start(200);
+        mediaRecorderRef.current = mediaRecorder;
+      } catch (recErr) {
+        console.warn('MediaRecorder init fallback:', recErr);
+      }
+
+      // 3. Speech Recognition - actively listens to what is being spoken
       const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       if (SpeechRec) {
         try {
           const rec = new SpeechRec();
           rec.continuous = true;
           rec.interimResults = true;
+          rec.lang = 'en-US';
+
           rec.onresult = (event: any) => {
-            let transcript = '';
-            for (let i = event.resultIndex; i < event.results.length; ++i) {
-              transcript += event.results[i][0].transcript;
+            let interimTranscript = '';
+            let finalTranscript = '';
+            for (let i = 0; i < event.results.length; ++i) {
+              const res = event.results[i];
+              if (res.isFinal) {
+                finalTranscript += res[0].transcript + ' ';
+              } else {
+                interimTranscript += res[0].transcript;
+              }
             }
-            if (transcript.trim()) {
-              setPromptInput((prev) => (prev ? prev + ' ' : '') + transcript.trim());
+            const spokenNow = (finalTranscript + interimTranscript).trim();
+            if (spokenNow) {
+              setLiveTranscript(spokenNow);
+              const base = basePromptRef.current.trim();
+              const combined = base ? `${base} ${spokenNow}` : spokenNow;
+              setPromptInput(combined);
             }
           };
+
+          rec.onerror = (e: any) => {
+            console.warn('Speech recognition status:', e.error);
+          };
+
+          rec.onend = () => {
+            // Automatically keep listening if user hasn't finished recording
+            if (isRecordingRef.current) {
+              try {
+                rec.start();
+              } catch {
+                // ignore
+              }
+            }
+          };
+
           rec.start();
           speechRecognitionRef.current = rec;
-        } catch {
-          // speech recognition fallback
+        } catch (speechErr) {
+          console.warn('SpeechRecognition setup warning:', speechErr);
         }
       }
 
-      mediaRecorder.start(250);
-      mediaRecorderRef.current = mediaRecorder;
-      setIsRecording(true);
-      setRecordingDuration(0);
-
+      // 4. Duration Timer
       recordingTimerRef.current = setInterval(() => {
         setRecordingDuration((prev) => prev + 1);
       }, 1000);
     } catch (err) {
-      console.warn('Microphone access unavailable, providing acoustic sample mode', err);
-      // Simulated acoustic recording fallback
-      setIsRecording(true);
-      setRecordingDuration(0);
-      recordingTimerRef.current = setInterval(() => {
-        setRecordingDuration((prev) => prev + 1);
-      }, 1000);
+      console.warn('Microphone access warning:', err);
+      alert('Microphone access is needed so Mekai can listen to what is being spoken. Please allow microphone permissions.');
+      setIsRecording(false);
+      isRecordingRef.current = false;
     }
   };
 
   const handleStopRecording = () => {
+    isRecordingRef.current = false;
+
     if (recordingTimerRef.current) {
       clearInterval(recordingTimerRef.current);
       recordingTimerRef.current = null;
     }
+
+    if (animFrameRef.current) {
+      cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = null;
+    }
+
+    if (audioContextRef.current) {
+      try {
+        audioContextRef.current.close();
+      } catch {
+        // ignore
+      }
+      audioContextRef.current = null;
+    }
+
     if (speechRecognitionRef.current) {
       try {
+        speechRecognitionRef.current.onend = null;
         speechRecognitionRef.current.stop();
       } catch {
         // ignore
       }
       speechRecognitionRef.current = null;
     }
+
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       try {
         mediaRecorderRef.current.stop();
       } catch {
         // ignore
       }
-    } else {
-      setAttachedMedia({
-        type: 'audio',
-        name: `Acoustic-Diagnostic-${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}.webm`,
-        size: `${recordingDuration > 0 ? `${recordingDuration}s` : 'Audio'}`,
-      });
     }
+
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+      mediaStreamRef.current = null;
+    }
+
     setIsRecording(false);
+    setAudioVolume(0);
   };
 
   const handleCancelRecording = () => {
+    isRecordingRef.current = false;
+    setPromptInput(basePromptRef.current);
+    setLiveTranscript('');
+    audioChunksRef.current = [];
+
     if (recordingTimerRef.current) {
       clearInterval(recordingTimerRef.current);
       recordingTimerRef.current = null;
     }
+
+    if (animFrameRef.current) {
+      cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = null;
+    }
+
+    if (audioContextRef.current) {
+      try {
+        audioContextRef.current.close();
+      } catch {
+        // ignore
+      }
+      audioContextRef.current = null;
+    }
+
     if (speechRecognitionRef.current) {
       try {
+        speechRecognitionRef.current.onend = null;
         speechRecognitionRef.current.stop();
       } catch {
         // ignore
       }
       speechRecognitionRef.current = null;
     }
+
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       try {
         mediaRecorderRef.current.stop();
@@ -389,18 +776,23 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
         // ignore
       }
     }
-    audioChunksRef.current = [];
+
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+      mediaStreamRef.current = null;
+    }
+
     setIsRecording(false);
-    setRecordingDuration(0);
+    setAudioVolume(0);
   };
 
-  // Session reset helper: resets input, messages, ensures new-diagnostics view, and randomizes greeting
   const resetDiagnosticsSession = () => {
     setActiveTab('new-diagnostics');
     setPromptInput('');
     setMessages([]);
+    setCurrentSessionId(`session-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`);
+    setCurrentSessionTitle('');
     setAttachedMedia(null);
-    setShowAttachMenu(false);
     if (isRecording) {
       handleCancelRecording();
     }
@@ -414,8 +806,9 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
     });
   };
 
-  // Submit diagnostic prompt handler
-  const handlePromptSubmit = (promptOverride?: string) => {
+  // Submit diagnostic prompt handler - connects to real n8n webhook
+  // Naming on the session is picked from Mekai as configured
+  const handlePromptSubmit = async (promptOverride?: string) => {
     const textToSubmit = (promptOverride !== undefined ? promptOverride : promptInput).trim();
     if ((!textToSubmit && !attachedMedia) || isAnalyzing) return;
 
@@ -438,46 +831,85 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
       attachment: currentAttachment || undefined,
     };
 
-    setMessages((prev) => [...prev, userMsg]);
+    const newMessages = [...messages, userMsg];
+    setMessages(newMessages);
     setPromptInput('');
     setAttachedMedia(null);
-    setShowAttachMenu(false);
     setIsAnalyzing(true);
 
-    setTimeout(() => {
-      const mekaiResponseText = getMekaiDiagnosticResponse(finalText, displayName, currentAttachment || undefined);
+    try {
+      const webhookResult = await callMekaiWebhook(
+        finalText,
+        currentSessionId,
+        displayName,
+        activeCode,
+        currentAttachment || undefined
+      );
+
       const mekaiMsg: ChatMessage = {
         id: `msg-${Date.now()}-mek`,
         sender: 'mekai',
-        text: mekaiResponseText,
+        text: webhookResult.text,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
-      setMessages((prev) => [...prev, mekaiMsg]);
+
+      const finalMessages = [...newMessages, mekaiMsg];
+      setMessages(finalMessages);
       setIsAnalyzing(false);
 
-      // Add to dynamic recent sessions
+      // Session naming: logged directly by Mekai (e.g. "Ford Explorer 2014")
+      const sessionNameFromMekai = extractMekaiSessionName(
+        webhookResult.text,
+        finalText,
+        webhookResult,
+        currentSessionTitle
+      );
+
+      setCurrentSessionTitle(sessionNameFromMekai);
+
+      // Update recent sessions with the Mekai-logged session title
       setRecentSessions((prev) => {
-        const title = finalText.length > 34 ? finalText.substring(0, 34) + '...' : finalText;
-        const exists = prev.find((s) => s.title.toLowerCase() === title.toLowerCase());
-        if (exists) return prev;
+        const filtered = prev.filter((s) => s.id !== currentSessionId);
         return [
           {
-            id: `session-${Date.now()}`,
-            title,
-            snippet: mekaiResponseText.substring(0, 50) + '...',
+            id: currentSessionId,
+            title: sessionNameFromMekai,
+            snippet: webhookResult.text.substring(0, 70) + '...',
             date: 'Just now',
-            messages: [userMsg, mekaiMsg],
+            messages: finalMessages,
+            updatedAt: Date.now(),
           },
-          ...prev,
+          ...filtered,
         ];
       });
-    }, 400);
+    } catch (err: any) {
+      console.error('Error fetching Mekai response:', err);
+      const errorMsg: ChatMessage = {
+        id: `msg-${Date.now()}-err`,
+        sender: 'mekai',
+        text: `Error connecting to diagnostic webhook: ${err.message || 'Network error'}. Please try again.`,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        isError: true,
+      };
+      setMessages((prev) => [...prev, errorMsg]);
+      setIsAnalyzing(false);
+    }
   };
 
   const handleOpenRecentSession = (session: RecentChatSession) => {
     setMessages(session.messages);
+    setCurrentSessionId(session.id);
+    setCurrentSessionTitle(session.title);
     setActiveTab('new-diagnostics');
     setMobileDrawerOpen(false);
+  };
+
+  const handleDeleteSession = (e: React.MouseEvent, sessionId: string) => {
+    e.stopPropagation();
+    setRecentSessions((prev) => prev.filter((s) => s.id !== sessionId));
+    if (currentSessionId === sessionId) {
+      resetDiagnosticsSession();
+    }
   };
 
   const renderDiagnosticInputBar = (showDisclaimer = false) => (
@@ -521,95 +953,93 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
         }}
         className="w-full relative"
       >
-        {/* Attachment menu popover (live image, upload photo, send file) */}
-        {showAttachMenu && (
-          <>
-            <div
-              className="fixed inset-0 z-30"
-              onClick={() => setShowAttachMenu(false)}
-            />
-            <div className="absolute bottom-full left-0 mb-3 z-40 bg-[#141A18] border border-[#23312C] rounded-2xl p-1.5 shadow-2xl min-w-[220px] animate-fadeIn">
-              <button
-                type="button"
-                onClick={() => {
-                  setShowAttachMenu(false);
-                  cameraInputRef.current?.click();
-                }}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-[#DDE3E3] hover:text-[#A3B18A] hover:bg-[#1D2522] transition-colors text-left"
-              >
-                <Camera className="w-4 h-4 text-[#A3B18A] shrink-0" />
-                <span>Take Live Photo</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowAttachMenu(false);
-                  imageInputRef.current?.click();
-                }}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-[#DDE3E3] hover:text-[#A3B18A] hover:bg-[#1D2522] transition-colors text-left"
-              >
-                <ImageIcon className="w-4 h-4 text-[#A3B18A] shrink-0" />
-                <span>Upload Vehicle Photo</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowAttachMenu(false);
-                  fileInputRef.current?.click();
-                }}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-[#DDE3E3] hover:text-[#A3B18A] hover:bg-[#1D2522] transition-colors text-left"
-              >
-                <FileText className="w-4 h-4 text-[#A3B18A] shrink-0" />
-                <span>Send File / Log</span>
-              </button>
-            </div>
-          </>
-        )}
-
         <div
           id="diagnostic-input-pill"
           className="w-full rounded-full border border-[#23312C] bg-[#0E1312] hover:border-[#354841] focus-within:border-[#A3B18A] px-4 sm:px-6 py-3 sm:py-3.5 flex items-center gap-3 sm:gap-4 transition-all shadow-lg"
         >
-          {/* Left Plus / Attach Icon */}
+          {/* Left Plus Icon to directly send file */}
           <button
+            id="send-file-btn"
             type="button"
-            onClick={() => setShowAttachMenu((prev) => !prev)}
-            className={`p-0.5 focus:outline-none shrink-0 transition-colors ${
-              showAttachMenu ? 'text-[#A3B18A]' : 'text-[#8A9A78] hover:text-white'
-            }`}
-            title="Send file, image, or take live photo"
+            onClick={() => fileInputRef.current?.click()}
+            className="p-0.5 focus:outline-none shrink-0 text-[#8A9A78] hover:text-white transition-colors"
+            title="Send file"
+            aria-label="Send file"
           >
             <Plus className="w-5 h-5 stroke-[2]" />
           </button>
 
           {isRecording ? (
-            <div className="flex-1 flex items-center justify-between min-w-0 py-0.5">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping" />
-                <span className="text-red-400 text-xs sm:text-sm font-semibold tracking-wide">
-                  Recording Audio...
-                </span>
-                <span className="text-[#A3B18A] font-mono text-xs sm:text-sm ml-1">
+            <div className="flex-1 flex items-center justify-between min-w-0 py-0.5 gap-2 sm:gap-3">
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                {/* Pulsing listening indicator */}
+                <div className="relative flex items-center justify-center shrink-0">
+                  <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping absolute" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-red-500 relative" />
+                </div>
+
+                {/* Dynamic Sound Equalizer Waves responding to voice volume */}
+                <div className="flex items-center gap-0.5 shrink-0 h-4" title="Audio meter">
+                  {[0.5, 1.2, 0.7, 1.5, 0.9].map((multiplier, i) => {
+                    const dynamicHeight = Math.max(4, Math.min(18, Math.round((audioVolume * multiplier * 0.25) + 4)));
+                    return (
+                      <span
+                        key={i}
+                        style={{ height: `${dynamicHeight}px` }}
+                        className="w-1 bg-[#A3B18A] rounded-full transition-all duration-75"
+                      />
+                    );
+                  })}
+                </div>
+
+                {/* Live Speech Recognition Transcription */}
+                <div className="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
+                  <span className="text-red-400 text-xs sm:text-sm font-semibold tracking-wide shrink-0">
+                    Listening:
+                  </span>
+                  <span className="text-xs sm:text-sm text-[#A3B18A] font-medium truncate">
+                    {liveTranscript || promptInput || 'Speak now (e.g. Ford Explorer 2014)'}
+                  </span>
+                </div>
+
+                {/* Recording Duration */}
+                <span className="text-[#A3B18A] font-mono text-xs sm:text-sm shrink-0 ml-1">
                   {formatRecordingTime(recordingDuration)}
                 </span>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
+
+              {/* Action Buttons: Discard, Done, Send */}
+              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                 <button
                   type="button"
                   onClick={handleCancelRecording}
                   className="p-1 text-[#8A9A78] hover:text-red-400 transition-colors"
-                  title="Cancel recording"
+                  title="Cancel and discard"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
                 <button
                   type="button"
                   onClick={handleStopRecording}
-                  className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-full text-xs font-bold transition-all shadow-sm flex items-center gap-1.5"
-                  title="Finish recording"
+                  className="px-2.5 py-1 bg-[#202B27] hover:bg-[#283832] text-[#A3B18A] border border-[#2B3E36] rounded-full text-xs font-bold transition-all shadow-sm flex items-center gap-1"
+                  title="Finish listening"
                 >
-                  <Square className="w-3 h-3 fill-white" />
-                  <span>Done</span>
+                  <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                  <span className="hidden sm:inline">Done</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleStopRecording();
+                    setTimeout(() => {
+                      handlePromptSubmit();
+                    }, 120);
+                  }}
+                  disabled={!promptInput.trim() && !liveTranscript.trim() && !attachedMedia}
+                  className="w-8 h-8 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-90 disabled:opacity-40 text-[#0E1111] flex items-center justify-center transition-all shadow-sm shrink-0"
+                  title="Send now"
+                >
+                  <ArrowUp className="w-4 h-4 stroke-[2.8]" />
                 </button>
               </div>
             </div>
@@ -621,8 +1051,8 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
                 type="text"
                 value={promptInput}
                 onChange={(e) => setPromptInput(e.target.value)}
-                placeholder="Ask Mekai"
-                className="flex-1 bg-transparent text-white placeholder-[#5A6964] text-sm sm:text-base focus:outline-none font-sans min-w-0"
+                placeholder="Ask Mekai (e.g. Ford Explorer 2014)"
+                className="flex-1 bg-transparent text-[#A3B18A] caret-[#A3B18A] placeholder-[#5A6964] text-base focus:outline-none font-sans min-w-0"
               />
 
               {/* Right Controls: Microphone & Submit Arrow */}
@@ -630,8 +1060,9 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
                 <button
                   type="button"
                   onClick={handleStartRecording}
-                  className="text-[#8A9A78] hover:text-white transition-colors p-0.5 focus:outline-none"
-                  title="Record diagnostic audio"
+                  className="text-[#8A9A78] hover:text-[#A3B18A] transition-colors p-0.5 focus:outline-none"
+                  title="Listen with microphone"
+                  aria-label="Listen with microphone"
                 >
                   <Mic className="w-5 h-5 stroke-[2]" />
                 </button>
@@ -660,73 +1091,53 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
   );
 
   return (
-    <div id="app-dashboard" className="h-screen w-screen bg-[#0E1111] text-white flex overflow-hidden font-sans selection:bg-[#A3B18A]/30 selection:text-white">
-      {/* Hidden file & live camera inputs */}
-      <input
-        ref={cameraInputRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        className="hidden"
-        onChange={(e) => handleFileSelected(e, 'image')}
-      />
-      <input
-        ref={imageInputRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={(e) => handleFileSelected(e, 'image')}
-      />
+    <div id="app-dashboard" className="fixed inset-0 h-screen h-[100dvh] max-h-[100dvh] w-full max-w-full bg-[#0E1111] text-white flex overflow-hidden font-sans selection:bg-[#A3B18A]/30 selection:text-white overscroll-none touch-pan-y">
+      {/* Hidden file input for direct file send */}
       <input
         ref={fileInputRef}
         type="file"
-        accept=".pdf,.doc,.docx,.txt,.csv,.json,.log,.bin"
+        accept="*/*"
         className="hidden"
-        onChange={(e) => handleFileSelected(e, 'file')}
+        onChange={handleFileSelected}
       />
 
-      {/* ─────────────────────────────────────────────────────────────
-          MOBILE FULL-SCREEN DRAWER (Matching 'app drawer active.png')
-      ───────────────────────────────────────────────────────────── */}
+      {/* MOBILE FULL-SCREEN DRAWER */}
       {mobileDrawerOpen && (
         <div
           id="mobile-drawer"
-          className="md:hidden fixed inset-0 z-50 bg-[#0E1111] flex flex-col justify-between p-6 animate-fadeIn select-none"
+          className="md:hidden fixed inset-0 z-50 bg-[#0E1111] flex flex-col justify-between h-[100dvh] max-h-[100dvh] w-full overflow-hidden animate-fadeIn select-none overscroll-none"
         >
-          {/* Top Bar: Logo & Close Button */}
-          <div>
-            {/* Top Bar: Logo & Close Button - Locked to exact grid and w-9 h-9 controls */}
-            <div className="flex items-center justify-between h-9 mb-12">
-              <div
-                className="cursor-pointer flex items-center gap-3.5 h-9"
-                onClick={() => {
-                  resetDiagnosticsSession();
-                  setMobileDrawerOpen(false);
-                }}
-              >
-                <div className="w-9 h-9 flex items-center justify-center shrink-0">
-                  <MekaiLogo iconSize={32} showText={false} />
-                </div>
-                <span className="font-heading font-extrabold text-xl tracking-widest text-[#A3B18A] select-none leading-none">
-                  MEKAI
-                </span>
+          {/* Fixed/Sticky Top Bar with MEKAI Logo & Close Button */}
+          <div className="sticky top-0 z-10 w-full px-6 py-5 bg-[#0E1111] border-b border-[#1A2320]/60 flex items-center justify-between shrink-0 shadow-sm">
+            <div
+              className="cursor-pointer flex items-center gap-3.5 h-9"
+              onClick={() => {
+                resetDiagnosticsSession();
+                setMobileDrawerOpen(false);
+              }}
+            >
+              <div className="w-9 h-9 flex items-center justify-center shrink-0">
+                <MekaiLogo iconSize={32} showText={false} />
               </div>
-
-              {/* Sage Green Circular Close Button with dark 'X' */}
-              <button
-                id="mobile-drawer-close-btn"
-                type="button"
-                onClick={() => setMobileDrawerOpen(false)}
-                className="w-9 h-9 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] flex items-center justify-center shrink-0 transition-transform shadow-md focus:outline-none"
-                aria-label="Close navigation drawer"
-              >
-                <X className="w-5 h-5 stroke-[2.5]" />
-              </button>
+              <span className="font-heading font-extrabold text-xl tracking-widest text-[#A3B18A] select-none leading-none">
+                MEKAI
+              </span>
             </div>
 
-            {/* Navigation Actions */}
+            <button
+              id="mobile-drawer-close-btn"
+              type="button"
+              onClick={() => setMobileDrawerOpen(false)}
+              className="w-9 h-9 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] flex items-center justify-center shrink-0 transition-transform shadow-md focus:outline-none"
+              aria-label="Close navigation drawer"
+            >
+              <X className="w-5 h-5 stroke-[2.5]" />
+            </button>
+          </div>
+
+          {/* Scrollable Drawer Content (Nav items and Recents) */}
+          <div className="flex-1 min-h-0 overflow-y-auto px-6 py-6 overscroll-contain">
             <nav className="space-y-6">
-              {/* New Diagnostics */}
               <button
                 id="mobile-nav-new-diagnostics-btn"
                 type="button"
@@ -746,7 +1157,6 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
                 <span>New Diagnostics</span>
               </button>
 
-              {/* Search Chats */}
               <button
                 id="mobile-nav-search-chats-btn"
                 type="button"
@@ -767,31 +1177,64 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
               </button>
             </nav>
 
-            {/* Recents Section Header - Only dynamic sessions */}
-            {recentSessions.length > 0 && (
-              <div className="mt-12">
-                <div className="flex items-center gap-2 text-base font-heading font-bold text-[#A3B18A] tracking-wide cursor-default">
+            {/* Permanent Collapsible Recents in Mobile Drawer (Only up to 7 sessions) */}
+            <div className="mt-10">
+              <button
+                type="button"
+                onClick={() => setIsRecentsCollapsed((prev) => !prev)}
+                className="w-full flex items-center justify-between text-base font-heading font-bold text-[#A3B18A] tracking-wide cursor-pointer focus:outline-none select-none"
+              >
+                <div className="flex items-center gap-2">
                   <span>Recents</span>
-                  <ChevronDown className="w-4 h-4 text-[#A3B18A]" />
+                  <ChevronDown
+                    className={`w-4 h-4 text-[#A3B18A] transition-transform duration-200 ${
+                      isRecentsCollapsed ? '-rotate-90' : 'rotate-0'
+                    }`}
+                  />
                 </div>
-                <div className="mt-3 space-y-1.5">
-                  {recentSessions.slice(0, 6).map((session) => (
-                    <button
-                      key={session.id}
-                      type="button"
-                      onClick={() => handleOpenRecentSession(session)}
-                      className="w-full text-left px-3 py-2 rounded-lg text-sm text-[#8A9A78] hover:text-[#A3B18A] hover:bg-[#151D1B] truncate transition-colors block"
-                    >
-                      {session.title}
-                    </button>
-                  ))}
+              </button>
+
+              {!isRecentsCollapsed && (
+                <div className="mt-3 space-y-1.5 animate-fadeIn">
+                  {recentSessions.length > 0 ? (
+                    recentSessions.slice(0, 7).map((session) => (
+                      <div
+                        key={session.id}
+                        className="flex items-center justify-between group rounded-lg hover:bg-[#151D1B] pr-2"
+                      >
+                        <button
+                          type="button"
+                          onClick={() => handleOpenRecentSession(session)}
+                          className={`flex-1 text-left px-3 py-2 text-sm truncate transition-colors ${
+                            currentSessionId === session.id
+                              ? 'text-[#A3B18A] font-bold bg-[#161F1C] rounded'
+                              : 'text-[#8A9A78] hover:text-[#A3B18A]'
+                          }`}
+                        >
+                          {session.title}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => handleDeleteSession(e, session.id)}
+                          className="opacity-0 group-hover:opacity-100 p-1 text-[#5A6964] hover:text-red-400 transition-opacity"
+                          title="Delete chat"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="px-3 py-2 text-sm text-[#5A6964] italic">
+                      No recent sessions
+                    </div>
+                  )}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
-          {/* Bottom Section: Avatar with initials + Technician Name & Settings Gear */}
-          <div className="pt-6 border-t border-[#192220]/60 flex items-center justify-between">
+          {/* Fixed/Pinned Bottom User Profile Bar */}
+          <div className="px-6 py-5 border-t border-[#192220]/60 bg-[#0E1111] shrink-0 flex items-center justify-between">
             <div className="flex items-center gap-3 min-w-0">
               <div
                 className="w-9 h-9 rounded-full bg-[#A3B18A] text-[#0E1111] font-heading font-extrabold text-xs flex items-center justify-center shrink-0 select-none shadow-sm"
@@ -821,18 +1264,13 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
         </div>
       )}
 
-      {/* ─────────────────────────────────────────────────────────────
-          LEFT SIDEBAR (OPEN or CLOSED RAIL) - DESKTOP ONLY
-      ───────────────────────────────────────────────────────────── */}
+      {/* DESKTOP SIDEBAR */}
       {isSidebarOpen ? (
-        /* OPEN SIDEBAR (Matching 'app open sidebar.png') */
         <aside
           id="dashboard-sidebar-open"
           className="hidden md:flex w-72 bg-[#0E1111] border-r border-[#192220] flex-col justify-between shrink-0 select-none z-20 transition-all duration-200"
         >
-          {/* Top Section */}
           <div className="p-6">
-            {/* Logo and Collapse Toggle */}
             <div className="flex items-center justify-between mb-10 h-8">
               <div
                 className="cursor-pointer h-8 flex items-center"
@@ -842,7 +1280,6 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
                 <MekaiLogo iconSize={32} showText={true} textSize="text-xl tracking-widest font-heading font-extrabold" />
               </div>
 
-              {/* Sidebar Collapse Toggle Button: Nudged up a little bit to be horizontally centered with the logo */}
               <button
                 id="collapse-sidebar-btn"
                 type="button"
@@ -867,9 +1304,7 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
               </button>
             </div>
 
-            {/* Navigation Actions */}
             <nav className="space-y-4">
-              {/* New Diagnostics */}
               <button
                 id="nav-new-diagnostics-btn"
                 type="button"
@@ -886,7 +1321,6 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
                 <span className="text-[#A3B18A]">New Diagnostics</span>
               </button>
 
-              {/* Search Chats */}
               <button
                 id="nav-search-chats-btn"
                 type="button"
@@ -904,34 +1338,66 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
               </button>
             </nav>
 
-            {/* Recents Section Header - Only dynamic sessions */}
-            {recentSessions.length > 0 && (
-              <div className="mt-12">
-                <div className="flex items-center gap-1.5 text-xs font-heading font-bold text-[#A3B18A] tracking-wider cursor-default select-none">
+            {/* Permanent Collapsible Recents Section (Only up to 7 sessions displayed) */}
+            <div className="mt-10">
+              <button
+                type="button"
+                onClick={() => setIsRecentsCollapsed((prev) => !prev)}
+                className="w-full flex items-center justify-between text-xs font-heading font-bold text-[#A3B18A] tracking-wider mb-2.5 group cursor-pointer focus:outline-none select-none"
+                title={isRecentsCollapsed ? 'Expand Recents' : 'Collapse Recents'}
+              >
+                <div className="flex items-center gap-1.5 group-hover:text-[#BFCCAA] transition-colors">
                   <span>Recents</span>
-                  <ChevronDown className="w-4 h-4 text-[#A3B18A]" />
+                  <ChevronDown
+                    className={`w-4 h-4 text-[#A3B18A] transition-transform duration-200 ${
+                      isRecentsCollapsed ? '-rotate-90' : 'rotate-0'
+                    }`}
+                  />
                 </div>
-                <div className="mt-2.5 space-y-1">
-                  {recentSessions.slice(0, 6).map((session) => (
-                    <button
-                      key={session.id}
-                      type="button"
-                      onClick={() => handleOpenRecentSession(session)}
-                      className="w-full text-left px-2 py-1.5 rounded-lg text-xs text-[#8A9A78] hover:text-[#A3B18A] hover:bg-[#151D1B] truncate transition-colors block"
-                      title={session.title}
-                    >
-                      {session.title}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+              </button>
+
+              {!isRecentsCollapsed && (
+                recentSessions.length > 0 ? (
+                  <div className="space-y-1 max-h-60 overflow-y-auto pr-1 animate-fadeIn">
+                    {recentSessions.slice(0, 7).map((session) => (
+                      <div
+                        key={session.id}
+                        className="group flex items-center justify-between rounded-lg hover:bg-[#151D1B] pr-1.5"
+                      >
+                        <button
+                          type="button"
+                          onClick={() => handleOpenRecentSession(session)}
+                          className={`flex-1 text-left px-2 py-1.5 text-xs truncate transition-colors ${
+                            currentSessionId === session.id
+                              ? 'text-[#A3B18A] font-semibold bg-[#161F1C] rounded'
+                              : 'text-[#8A9A78] hover:text-[#A3B18A]'
+                          }`}
+                          title={session.title}
+                        >
+                          {session.title}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => handleDeleteSession(e, session.id)}
+                          className="opacity-0 group-hover:opacity-100 p-1 text-[#5A6964] hover:text-red-400 transition-opacity"
+                          title="Delete chat"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="px-2 py-3 text-xs text-[#5A6964] italic select-none">
+                    No recent sessions
+                  </div>
+                )
+              )}
+            </div>
           </div>
 
-          {/* Bottom Profile Section */}
           <div className="p-6 border-t border-[#192220]/60 flex items-center justify-between">
             <div className="flex items-center gap-3 min-w-0">
-              {/* Sage Green Avatar with Initials - Standardized w-9 h-9 */}
               <div
                 className="w-9 h-9 rounded-full bg-[#A3B18A] text-[#0E1111] font-heading font-extrabold text-xs flex items-center justify-center shrink-0 select-none tracking-tight shadow-sm"
                 aria-label={`Profile for ${displayName}`}
@@ -943,7 +1409,6 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
               </span>
             </div>
 
-            {/* Settings Trigger */}
             <button
               id="sidebar-settings-btn"
               type="button"
@@ -957,14 +1422,11 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
           </div>
         </aside>
       ) : (
-        /* CLOSED SIDEBAR RAIL (Matching 'app close sidebar.png') */
         <aside
           id="dashboard-sidebar-closed"
           className="hidden md:flex w-20 bg-[#0E1111] border-r border-[#192220] flex-col justify-between shrink-0 select-none z-20 transition-all duration-200"
         >
-          {/* Top Section */}
           <div className="p-6">
-            {/* Logo as expand toggle - Exact same position and height as open sidebar */}
             <div className="flex items-center mb-10 h-8">
               <button
                 id="expand-sidebar-logo-btn"
@@ -978,7 +1440,6 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
               </button>
             </div>
 
-            {/* Navigation Actions - Exact same size, vertical spacing and horizontal position as open sidebar */}
             <nav className="space-y-4">
               <button
                 type="button"
@@ -1010,7 +1471,6 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
             </nav>
           </div>
 
-          {/* Bottom Icons: Settings above Avatar, displayed as it is with same sizing as open sidebar */}
           <div className="p-6 border-t border-[#192220]/60 flex flex-col items-center gap-4">
             <button
               type="button"
@@ -1035,15 +1495,11 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
         </aside>
       )}
 
-      {/* ─────────────────────────────────────────────────────────────
-          MAIN CONTENT VIEW AREA
-      ───────────────────────────────────────────────────────────── */}
-      <main className="flex-1 flex flex-col relative overflow-y-auto bg-[#0E1111]">
-        {/* Top Header - Locked to exact p-6 mobile grid and h-9 row */}
-        <header className="w-full p-6 md:px-10 z-10 shrink-0">
-          {/* Mobile Top Bar (Matching 'app closed.png' and locking grid with mobile drawer) */}
+      {/* MAIN VIEW AREA - Fixed height viewport locked container */}
+      <main className="flex-1 flex flex-col h-full min-h-0 w-full overflow-hidden relative bg-[#0E1111]">
+        {/* Pinned Header */}
+        <header className="w-full p-4 sm:p-6 md:px-10 z-10 shrink-0 border-b border-[#1A2320]/40 md:border-b-0">
           <div className="flex md:hidden items-center justify-between w-full h-9">
-            {/* Left: Circular Two-Bar Button + MEKAI */}
             <div className="flex items-center gap-3.5 h-9">
               <button
                 id="mobile-drawer-toggle-btn"
@@ -1061,7 +1517,6 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
               </span>
             </div>
 
-            {/* Right: Circular Sage Green Profile Avatar - Standardized w-9 h-9 */}
             <button
               id="mobile-profile-avatar-btn"
               type="button"
@@ -1074,8 +1529,15 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
             </button>
           </div>
 
-          {/* Desktop Top Bar: Upgrade Button */}
-          <div className="hidden md:flex items-center justify-end w-full h-9">
+          <div className="hidden md:flex items-center justify-between w-full h-9">
+            {/* Active Vehicle Session Tag if detected */}
+            {currentSessionTitle ? (
+              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#151D1B] border border-[#23312C] text-xs text-[#A3B18A]">
+                <Car className="w-3.5 h-3.5 text-[#A3B18A]" />
+                <span className="font-heading font-bold">{currentSessionTitle}</span>
+              </div>
+            ) : <div />}
+
             <button
               id="upgrade-tier-btn"
               type="button"
@@ -1086,13 +1548,10 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
           </div>
         </header>
 
-        {/* Dynamic View Switcher */}
         {activeTab === 'new-diagnostics' ? (
-          /* ──────── VIEW A: NEW DIAGNOSTICS & CHAT SESSION ──────── */
           messages.length === 0 ? (
-            /* 1. Initial Empty State (Matching 'app closed.png' on mobile & desktop references) */
-            <div className="flex-1 flex flex-col justify-between md:justify-center items-center px-4 sm:px-6 md:px-12 w-full max-w-2xl mx-auto pb-6 sm:pb-8 md:pb-0 md:-mt-10">
-              {/* Center Heading */}
+            /* Clean Empty Initial State */
+            <div className="flex-1 min-h-0 flex flex-col justify-between md:justify-center items-center px-4 sm:px-6 md:px-12 w-full max-w-2xl mx-auto pb-4 sm:pb-8 md:pb-0 md:-mt-10 overflow-hidden">
               <div className="my-auto md:my-0 text-center">
                 <h1
                   id="diagnostics-prompt-heading"
@@ -1102,19 +1561,28 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
                 </h1>
               </div>
 
-              {/* Input Pill Bar (Mockup pills removed) */}
-              <div className="w-full">
+              <div className="w-full shrink-0">
                 {renderDiagnosticInputBar(false)}
               </div>
             </div>
           ) : (
-            /* 2. Active Chat Conversation: Engineer message in rounded pill container, Mekai response naked */
-            <div className="flex-1 flex flex-col h-full overflow-hidden w-full">
-              {/* Messages Scroll Area */}
+            /* Active Chat with Fixed-Height Container & Pinned Input Bar */
+            <div className="flex-1 min-h-0 flex flex-col h-full w-full overflow-hidden">
+              {/* Internal scrolling message history area */}
               <div
                 id="diagnostic-chat-messages"
-                className="flex-1 overflow-y-auto px-4 sm:px-6 md:px-12 w-full max-w-2xl mx-auto py-6 space-y-6"
+                className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 md:px-12 w-full max-w-2xl mx-auto py-4 space-y-5 overscroll-contain"
               >
+                {/* Mobile Vehicle indicator if active */}
+                {currentSessionTitle && (
+                  <div className="md:hidden flex items-center justify-center pb-2 shrink-0">
+                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#151D1B] border border-[#23312C] text-xs text-[#A3B18A]">
+                      <Car className="w-3.5 h-3.5 text-[#A3B18A]" />
+                      <span className="font-heading font-bold">{currentSessionTitle}</span>
+                    </div>
+                  </div>
+                )}
+
                 {messages.map((msg) => (
                   <div
                     key={msg.id}
@@ -1123,7 +1591,6 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
                     }`}
                   >
                     {msg.sender === 'engineer' ? (
-                      /* Engineer's query: distinct rounded pill container with background fill */
                       <div className="bg-[#A3B18A] text-[#0E1111] text-sm sm:text-base font-semibold px-5 py-3 rounded-full shadow-md max-w-[85%] break-words inline-block">
                         {msg.attachment?.type === 'image' && msg.attachment.url && (
                           <div className="mb-2 overflow-hidden rounded-2xl border border-[#0E1111]/20">
@@ -1150,9 +1617,16 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
                         <span>{msg.text}</span>
                       </div>
                     ) : (
-                      /* Mekai's response: completely uncontained ("naked") with zero background cards or borders */
-                      <div className="max-w-[95%] text-[#DDE3E3] text-sm sm:text-[15px] leading-relaxed space-y-3.5 bg-transparent border-0 p-0 shadow-none">
-                        {renderMekaiText(msg.text)}
+                      /* Mekai response strictly in sage green (#A3B18A) */
+                      <div className={`max-w-[95%] text-sm sm:text-[15px] leading-relaxed space-y-3.5 bg-transparent border-0 p-0 shadow-none ${
+                        msg.isError ? 'text-red-400 flex items-start gap-2.5' : 'text-[#A3B18A]'
+                      }`}>
+                        {msg.isError && (
+                          <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+                        )}
+                        <div className="flex-1 text-[#A3B18A]">
+                          {renderMekaiText(msg.text)}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -1160,8 +1634,8 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
 
                 {isAnalyzing && (
                   <div className="w-full flex justify-start">
-                    <div className="max-w-[95%] text-[#8A9A78] text-xs sm:text-sm flex items-center gap-2 py-1">
-                      <span className="w-2 h-2 rounded-full bg-[#A3B18A] animate-pulse" />
+                    <div className="max-w-[95%] text-[#8A9A78] text-xs sm:text-sm flex items-center gap-2.5 py-1">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#A3B18A] animate-pulse" />
                       <span className="font-heading font-medium tracking-wide">
                         Mekai is analyzing vehicle telemetry...
                       </span>
@@ -1172,20 +1646,20 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Pinned Bottom Input Bar */}
-              <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 md:px-12 pb-6 sm:pb-8 pt-2 shrink-0">
+              {/* Pinned Bottom Input Bar Container */}
+              <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 md:px-12 pb-4 sm:pb-6 pt-2 shrink-0 bg-[#0E1111] z-10 border-t border-[#192220]/60 sm:border-t-0">
                 {renderDiagnosticInputBar(true)}
               </div>
             </div>
           )
         ) : (
-          /* ──────── VIEW B: SEARCH CHATS (Matching 'app search chats.png') ──────── */
-          <div className="flex-1 flex flex-col items-center px-4 sm:px-6 md:px-12 max-w-2xl mx-auto w-full pt-4 sm:pt-8 md:pt-12 overflow-y-auto pb-8">
-            {/* Search Input Bar - Centered */}
-            <div className="w-full max-w-2xl mx-auto">
+          /* Search Chats View - Fixed viewport container with pinned search field & internal scrolling list only */
+          <div className="flex-1 min-h-0 flex flex-col h-full w-full overflow-hidden">
+            {/* Pinned Search Field Container at Top */}
+            <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 md:px-12 pt-3 sm:pt-6 pb-2 shrink-0 bg-[#0E1111] z-10">
               <div
                 id="search-chats-pill"
-                className="w-full rounded-full border border-[#23312C] bg-[#0E1312] hover:border-[#354841] focus-within:border-[#A3B18A] px-5 sm:px-6 py-3.5 sm:py-4 flex items-center gap-3.5 transition-all shadow-lg mx-auto"
+                className="w-full rounded-full border border-[#23312C] bg-[#0E1312] hover:border-[#354841] focus-within:border-[#A3B18A] px-4 sm:px-6 py-3 sm:py-3.5 flex items-center gap-3 transition-all shadow-lg mx-auto"
               >
                 <Search className="w-5 h-5 text-[#A3B18A] shrink-0 stroke-[2]" />
                 <input
@@ -1194,55 +1668,96 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
                   autoFocus
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search chats"
-                  className="flex-1 bg-transparent text-white placeholder-[#5A6964] text-sm sm:text-base focus:outline-none font-sans"
+                  placeholder="Search chats by vehicle (e.g. Ford Explorer 2014) or code"
+                  className="flex-1 bg-transparent text-white placeholder-[#5A6964] text-base focus:outline-none font-sans min-w-0"
                 />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    className="p-1 text-[#5A6964] hover:text-[#A3B18A] focus:outline-none shrink-0"
+                    title="Clear search"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
               </div>
             </div>
 
-            {/* Recent Section Header & Filtered Sessions */}
-            <div className="w-full max-w-2xl mx-auto mt-8 sm:mt-10">
-              <h2
-                id="recent-chats-heading"
-                className="text-xl sm:text-2xl font-extrabold text-[#A3B18A] font-heading tracking-tight mb-4"
-              >
-                Recent
-              </h2>
+            {/* Internal Scrolling Content List Only */}
+            <div className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 md:px-12 w-full max-w-2xl mx-auto py-2 pb-8 overscroll-contain">
+              <div className="flex items-center justify-between mb-4 mt-2">
+                <h2
+                  id="recent-chats-heading"
+                  className="text-lg sm:text-xl font-extrabold text-[#A3B18A] font-heading tracking-tight"
+                >
+                  Recent
+                </h2>
+                {recentSessions.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (confirm('Clear all conversation history?')) {
+                        setRecentSessions([]);
+                        localStorage.removeItem('mekai_diagnostic_sessions');
+                        setCurrentSessionTitle('');
+                      }
+                    }}
+                    className="text-xs text-[#5A6964] hover:text-red-400 transition-colors flex items-center gap-1"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Clear history</span>
+                  </button>
+                )}
+              </div>
 
               <div id="recent-chats-container" className="space-y-2.5">
                 {recentSessions
                   .filter(
                     (s) =>
                       s.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                      s.snippet.toLowerCase().includes(searchQuery.toLowerCase())
+                      s.snippet.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                      (s.vehicle && s.vehicle.toLowerCase().includes(searchQuery.toLowerCase()))
                   )
                   .map((session) => (
-                    <button
+                    <div
                       key={session.id}
-                      type="button"
                       onClick={() => handleOpenRecentSession(session)}
-                      className="w-full text-left p-4 rounded-xl bg-[#131817] hover:bg-[#18201E] border border-[#212C29] transition-all group cursor-pointer"
+                      className="w-full text-left p-3.5 sm:p-4 rounded-xl bg-[#131817] hover:bg-[#18201E] border border-[#212C29] transition-all group cursor-pointer relative"
                     >
                       <div className="flex items-center justify-between mb-1">
-                        <h3 className="font-heading font-bold text-sm text-[#DDE3E3] group-hover:text-[#A3B18A] transition-colors truncate">
-                          {session.title}
-                        </h3>
+                        <div className="flex items-center gap-2 truncate pr-6">
+                          <Car className="w-3.5 h-3.5 text-[#A3B18A] shrink-0" />
+                          <h3 className="font-heading font-bold text-sm text-[#DDE3E3] group-hover:text-[#A3B18A] transition-colors truncate">
+                            {session.title}
+                          </h3>
+                        </div>
                         <span className="text-[11px] text-[#5A6964] shrink-0 ml-2 font-mono">
                           {session.date}
                         </span>
                       </div>
-                      <p className="text-xs text-[#8A9A78] line-clamp-1">
+                      <p className="text-xs text-[#8A9A78] line-clamp-1 pl-5">
                         {session.snippet}
                       </p>
-                    </button>
+                      <button
+                        type="button"
+                        onClick={(e) => handleDeleteSession(e, session.id)}
+                        className="absolute right-3 top-3 opacity-0 group-hover:opacity-100 p-1 text-[#5A6964] hover:text-red-400 transition-opacity"
+                        title="Delete chat"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   ))}
+
                 {recentSessions.filter(
                   (s) =>
                     s.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    s.snippet.toLowerCase().includes(searchQuery.toLowerCase())
+                    s.snippet.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    (s.vehicle && s.vehicle.toLowerCase().includes(searchQuery.toLowerCase()))
                 ).length === 0 && (
-                  <div className="py-8 text-center text-xs text-[#5A6964]">
-                    No matching diagnostic sessions found.
+                  <div className="py-12 text-center text-xs text-[#5A6964]">
+                    {searchQuery ? 'No matching diagnostic sessions found.' : 'No recent diagnostic sessions yet.'}
                   </div>
                 )}
               </div>
@@ -1251,9 +1766,7 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
         )}
       </main>
 
-      {/* ─────────────────────────────────────────────────────────────
-          SETTINGS & WORKSHOP MODAL
-      ───────────────────────────────────────────────────────────── */}
+      {/* SETTINGS MODAL */}
       {showSettingsModal && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="w-full max-w-md bg-[#121616] border border-[#26312E] rounded-2xl p-6 shadow-2xl animate-fadeIn">
@@ -1293,7 +1806,7 @@ export function AppDashboard({ activeCode, technicianName, onSignOut, onViewLand
                 </div>
                 <div className="flex items-center gap-1.5 text-xs text-[#A3B18A] font-semibold bg-[#A3B18A]/10 px-2.5 py-1 rounded-full border border-[#A3B18A]/20">
                   <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>Authenticated</span>
+                  <span>Connected</span>
                 </div>
               </div>
 

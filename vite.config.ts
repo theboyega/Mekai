@@ -15,6 +15,14 @@ export default defineConfig(() => {
       host: '0.0.0.0',
       port: 3000,
       allowedHosts: true as const,
+      proxy: {
+        '/api/chat-webhook': {
+          target: 'https://mekai-ai.app.n8n.cloud',
+          changeOrigin: true,
+          secure: true,
+          rewrite: (path) => path.replace(/^\/api\/chat-webhook/, '/webhook/5b01dd02-7501-46e9-ba90-f890e6a1c2bf/chat'),
+        },
+      },
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
       // Do not modify — file watching is disabled to prevent flickering during agent edits.
       hmr: process.env.DISABLE_HMR !== 'true',
