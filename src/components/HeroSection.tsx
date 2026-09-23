@@ -1,21 +1,11 @@
-import { useState } from 'react';
 import { Plus, Mic, ArrowUp } from 'lucide-react';
 
 interface HeroSectionProps {
-  onGetStarted?: (initialQuery?: string) => void;
+  onGetStarted?: () => void;
   onLearnMore?: () => void;
 }
 
 export function HeroSection({ onGetStarted, onLearnMore }: HeroSectionProps) {
-  const [heroInput, setHeroInput] = useState('');
-
-  const handleSubmit = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (onGetStarted) {
-      onGetStarted(heroInput.trim());
-    }
-  };
-
   return (
     <section id="hero-section" className="relative pt-12 sm:pt-16 lg:pt-20 pb-20 sm:pb-24 lg:pb-28">
       <div className="w-full px-6 sm:px-10 lg:px-14 xl:px-20">
@@ -27,7 +17,7 @@ export function HeroSection({ onGetStarted, onLearnMore }: HeroSectionProps) {
               id="hero-heading"
               className="text-4xl sm:text-5xl lg:text-[54px] font-extrabold text-white tracking-[-0.03em] leading-[1.08] mb-6"
             >
-              Diagnostic<br className="hidden sm:inline" /> intelligence for the<br className="hidden sm:inline" /> modern workshop
+              Diagnostic<br className="hidden sm:inline" /> intelligence for the<br className="hidden sm:inline" /> modern workshop.
             </h1>
 
             <p
@@ -44,7 +34,7 @@ export function HeroSection({ onGetStarted, onLearnMore }: HeroSectionProps) {
                 id="hero-get-started-btn"
                 type="button"
                 onClick={() => onGetStarted?.()}
-                className="px-7 py-3.5 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] font-bold text-sm font-heading transition-all duration-200 inline-flex items-center gap-2 group shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                className="px-7 py-3.5 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] font-bold text-sm font-heading transition-all duration-200 inline-flex items-center gap-2 group shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-white cursor-pointer"
               >
                 <span>Get started</span>
                 <span className="transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
@@ -54,94 +44,79 @@ export function HeroSection({ onGetStarted, onLearnMore }: HeroSectionProps) {
                 id="hero-learn-more-btn"
                 type="button"
                 onClick={onLearnMore}
-                className="px-7 py-3.5 rounded-full bg-transparent border border-[#2E3636] hover:border-[#A3B18A]/60 hover:bg-white/[0.03] active:scale-95 text-white font-semibold text-sm font-heading transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3B18A]"
+                className="px-7 py-3.5 rounded-full bg-transparent border border-[#2E3636] hover:border-[#A3B18A]/60 hover:bg-white/[0.03] active:scale-95 text-white font-semibold text-sm font-heading transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3B18A] cursor-pointer"
               >
                 Learn more
               </button>
             </div>
           </div>
 
-          {/* Right Column: Diagnostic Session Design Representation */}
-          <div id="hero-mockup-wrapper" className="lg:col-span-6">
+          {/* Right Column: Diagnostic Session Mockup (Purely for design, non-clickable) */}
+          <div id="hero-mockup-wrapper" className="lg:col-span-6 pointer-events-none select-none">
             <div
               id="diagnostic-session-card"
-              className="w-full bg-[#121515] border border-[#222828] rounded-[24px] p-6 sm:p-7 shadow-2xl transition-all duration-300 hover:border-[#2C3434]"
+              className="w-full bg-[#101414] border border-[#202727] rounded-[24px] p-6 sm:p-7 shadow-2xl"
+              aria-hidden="true"
             >
               {/* Session Card Header */}
-              <div id="session-card-header" className="flex items-center gap-3 pb-6 border-b border-[#1E2323]">
+              <div id="session-card-header" className="flex items-center gap-2.5 pb-6">
                 <div className="flex items-center gap-1.5" aria-hidden="true">
-                  <span className="w-2 h-2 rounded-full bg-[#525D5D]" />
-                  <span className="w-2 h-2 rounded-full bg-[#525D5D]" />
-                  <span className="w-2 h-2 rounded-full bg-[#525D5D]" />
+                  <span className="w-2 h-2 rounded-full bg-[#4A5555]" />
+                  <span className="w-2 h-2 rounded-full bg-[#4A5555]" />
+                  <span className="w-2 h-2 rounded-full bg-[#4A5555]" />
                 </div>
-                <span className="text-xs font-bold tracking-[0.16em] uppercase text-[#A3B18A] font-heading">
+                <span className="text-xs font-bold tracking-[0.16em] uppercase text-[#A3B18A] font-heading ml-1">
                   Diagnostic Session
                 </span>
               </div>
 
               {/* Chat Session Messages Container */}
-              <div id="session-card-messages" className="py-7 flex flex-col gap-6">
+              <div id="session-card-messages" className="py-4 sm:py-6 flex flex-col gap-6">
                 {/* User Message Bubble */}
                 <div id="session-user-bubble" className="self-end max-w-[85%]">
-                  <div className="bg-[#A3B18A] text-[#0E1111] text-sm font-semibold px-5 py-2.5 rounded-full shadow-sm">
+                  <div className="bg-[#A3B18A] text-[#0E1111] text-xs sm:text-sm font-semibold px-5 py-2.5 rounded-full shadow-sm">
                     Hey, Mekai.
                   </div>
                 </div>
 
-                {/* Assistant Message Content (Matching live webhook response in sage green) */}
-                <div id="session-assistant-message" className="self-start max-w-[95%] space-y-3.5 text-[#A3B18A] text-sm sm:text-[14.5px] leading-relaxed">
+                {/* Assistant Message Content (Exact text from design) */}
+                <div id="session-assistant-message" className="self-start max-w-[95%] space-y-3.5 text-[#B8C2BF] text-xs sm:text-[13.5px] leading-relaxed">
                   <p>
-                    Mekai here, good to have you in the bay. What are we looking at today?
+                    Hello! I am Mekai, your automotive diagnostic assistant from Cestcore Limited.
+                  </p>
+                  <p>
+                    It is great to connect with you. How are you doing today, and what vehicle or issue are we looking at in the workshop?
                   </p>
                 </div>
               </div>
 
-              {/* Interactive Input Bar connected to Mekai */}
+              {/* Static Design Mockup Input Bar (Purely visual, non-clickable) */}
               <div id="session-input-container" className="pt-2">
-                <form
-                  onSubmit={handleSubmit}
+                <div
                   id="session-input-bar"
-                  className="bg-[#1A1F1F] border border-[#2B3232] rounded-full px-4 py-3 flex items-center justify-between gap-3 text-xs sm:text-sm text-[#778383] transition-colors focus-within:border-[#A3B18A]"
+                  className="bg-[#141818] border border-[#242C2C] rounded-full px-4 py-2.5 flex items-center justify-between gap-3 text-xs sm:text-sm text-[#5C6767]"
                 >
-                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <button
-                      type="button"
-                      onClick={() => onGetStarted?.()}
-                      aria-label="Add attachment"
-                      className="w-5 h-5 flex items-center justify-center text-[#7E8B8B] hover:text-white transition-colors shrink-0"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </button>
-                    <input
-                      type="text"
-                      value={heroInput}
-                      onChange={(e) => setHeroInput(e.target.value)}
-                      placeholder="Describe symptom, code (e.g. P0300) or issue..."
-                      className="bg-transparent text-[#A3B18A] caret-[#A3B18A] placeholder-[#707C7C] focus:outline-none w-full text-xs sm:text-sm"
-                    />
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                    <span className="w-5 h-5 flex items-center justify-center text-[#6A7777] shrink-0">
+                      <Plus className="w-3.5 h-3.5" />
+                    </span>
+                    <span className="text-[#5C6767] text-[11px] sm:text-xs truncate font-normal">
+                      Describe the symptom, paste a code or attach evidence...
+                    </span>
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => onGetStarted?.()}
-                      aria-label="Voice input"
-                      className="p-1 text-[#7E8B8B] hover:text-white transition-colors"
-                    >
-                      <Mic className="w-4 h-4" />
-                    </button>
-                    <button
-                      type="submit"
-                      aria-label="Send message"
-                      className="w-7 h-7 rounded-full bg-[#272E2E] border border-[#3A4545] flex items-center justify-center text-white hover:bg-[#A3B18A] hover:text-[#0E1111] transition-colors"
-                    >
-                      <ArrowUp className="w-4 h-4" />
-                    </button>
+                    <span className="p-1 text-[#6A7777]">
+                      <Mic className="w-3.5 h-3.5" />
+                    </span>
+                    <span className="w-6 h-6 rounded-full border border-[#2E3737] flex items-center justify-center text-[#7E8B8B]">
+                      <ArrowUp className="w-3 h-3" />
+                    </span>
                   </div>
-                </form>
+                </div>
 
                 {/* Micro Disclaimer */}
-                <p id="session-disclaimer" className="text-[11px] text-[#5A6363] text-center mt-3 font-normal">
+                <p id="session-disclaimer" className="text-[11px] text-[#4A5555] text-center mt-3 font-normal">
                   Mekai is AI and can make mistakes.
                 </p>
               </div>

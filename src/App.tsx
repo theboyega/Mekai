@@ -179,10 +179,7 @@ export default function App() {
   };
 
   const handleLearnMore = () => {
-    const el = document.getElementById('capabilities-section');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
+    handleNavigatePage('docs');
   };
 
   // When authenticated and in app mode, render the App Dashboard
