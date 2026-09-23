@@ -1529,15 +1529,7 @@ export function AppDashboard({
             </button>
           </div>
 
-          <div className="hidden md:flex items-center justify-between w-full h-9">
-            {/* Active Vehicle Session Tag if detected */}
-            {currentSessionTitle ? (
-              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#151D1B] border border-[#23312C] text-xs text-[#A3B18A]">
-                <Car className="w-3.5 h-3.5 text-[#A3B18A]" />
-                <span className="font-heading font-bold">{currentSessionTitle}</span>
-              </div>
-            ) : <div />}
-
+          <div className="hidden md:flex items-center justify-end w-full h-9">
             <button
               id="upgrade-tier-btn"
               type="button"
@@ -1573,16 +1565,6 @@ export function AppDashboard({
                 id="diagnostic-chat-messages"
                 className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 md:px-12 w-full max-w-2xl mx-auto py-4 space-y-5 overscroll-contain"
               >
-                {/* Mobile Vehicle indicator if active */}
-                {currentSessionTitle && (
-                  <div className="md:hidden flex items-center justify-center pb-2 shrink-0">
-                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#151D1B] border border-[#23312C] text-xs text-[#A3B18A]">
-                      <Car className="w-3.5 h-3.5 text-[#A3B18A]" />
-                      <span className="font-heading font-bold">{currentSessionTitle}</span>
-                    </div>
-                  </div>
-                )}
-
                 {messages.map((msg) => (
                   <div
                     key={msg.id}
@@ -1634,11 +1616,10 @@ export function AppDashboard({
 
                 {isAnalyzing && (
                   <div className="w-full flex justify-start">
-                    <div className="max-w-[95%] text-[#8A9A78] text-xs sm:text-sm flex items-center gap-2.5 py-1">
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#A3B18A] animate-pulse" />
-                      <span className="font-heading font-medium tracking-wide">
-                        Mekai is analyzing vehicle telemetry...
-                      </span>
+                    <div className="inline-flex items-center gap-1.5 py-2 px-1">
+                      <span className="w-2 h-2 rounded-full bg-[#A3B18A] animate-dot-1" />
+                      <span className="w-2 h-2 rounded-full bg-[#A3B18A] animate-dot-2" />
+                      <span className="w-2 h-2 rounded-full bg-[#A3B18A] animate-dot-3" />
                     </div>
                   </div>
                 )}
