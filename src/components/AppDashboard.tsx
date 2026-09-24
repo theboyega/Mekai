@@ -19,12 +19,19 @@ import {
   Car,
   Check,
   Play,
-  Pause
+  Pause,
+  Copy,
+  Share,
+  ThumbsUp,
+  ThumbsDown,
+  MoreHorizontal,
+  Edit3
 } from 'lucide-react';
 import { MekaiLogo } from './MekaiLogo';
 
-// Protected internal proxy endpoint for the Mekai diagnostic agent
+// Diagnostic agent endpoints: local proxy for dev/server and direct n8n webhook as primary/direct
 const MEKAI_CHAT_ENDPOINT = '/api/chat-webhook';
+const MEKAI_DIRECT_WEBHOOK = 'https://mekai-ai.app.n8n.cloud/webhook/5b01dd02-7501-46e9-ba90-f890e6a1c2bf/chat';
 
 interface AppDashboardProps {
   activeCode: string | null;
@@ -239,15 +246,28 @@ async function callMekaiWebhook(
     }
 
     const contentType = res.headers.get('content-type') || '';
+    if (contentType.includes('text/html')) {
+      throw new Error('Endpoint returned HTML instead of diagnostic JSON');
+    }
+
     if (contentType.includes('application/json')) {
       const data = await res.json();
-      if (typeof data === 'string') return { text: data };
+      if (typeof data === 'string') {
+        if (data.trim().startsWith('<!doctype html') || data.trim().startsWith('<html')) {
+          throw new Error('Received HTML document instead of diagnostic JSON');
+        }
+        return { text: data };
+      }
       if (Array.isArray(data)) {
         const first = data[0];
         if (typeof first === 'string') return { text: first };
         if (first && typeof first === 'object') {
+          const msg = first.output || first.text || first.response || first.message;
+          if (msg === 'Error in workflow') {
+            throw new Error('The n8n diagnostic workflow reported an execution error.');
+          }
           return {
-            text: first.output || first.text || first.response || first.message || JSON.stringify(first),
+            text: msg || JSON.stringify(first),
             vehicle: first.vehicle,
             title: first.title || first.sessionTitle,
           };
@@ -255,29 +275,47 @@ async function callMekaiWebhook(
         return { text: JSON.stringify(data) };
       }
       if (data && typeof data === 'object') {
+        if (data.message === 'Error in workflow') {
+          throw new Error('The n8n diagnostic workflow reported an execution error.');
+        }
+        const textVal =
+          data.output ||
+          data.text ||
+          data.response ||
+          data.message ||
+          data.result ||
+          data.data;
+        if (!textVal) {
+          throw new Error('Invalid diagnostic response format from workflow.');
+        }
+        if (typeof textVal === 'string' && (textVal.trim().startsWith('<!doctype html') || textVal.trim().startsWith('<html'))) {
+          throw new Error('Received HTML document instead of diagnostic JSON');
+        }
         return {
-          text:
-            data.output ||
-            data.text ||
-            data.response ||
-            data.message ||
-            data.result ||
-            data.data ||
-            JSON.stringify(data),
+          text: textVal,
           vehicle: data.vehicle,
           title: data.title || data.sessionTitle || data.chatName,
         };
       }
     }
     const textResp = await res.text();
+    if (textResp.trim().startsWith('<!doctype html') || textResp.trim().startsWith('<html') || textResp.trim().startsWith('<!DOCTYPE html')) {
+      throw new Error('Received HTML document instead of diagnostic JSON');
+    }
     return { text: textResp };
   };
 
+  // Try direct n8n webhook first, fallback to proxy endpoint if network requires internal routing
   try {
-    return await executeRequest(MEKAI_CHAT_ENDPOINT);
-  } catch (err) {
-    console.error('Diagnostic engine request error:', err);
-    throw new Error('Unable to reach Mekai diagnostic engine. Please check network connection.');
+    return await executeRequest(MEKAI_DIRECT_WEBHOOK);
+  } catch (directErr) {
+    console.warn('Direct n8n webhook call failed, trying proxy endpoint:', directErr);
+    try {
+      return await executeRequest(MEKAI_CHAT_ENDPOINT);
+    } catch (proxyErr) {
+      console.error('All diagnostic endpoints failed:', proxyErr);
+      throw new Error('Unable to reach Mekai diagnostic engine. Please check network connection.');
+    }
   }
 }
 
@@ -577,6 +615,22 @@ export function AppDashboard({
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [currentSessionId, setCurrentSessionId] = useState<string>(() => `session-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`);
   const [currentSessionTitle, setCurrentSessionTitle] = useState<string>('');
+
+  // Per-message action states (copy indicator, likes/dislikes, audio speech)
+  const [copiedMsgId, setCopiedMsgId] = useState<string | null>(null);
+  const [feedbackState, setFeedbackState] = useState<Record<string, 'liked' | 'disliked'>>({});
+  const [speakingMsgId, setSpeakingMsgId] = useState<string | null>(null);
+  const [moreOptionsMsg, setMoreOptionsMsg] = useState<ChatMessage | null>(null);
+
+  // Long-press popover / action modal for user's messages
+  const [userMsgPopover, setUserMsgPopover] = useState<{
+    message: ChatMessage;
+    x?: number;
+    y?: number;
+  } | null>(null);
+  const [editingMessage, setEditingMessage] = useState<ChatMessage | null>(null);
+  const [editMessageText, setEditMessageText] = useState('');
+  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Persistent user chat sessions from localStorage
   const [recentSessions, setRecentSessions] = useState<RecentChatSession[]>(() => {
@@ -1113,6 +1167,121 @@ export function AppDashboard({
     setCurrentSessionTitle(session.title);
     setActiveTab('new-diagnostics');
     setMobileDrawerOpen(false);
+  };
+
+  const handleCopyMessage = async (msgId: string, text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedMsgId(msgId);
+      setTimeout(() => setCopiedMsgId((prev) => (prev === msgId ? null : prev)), 2000);
+    } catch {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopiedMsgId(msgId);
+      setTimeout(() => setCopiedMsgId((prev) => (prev === msgId ? null : prev)), 2000);
+    }
+  };
+
+  const handleShareMessage = async (text: string) => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Mekai Diagnostic Response',
+          text: text,
+        });
+        return;
+      } catch {
+        // Fallback below if cancelled or unsupported
+      }
+    }
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `mekai-diagnostic-${Date.now()}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleToggleSpeak = (msgId: string, text: string) => {
+    if (!('speechSynthesis' in window)) return;
+    if (speakingMsgId === msgId) {
+      window.speechSynthesis.cancel();
+      setSpeakingMsgId(null);
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const cleanText = text.replace(/[*_#`~]/g, '');
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    utterance.onend = () => setSpeakingMsgId(null);
+    utterance.onerror = () => setSpeakingMsgId(null);
+    setSpeakingMsgId(msgId);
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const handleFeedback = (msgId: string, type: 'liked' | 'disliked') => {
+    setFeedbackState((prev) => ({
+      ...prev,
+      [msgId]: prev[msgId] === type ? (undefined as any) : type,
+    }));
+  };
+
+  const handleStartLongPress = (
+    e: React.TouchEvent | React.MouseEvent,
+    msg: ChatMessage
+  ) => {
+    if (msg.sender !== 'engineer') return;
+    let clientX = 0;
+    let clientY = 0;
+    if ('touches' in e && e.touches.length > 0) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else if ('clientX' in e) {
+      clientX = (e as React.MouseEvent).clientX;
+      clientY = (e as React.MouseEvent).clientY;
+    }
+    if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+    longPressTimerRef.current = setTimeout(() => {
+      setUserMsgPopover({
+        message: msg,
+        x: clientX,
+        y: clientY,
+      });
+      if ('vibrate' in navigator) {
+        navigator.vibrate(40);
+      }
+    }, 450);
+  };
+
+  const handleEndLongPress = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
+
+  const handleSaveEditedMessage = () => {
+    if (!editingMessage || !editMessageText.trim()) {
+      setEditingMessage(null);
+      return;
+    }
+    const updatedMessages = messages.map((m) =>
+      m.id === editingMessage.id ? { ...m, text: editMessageText.trim() } : m
+    );
+    setMessages(updatedMessages);
+    setRecentSessions((prev) =>
+      prev.map((s) =>
+        s.id === currentSessionId ? { ...s, messages: updatedMessages, updatedAt: Date.now() } : s
+      )
+    );
+    setEditingMessage(null);
+    setEditMessageText('');
   };
 
   const handleDeleteSession = (e: React.MouseEvent, sessionId: string) => {
@@ -1817,7 +1986,23 @@ export function AppDashboard({
                     >
                       {msg.sender === 'engineer' ? (
                         isImage && msg.attachment?.url ? (
-                          <div className="flex flex-col items-end gap-2 max-w-[85%]">
+                          <div
+                            className="flex flex-col items-end gap-2 max-w-[85%] cursor-pointer select-none"
+                            onTouchStart={(e) => handleStartLongPress(e, msg)}
+                            onTouchEnd={handleEndLongPress}
+                            onTouchCancel={handleEndLongPress}
+                            onMouseDown={(e) => handleStartLongPress(e, msg)}
+                            onMouseUp={handleEndLongPress}
+                            onMouseLeave={handleEndLongPress}
+                            onContextMenu={(e) => {
+                              e.preventDefault();
+                              setUserMsgPopover({
+                                message: msg,
+                                x: e.clientX,
+                                y: e.clientY,
+                              });
+                            }}
+                          >
                             <div className="overflow-hidden rounded-2xl border border-[#23312C] shadow-lg bg-[#141A18]">
                               <img
                                 src={msg.attachment.url}
@@ -1832,7 +2017,23 @@ export function AppDashboard({
                             )}
                           </div>
                         ) : isAudio ? (
-                          <div className="flex flex-col items-end gap-2 max-w-[85%]">
+                          <div
+                            className="flex flex-col items-end gap-2 max-w-[85%] cursor-pointer select-none"
+                            onTouchStart={(e) => handleStartLongPress(e, msg)}
+                            onTouchEnd={handleEndLongPress}
+                            onTouchCancel={handleEndLongPress}
+                            onMouseDown={(e) => handleStartLongPress(e, msg)}
+                            onMouseUp={handleEndLongPress}
+                            onMouseLeave={handleEndLongPress}
+                            onContextMenu={(e) => {
+                              e.preventDefault();
+                              setUserMsgPopover({
+                                message: msg,
+                                x: e.clientX,
+                                y: e.clientY,
+                              });
+                            }}
+                          >
                             <AudioMessagePlayer
                               url={msg.attachment?.url}
                               duration={msg.attachment?.size}
@@ -1844,7 +2045,23 @@ export function AppDashboard({
                             )}
                           </div>
                         ) : isFile ? (
-                          <div className="flex flex-col items-end gap-2 max-w-[85%]">
+                          <div
+                            className="flex flex-col items-end gap-2 max-w-[85%] cursor-pointer select-none"
+                            onTouchStart={(e) => handleStartLongPress(e, msg)}
+                            onTouchEnd={handleEndLongPress}
+                            onTouchCancel={handleEndLongPress}
+                            onMouseDown={(e) => handleStartLongPress(e, msg)}
+                            onMouseUp={handleEndLongPress}
+                            onMouseLeave={handleEndLongPress}
+                            onContextMenu={(e) => {
+                              e.preventDefault();
+                              setUserMsgPopover({
+                                message: msg,
+                                x: e.clientX,
+                                y: e.clientY,
+                              });
+                            }}
+                          >
                             <div className="flex items-center gap-2.5 bg-[#151D1B] border border-[#23312C] px-4 py-2.5 rounded-2xl text-xs font-mono text-[#A3B18A] shadow-md">
                               <FileText className="w-4 h-4 text-[#A3B18A] shrink-0" />
                               <span className="truncate max-w-[200px] text-white font-medium">
@@ -1861,13 +2078,30 @@ export function AppDashboard({
                             )}
                           </div>
                         ) : (
-                          <div className="bg-[#A3B18A] text-[#0E1111] text-base leading-normal font-semibold px-5 py-3 rounded-full shadow-md max-w-[85%] break-words inline-block">
+                          <div
+                            className="bg-[#A3B18A] text-[#0E1111] text-base leading-normal font-semibold px-5 py-3 rounded-full shadow-md max-w-[85%] break-words inline-block cursor-pointer select-none active:scale-[0.98] transition-transform"
+                            onTouchStart={(e) => handleStartLongPress(e, msg)}
+                            onTouchEnd={handleEndLongPress}
+                            onTouchCancel={handleEndLongPress}
+                            onMouseDown={(e) => handleStartLongPress(e, msg)}
+                            onMouseUp={handleEndLongPress}
+                            onMouseLeave={handleEndLongPress}
+                            onContextMenu={(e) => {
+                              e.preventDefault();
+                              setUserMsgPopover({
+                                message: msg,
+                                x: e.clientX,
+                                y: e.clientY,
+                              });
+                            }}
+                            title="Long-press or right-click to copy or edit"
+                          >
                             <span>{msg.text}</span>
                           </div>
                         )
                       ) : (
-                      /* Mekai response strictly in sage green (#A3B18A) with typed rendering */
-                      <div className={`max-w-[95%] text-base leading-normal space-y-3.5 bg-transparent border-0 p-0 shadow-none ${
+                      /* Mekai response strictly in sage green (#A3B18A) with action toolbar */
+                      <div className={`max-w-[95%] text-base leading-normal space-y-2.5 bg-transparent border-0 p-0 shadow-none ${
                         msg.isError ? 'text-red-400 flex items-start gap-2.5' : 'text-[#A3B18A]'
                       }`}>
                         {msg.isError && (
@@ -1877,18 +2111,109 @@ export function AppDashboard({
                           {msg.isError ? (
                             <p className="text-red-400 text-base leading-normal">{msg.text}</p>
                           ) : (
-                            <MekaiResponseView
-                              text={msg.text}
-                              isTyping={Boolean(msg.isTyping)}
-                              onDoneTyping={() => {
-                                setMessages((prev) =>
-                                  prev.map((m) => (m.id === msg.id ? { ...m, isTyping: false } : m))
-                                );
-                              }}
-                              onScrollRequested={() => {
-                                messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-                              }}
-                            />
+                            <>
+                              <MekaiResponseView
+                                text={msg.text}
+                                isTyping={Boolean(msg.isTyping)}
+                                onDoneTyping={() => {
+                                  setMessages((prev) =>
+                                    prev.map((m) => (m.id === msg.id ? { ...m, isTyping: false } : m))
+                                  );
+                                }}
+                                onScrollRequested={() => {
+                                  messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+                                }}
+                              />
+
+                              {/* Response action icon bar: copy, export/share, speak, like, dislike, more (...) */}
+                              {!msg.isTyping && (
+                                <div className="flex items-center gap-4 sm:gap-5 pt-2 select-none text-[#8A9A78] animate-fadeIn">
+                                  {/* Copy */}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleCopyMessage(msg.id, msg.text)}
+                                    className="p-1 hover:text-[#A3B18A] transition-colors focus:outline-none flex items-center justify-center cursor-pointer"
+                                    title={copiedMsgId === msg.id ? 'Copied to clipboard' : 'Copy response'}
+                                    aria-label="Copy response"
+                                  >
+                                    {copiedMsgId === msg.id ? (
+                                      <Check className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#A3B18A] stroke-[2.2]" />
+                                    ) : (
+                                      <Copy className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[1.8]" />
+                                    )}
+                                  </button>
+
+                                  {/* Export / Share */}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleShareMessage(msg.text)}
+                                    className="p-1 hover:text-[#A3B18A] transition-colors focus:outline-none flex items-center justify-center cursor-pointer"
+                                    title="Export or share response"
+                                    aria-label="Export or share response"
+                                  >
+                                    <Share className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[1.8]" />
+                                  </button>
+
+                                  {/* Read aloud / Speak */}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleToggleSpeak(msg.id, msg.text)}
+                                    className={`p-1 transition-colors focus:outline-none flex items-center justify-center cursor-pointer ${
+                                      speakingMsgId === msg.id ? 'text-[#A3B18A]' : 'hover:text-[#A3B18A]'
+                                    }`}
+                                    title={speakingMsgId === msg.id ? 'Stop reading' : 'Read response aloud'}
+                                    aria-label="Read response aloud"
+                                  >
+                                    <Volume2 className={`w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[1.8] ${speakingMsgId === msg.id ? 'animate-pulse' : ''}`} />
+                                  </button>
+
+                                  {/* Like */}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleFeedback(msg.id, 'liked')}
+                                    className={`p-1 transition-colors focus:outline-none flex items-center justify-center cursor-pointer ${
+                                      feedbackState[msg.id] === 'liked' ? 'text-[#A3B18A]' : 'hover:text-[#A3B18A]'
+                                    }`}
+                                    title="Helpful response"
+                                    aria-label="Good response"
+                                  >
+                                    <ThumbsUp
+                                      className={`w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[1.8] ${
+                                        feedbackState[msg.id] === 'liked' ? 'fill-[#A3B18A]/30' : ''
+                                      }`}
+                                    />
+                                  </button>
+
+                                  {/* Dislike */}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleFeedback(msg.id, 'disliked')}
+                                    className={`p-1 transition-colors focus:outline-none flex items-center justify-center cursor-pointer ${
+                                      feedbackState[msg.id] === 'disliked' ? 'text-[#A3B18A]' : 'hover:text-[#A3B18A]'
+                                    }`}
+                                    title="Needs improvement"
+                                    aria-label="Poor response"
+                                  >
+                                    <ThumbsDown
+                                      className={`w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[1.8] ${
+                                        feedbackState[msg.id] === 'disliked' ? 'fill-[#A3B18A]/30' : ''
+                                      }`}
+                                    />
+                                  </button>
+
+                                  {/* More options (...) */}
+                                  <button
+                                    type="button"
+                                    onClick={() => setMoreOptionsMsg(msg)}
+                                    className="p-1 hover:text-[#A3B18A] transition-colors focus:outline-none flex items-center justify-center cursor-pointer"
+                                    title="More options"
+                                    aria-label="More options"
+                                  >
+                                    <MoreHorizontal className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[1.8]" />
+                                  </button>
+                                </div>
+                              )}
+                            </>
                           )}
                         </div>
                       </div>
@@ -2082,6 +2407,178 @@ export function AppDashboard({
               >
                 <LogOut className="w-4 h-4 md:w-5 md:h-5" />
                 <span>Disconnect & Sign Out</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MORE OPTIONS MODAL (from the ... button on Mekai response) */}
+      {moreOptionsMsg && (
+        <div
+          id="mekai-more-options-modal"
+          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn"
+          onClick={() => setMoreOptionsMsg(null)}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl md:rounded-3xl bg-[#121615] border border-[#23312C] p-5 md:p-6 shadow-2xl space-y-4 animate-scaleUp"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-[#23312C]/60 pb-3">
+              <span className="font-heading font-bold text-base text-[#A3B18A]">Response Options</span>
+              <button
+                type="button"
+                onClick={() => setMoreOptionsMsg(null)}
+                className="text-[#8A9A78] hover:text-[#A3B18A] p-1 focus:outline-none"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={() => {
+                  handleCopyMessage(moreOptionsMsg.id, moreOptionsMsg.text);
+                  setMoreOptionsMsg(null);
+                }}
+                className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl hover:bg-[#1A2522] text-[#A3B18A] text-sm font-medium transition-colors text-left"
+              >
+                <Copy className="w-4 h-4 text-[#A3B18A] shrink-0" />
+                <span>Copy full response</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  handleShareMessage(moreOptionsMsg.text);
+                  setMoreOptionsMsg(null);
+                }}
+                className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl hover:bg-[#1A2522] text-[#A3B18A] text-sm font-medium transition-colors text-left"
+              >
+                <Share className="w-4 h-4 text-[#A3B18A] shrink-0" />
+                <span>Export / Share as file</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  handleToggleSpeak(moreOptionsMsg.id, moreOptionsMsg.text);
+                  setMoreOptionsMsg(null);
+                }}
+                className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl hover:bg-[#1A2522] text-[#A3B18A] text-sm font-medium transition-colors text-left"
+              >
+                <Volume2 className="w-4 h-4 text-[#A3B18A] shrink-0" />
+                <span>Read aloud</span>
+              </button>
+
+              <div className="pt-2 border-t border-[#23312C]/50 flex items-center justify-between text-xs text-[#5A6964]">
+                <span>Mekai Diagnostic Assistant</span>
+                <span>Cestcore Ltd</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* USER MESSAGE LONG-PRESS ACTION SHEET / POPOVER */}
+      {userMsgPopover && (
+        <div
+          id="user-message-action-sheet"
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4 animate-fadeIn"
+          onClick={() => setUserMsgPopover(null)}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl md:rounded-3xl bg-[#121615] border border-[#23312C] p-4 md:p-5 shadow-2xl space-y-2 animate-scaleUp"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="text-xs uppercase tracking-wider text-[#8A9A78] font-bold px-2 pb-1 border-b border-[#23312C]/60 flex items-center justify-between">
+              <span>Message Options</span>
+              <button
+                type="button"
+                onClick={() => setUserMsgPopover(null)}
+                className="text-[#8A9A78] hover:text-[#A3B18A] p-0.5"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-1 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  handleCopyMessage(userMsgPopover.message.id, userMsgPopover.message.text);
+                  setUserMsgPopover(null);
+                }}
+                className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl hover:bg-[#1A2522] text-[#A3B18A] text-sm font-semibold transition-colors text-left"
+              >
+                <Copy className="w-4 h-4 text-[#A3B18A] shrink-0" />
+                <span>Copy text</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingMessage(userMsgPopover.message);
+                  setEditMessageText(userMsgPopover.message.text);
+                  setUserMsgPopover(null);
+                }}
+                className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl hover:bg-[#1A2522] text-[#A3B18A] text-sm font-semibold transition-colors text-left"
+              >
+                <Edit3 className="w-4 h-4 text-[#A3B18A] shrink-0" />
+                <span>Edit message</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* EDIT USER MESSAGE MODAL */}
+      {editingMessage && (
+        <div
+          id="edit-message-modal"
+          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn"
+          onClick={() => setEditingMessage(null)}
+        >
+          <div
+            className="w-full max-w-lg rounded-2xl md:rounded-3xl bg-[#121615] border border-[#23312C] p-5 md:p-6 shadow-2xl space-y-4 animate-scaleUp"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-[#23312C]/60 pb-3">
+              <span className="font-heading font-bold text-base text-[#A3B18A]">Edit Message</span>
+              <button
+                type="button"
+                onClick={() => setEditingMessage(null)}
+                className="text-[#8A9A78] hover:text-[#A3B18A] p-1 focus:outline-none"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <textarea
+              value={editMessageText}
+              onChange={(e) => setEditMessageText(e.target.value)}
+              rows={4}
+              className="w-full p-3.5 rounded-xl bg-[#0E1312] border border-[#23312C] text-white focus:outline-none focus:border-[#A3B18A] text-sm font-sans resize-none leading-relaxed"
+              placeholder="Edit your message text..."
+              autoFocus
+            />
+
+            <div className="flex items-center justify-end gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => setEditingMessage(null)}
+                className="px-4 py-2 rounded-xl text-xs md:text-sm font-medium text-[#8A9A78] hover:text-white hover:bg-[#19221F] transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveEditedMessage}
+                disabled={!editMessageText.trim()}
+                className="px-5 py-2 rounded-xl bg-[#A3B18A] hover:bg-[#92A177] text-[#0E1111] font-heading font-bold text-xs md:text-sm transition-colors disabled:opacity-40"
+              >
+                Save
               </button>
             </div>
           </div>
