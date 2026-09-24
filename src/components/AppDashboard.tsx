@@ -1319,33 +1319,48 @@ export function AppDashboard({
           id="mobile-drawer"
           className="lg:hidden fixed inset-0 z-50 bg-[#0E1111] flex flex-col justify-between h-[100dvh] max-h-[100dvh] w-full overflow-hidden animate-fadeIn select-none overscroll-none"
         >
-          {/* Fixed/Sticky Top Bar with MEKAI Logo & Close Button */}
-          <div className="sticky top-0 z-10 w-full px-6 py-4 md:px-10 md:py-6 bg-[#0E1111] border-b border-[#1A2320]/60 flex items-center justify-between shrink-0 shadow-sm">
-            <div
-              className="cursor-pointer flex items-center gap-3.5 h-9 md:h-11"
-              onClick={() => {
-                resetDiagnosticsSession();
-                setMobileDrawerOpen(false);
-              }}
-            >
-              <div className="w-9 h-9 md:w-11 md:h-11 flex items-center justify-center shrink-0">
-                <MekaiLogo iconSize={34} showText={false} />
-              </div>
-              <span className="font-heading font-extrabold text-xl md:text-2xl tracking-widest text-[#A3B18A] select-none leading-none">
-                MEKAI
-              </span>
-            </div>
+          {/* Fixed/Sticky Top Bar: Exact same layout as main header (space-between, left group with logo & hamburger, locked right slot) */}
+          <header className="sticky top-0 z-10 w-full p-4 sm:p-5 md:px-8 bg-[#0E1111] border-b border-[#1A2320]/60 shrink-0 shadow-sm">
+            <div className="flex items-center justify-between w-full h-10 md:h-12">
+              {/* Left Group: Logo and Hamburger toggle pinned together on the far left */}
+              <div className="flex items-center gap-3.5 h-10 md:h-12 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setMobileDrawerOpen(false)}
+                  className="w-10 h-10 md:w-12 md:h-12 min-h-[40px] md:min-h-[48px] rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 flex flex-col items-center justify-center gap-1.5 shrink-0 transition-transform shadow-md focus:outline-none cursor-pointer"
+                  aria-label="Toggle navigation drawer"
+                >
+                  <span className="w-4 md:w-5 h-[2.5px] bg-[#0E1111] rounded-full" />
+                  <span className="w-4 md:w-5 h-[2.5px] bg-[#0E1111] rounded-full" />
+                </button>
 
-            <button
-              id="mobile-drawer-close-btn"
-              type="button"
-              onClick={() => setMobileDrawerOpen(false)}
-              className="w-10 h-10 md:w-12 md:h-12 min-h-[40px] md:min-h-[48px] rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] flex items-center justify-center shrink-0 transition-transform shadow-md focus:outline-none"
-              aria-label="Close navigation drawer"
-            >
-              <X className="w-5 h-5 md:w-6 md:h-6 stroke-[2.5]" />
-            </button>
-          </div>
+                <div
+                  className="cursor-pointer flex items-center gap-2.5 h-9 md:h-11 select-none"
+                  onClick={() => {
+                    resetDiagnosticsSession();
+                    setMobileDrawerOpen(false);
+                  }}
+                >
+                  <span className="font-heading font-extrabold text-xl md:text-2xl tracking-widest text-[#A3B18A] leading-none">
+                    MEKAI
+                  </span>
+                </div>
+              </div>
+
+              {/* Right Slot: Locked fixed-size container (w-10 h-10 md:w-12 md:h-12) for in-place swapping */}
+              <div className="w-10 h-10 md:w-12 md:h-12 shrink-0 flex items-center justify-center">
+                <button
+                  id="mobile-drawer-close-btn"
+                  type="button"
+                  onClick={() => setMobileDrawerOpen(false)}
+                  className="w-10 h-10 md:w-12 md:h-12 min-h-[40px] md:min-h-[48px] rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] flex items-center justify-center shrink-0 transition-transform shadow-md focus:outline-none cursor-pointer"
+                  aria-label="Close navigation drawer"
+                >
+                  <X className="w-5 h-5 md:w-6 md:h-6 stroke-[2.5]" />
+                </button>
+              </div>
+            </div>
+          </header>
 
           {/* Scrollable Drawer Content (Nav items and Recents) */}
           <div className="flex-1 min-h-0 overflow-y-auto px-6 py-6 md:px-10 md:py-8 overscroll-contain no-scrollbar w-full max-w-xl md:max-w-2xl mx-auto">
@@ -1714,12 +1729,13 @@ export function AppDashboard({
         {/* Pinned Header */}
         <header className="w-full p-4 sm:p-5 md:px-8 lg:px-10 z-10 shrink-0 border-b border-[#1A2320]/40 lg:border-b-0">
           <div className="flex lg:hidden items-center justify-between w-full h-10 md:h-12">
-            <div className="flex items-center gap-3.5 h-10 md:h-12">
+            {/* Left Group: Logo and Hamburger toggle pinned together on the far left */}
+            <div className="flex items-center gap-3.5 h-10 md:h-12 shrink-0">
               <button
                 id="mobile-drawer-toggle-btn"
                 type="button"
                 onClick={() => setMobileDrawerOpen(true)}
-                className="w-10 h-10 md:w-12 md:h-12 min-h-[40px] md:min-h-[48px] rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 flex flex-col items-center justify-center gap-1.5 shrink-0 transition-transform shadow-md focus:outline-none"
+                className="w-10 h-10 md:w-12 md:h-12 min-h-[40px] md:min-h-[48px] rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 flex flex-col items-center justify-center gap-1.5 shrink-0 transition-transform shadow-md focus:outline-none cursor-pointer"
                 aria-label="Open navigation drawer"
               >
                 <span className="w-4 md:w-5 h-[2.5px] bg-[#0E1111] rounded-full" />
@@ -1731,16 +1747,19 @@ export function AppDashboard({
               </span>
             </div>
 
-            <button
-              id="mobile-profile-avatar-btn"
-              type="button"
-              onClick={() => setShowSettingsModal(true)}
-              className="w-10 h-10 md:w-12 md:h-12 min-h-[40px] md:min-h-[48px] rounded-full bg-[#A3B18A] text-[#0E1111] font-heading font-extrabold text-xs md:text-sm flex items-center justify-center shrink-0 shadow-md active:scale-95 transition-transform focus:outline-none"
-              title={`${displayName} - Workshop Settings`}
-              aria-label={`Profile for ${displayName}`}
-            >
-              {initials}
-            </button>
+            {/* Right Slot: Locked fixed-size container (w-10 h-10 md:w-12 md:h-12) for in-place swapping */}
+            <div className="w-10 h-10 md:w-12 md:h-12 shrink-0 flex items-center justify-center">
+              <button
+                id="mobile-profile-avatar-btn"
+                type="button"
+                onClick={() => setShowSettingsModal(true)}
+                className="w-10 h-10 md:w-12 md:h-12 min-h-[40px] md:min-h-[48px] rounded-full bg-[#A3B18A] text-[#0E1111] font-heading font-extrabold text-xs md:text-sm flex items-center justify-center shrink-0 shadow-md active:scale-95 transition-transform focus:outline-none cursor-pointer"
+                title={`${displayName} - Workshop Settings`}
+                aria-label={`Profile for ${displayName}`}
+              >
+                {initials}
+              </button>
+            </div>
           </div>
 
           <div className="hidden lg:flex items-center justify-end w-full h-9">
