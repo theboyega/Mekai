@@ -1295,7 +1295,7 @@ export function AppDashboard({
       </form>
 
       {showDisclaimer && (
-        <p className="text-[11px] text-[#5A6363] text-center mt-2 font-normal select-none">
+        <p className="text-xs md:text-[13px] text-[#707D7A] text-center mt-2 font-normal select-none tracking-normal">
           Mekai is AI and can make mistakes.
         </p>
       )}
@@ -1348,7 +1348,7 @@ export function AppDashboard({
           </div>
 
           {/* Scrollable Drawer Content (Nav items and Recents) */}
-          <div className="flex-1 min-h-0 overflow-y-auto px-6 py-6 overscroll-contain">
+          <div className="flex-1 min-h-0 overflow-y-auto px-6 py-6 overscroll-contain no-scrollbar">
             <nav className="space-y-6">
               <button
                 id="mobile-nav-new-diagnostics-btn"
@@ -1570,7 +1570,7 @@ export function AppDashboard({
 
               {!isRecentsCollapsed && (
                 recentSessions.length > 0 ? (
-                  <div className="space-y-1 max-h-60 overflow-y-auto pr-1 animate-fadeIn">
+                  <div className="space-y-1 max-h-60 overflow-y-auto pr-1 animate-fadeIn no-scrollbar">
                     {recentSessions.slice(0, 7).map((session) => (
                       <div
                         key={session.id}
@@ -1775,7 +1775,7 @@ export function AppDashboard({
               {/* Internal scrolling message history area */}
               <div
                 id="diagnostic-chat-messages"
-                className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 md:px-10 w-full max-w-2xl md:max-w-[720px] mx-auto py-4 space-y-5 overscroll-contain"
+                className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 md:px-10 w-full max-w-2xl md:max-w-[720px] mx-auto py-4 space-y-5 overscroll-contain no-scrollbar"
               >
                 {messages.map((msg) => {
                   const isImage = msg.attachment?.type === 'image';
@@ -1927,7 +1927,7 @@ export function AppDashboard({
             </div>
 
             {/* Internal Scrolling Content List Only */}
-            <div className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 md:px-12 w-full max-w-2xl mx-auto py-2 pb-8 overscroll-contain">
+            <div className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 md:px-12 w-full max-w-2xl mx-auto py-2 pb-8 overscroll-contain no-scrollbar">
               <div className="flex items-center justify-between mb-4 mt-2">
                 <h2
                   id="recent-chats-heading"

@@ -45,6 +45,25 @@ input::selection, textarea::selection {
   -webkit-overflow-scrolling: touch;
 }
 
+/* Hide scrollbars across the chat interface on desktop and mobile while preserving full scrollability */
+#diagnostic-chat-messages,
+#diagnostic-chat-messages *,
+.no-scrollbar,
+.no-scrollbar * {
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE and Edge */
+}
+
+#diagnostic-chat-messages::-webkit-scrollbar,
+#diagnostic-chat-messages *::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar,
+.no-scrollbar *::-webkit-scrollbar {
+  display: none !important;
+  width: 0px !important;
+  height: 0px !important;
+  background: transparent !important;
+}
+
 h1, h2, h3, h4, h5, h6, .font-heading {
   font-family: var(--font-heading);
 }

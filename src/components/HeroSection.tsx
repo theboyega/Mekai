@@ -124,7 +124,7 @@ export function HeroSection({ onGetStarted, onLearnMore }: HeroSectionProps) {
                   </div>
 
                   {/* Micro Disclaimer */}
-                  <p id="session-disclaimer" className="text-[11px] text-[#4A5555] text-center mt-3 font-normal">
+                  <p id="session-disclaimer" className="text-xs md:text-[13px] text-[#5C6767] text-center mt-3 font-normal">
                     Mekai is AI and can make mistakes.
                   </p>
                 </div>
