@@ -208,6 +208,7 @@ async function callMekaiWebhook(
   attachment?: ChatAttachment
 ): Promise<WebhookResult> {
   const payload = {
+    action: 'sendMessage',
     chatInput: prompt,
     message: prompt,
     sessionId: sessionId,
@@ -233,7 +234,8 @@ async function callMekaiWebhook(
     });
 
     if (!res.ok) {
-      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+      const errText = await res.text().catch(() => '');
+      throw new Error(`HTTP ${res.status}: ${errText || res.statusText}`);
     }
 
     const contentType = res.headers.get('content-type') || '';
@@ -1089,10 +1091,14 @@ export function AppDashboard({
       });
     } catch (err: any) {
       console.error('Error fetching Mekai response:', err);
+      const friendlyError =
+        err?.message?.includes('Unable to reach Mekai') || err?.message?.includes('Network error')
+          ? 'Unable to reach the Mekai diagnostic engine at this moment. Please check your network connection and try again.'
+          : `Diagnostic communication notice: ${err?.message || 'Please check connection and retry.'}`;
       const errorMsg: ChatMessage = {
         id: `msg-${Date.now()}-err`,
         sender: 'mekai',
-        text: `Error connecting to diagnostic webhook: ${err.message || 'Network error'}. Please try again.`,
+        text: friendlyError,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         isError: true,
       };
