@@ -23,8 +23,8 @@ import {
 } from 'lucide-react';
 import { MekaiLogo } from './MekaiLogo';
 
-const MEKAI_WEBHOOK_URL = 'https://mekai-ai.app.n8n.cloud/webhook/5b01dd02-7501-46e9-ba90-f890e6a1c2bf/chat';
-const PROXY_WEBHOOK_URL = '/api/chat-webhook';
+// Protected internal proxy endpoint for the Mekai diagnostic agent
+const MEKAI_CHAT_ENDPOINT = '/api/chat-webhook';
 
 interface AppDashboardProps {
   activeCode: string | null;
@@ -272,15 +272,10 @@ async function callMekaiWebhook(
   };
 
   try {
-    return await executeRequest(MEKAI_WEBHOOK_URL);
-  } catch (directErr) {
-    console.warn('Direct webhook call encountered issue, trying proxy fallback:', directErr);
-    try {
-      return await executeRequest(PROXY_WEBHOOK_URL);
-    } catch (proxyErr) {
-      console.error('All webhook endpoints failed:', proxyErr);
-      throw new Error('Unable to reach Mekai diagnostic engine. Please check network connection.');
-    }
+    return await executeRequest(MEKAI_CHAT_ENDPOINT);
+  } catch (err) {
+    console.error('Diagnostic engine request error:', err);
+    throw new Error('Unable to reach Mekai diagnostic engine. Please check network connection.');
   }
 }
 
@@ -1363,8 +1358,8 @@ export function AppDashboard({
           </header>
 
           {/* Scrollable Drawer Content (Nav items and Recents) */}
-          <div className="flex-1 min-h-0 overflow-y-auto px-6 py-6 md:px-10 md:py-8 overscroll-contain no-scrollbar w-full max-w-xl md:max-w-2xl mx-auto">
-            <nav className="space-y-4 md:space-y-5">
+          <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5 md:px-10 md:py-6 overscroll-contain no-scrollbar w-full max-w-xl md:max-w-2xl mx-auto">
+            <nav className="space-y-2.5 md:space-y-3">
               <button
                 id="mobile-nav-new-diagnostics-btn"
                 type="button"
@@ -1372,13 +1367,13 @@ export function AppDashboard({
                   resetDiagnosticsSession();
                   setMobileDrawerOpen(false);
                 }}
-                className={`w-full flex items-center gap-3.5 text-left transition-colors font-heading text-lg md:text-xl py-2 md:py-2.5 min-h-[44px] md:min-h-[50px] ${
+                className={`w-full flex items-center gap-3.5 text-left transition-colors font-heading text-lg md:text-xl py-1 md:py-1.5 ${
                   activeTab === 'new-diagnostics'
                     ? 'text-[#A3B18A] font-extrabold'
                     : 'text-[#A3B18A]/90 hover:text-[#A3B18A] font-bold'
                 }`}
               >
-                <div className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 md:w-9 md:h-9 flex items-center justify-center shrink-0">
                   <SquarePen className="w-5 h-5 md:w-6 md:h-6 text-[#A3B18A]" />
                 </div>
                 <span>New Diagnostics</span>
@@ -1391,13 +1386,13 @@ export function AppDashboard({
                   setActiveTab('search-chats');
                   setMobileDrawerOpen(false);
                 }}
-                className={`w-full flex items-center gap-3.5 text-left transition-colors font-heading text-lg md:text-xl py-2 md:py-2.5 min-h-[44px] md:min-h-[50px] ${
+                className={`w-full flex items-center gap-3.5 text-left transition-colors font-heading text-lg md:text-xl py-1 md:py-1.5 ${
                   activeTab === 'search-chats'
                     ? 'text-[#A3B18A] font-extrabold'
                     : 'text-[#A3B18A]/90 hover:text-[#A3B18A] font-bold'
                 }`}
               >
-                <div className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 md:w-9 md:h-9 flex items-center justify-center shrink-0">
                   <Search className="w-5 h-5 md:w-6 md:h-6 text-[#A3B18A]" />
                 </div>
                 <span>Search Chats</span>
@@ -1533,7 +1528,7 @@ export function AppDashboard({
               </button>
             </div>
 
-            <nav className="space-y-4">
+            <nav className="space-y-2.5">
               <button
                 id="nav-new-diagnostics-btn"
                 type="button"
@@ -1669,7 +1664,7 @@ export function AppDashboard({
               </button>
             </div>
 
-            <nav className="space-y-4">
+            <nav className="space-y-2.5">
               <button
                 type="button"
                 onClick={resetDiagnosticsSession}
