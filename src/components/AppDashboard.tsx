@@ -344,8 +344,8 @@ function renderMekaiText(text: string, isTyping: boolean = false) {
               if (trimmed.startsWith('• ') || trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
                 const content = trimmed.replace(/^[•\-*]\s*/, '');
                 return (
-                  <div key={lineIdx} className="flex items-start gap-2 pl-2">
-                    <span className="text-[#A3B18A] mt-1 shrink-0 font-bold">•</span>
+                  <div key={lineIdx} className="flex items-start gap-2 pl-2 text-base leading-normal">
+                    <span className="text-[#A3B18A] mt-0.5 shrink-0 font-bold">•</span>
                     <span className="text-[#A3B18A]">
                       {parseFormattedText(content)}
                       {isTyping && isLastLine && (
@@ -363,7 +363,7 @@ function renderMekaiText(text: string, isTyping: boolean = false) {
                 const num = trimmed.match(/^(\d+)\.\s/)?.[1];
                 const content = trimmed.replace(/^\d+\.\s*/, '');
                 return (
-                  <div key={lineIdx} className="flex items-start gap-2 pl-2">
+                  <div key={lineIdx} className="flex items-start gap-2 pl-2 text-base leading-normal">
                     <span className="text-[#A3B18A] font-semibold font-mono shrink-0">{num}.</span>
                     <span className="text-[#A3B18A]">
                       {parseFormattedText(content)}
@@ -379,7 +379,7 @@ function renderMekaiText(text: string, isTyping: boolean = false) {
               }
 
               return (
-                <p key={lineIdx} className="text-[#A3B18A] leading-relaxed">
+                <p key={lineIdx} className="text-[#A3B18A] text-base leading-normal">
                   {parseFormattedText(line)}
                   {isTyping && isLastLine && (
                     <span
@@ -1262,7 +1262,9 @@ export function AppDashboard({
                 value={promptInput}
                 onChange={(e) => setPromptInput(e.target.value)}
                 placeholder="Ask Mekai (e.g. Ford Explorer 2014)"
-                className="flex-1 bg-transparent text-[#A3B18A] caret-[#A3B18A] placeholder-[#5A6964] text-base focus:outline-none font-sans min-w-0"
+                autoComplete="off"
+                spellCheck="false"
+                className="flex-1 bg-transparent text-[#A3B18A] caret-[#A3B18A] placeholder-[#5A6964] text-base leading-normal focus:outline-none focus:ring-0 font-sans min-w-0"
               />
 
               {/* Right Controls: Microphone & Submit Arrow */}
@@ -1753,11 +1755,11 @@ export function AppDashboard({
         {activeTab === 'new-diagnostics' ? (
           messages.length === 0 ? (
             /* Clean Empty Initial State */
-            <div className="flex-1 min-h-0 flex flex-col justify-between md:justify-center items-center px-4 sm:px-6 md:px-12 w-full max-w-2xl mx-auto pb-4 sm:pb-8 md:pb-0 md:-mt-10 overflow-hidden">
+            <div className="flex-1 min-h-0 flex flex-col justify-between md:justify-center items-center px-4 sm:px-6 md:px-10 w-full max-w-2xl md:max-w-[720px] mx-auto pb-4 sm:pb-8 md:pb-0 md:-mt-10 overflow-hidden">
               <div className="my-auto md:my-0 text-center">
                 <h1
                   id="diagnostics-prompt-heading"
-                  className="text-2xl sm:text-3xl md:text-4xl lg:text-[40px] font-extrabold text-[#A3B18A] font-heading tracking-tight text-center leading-snug select-none md:mb-8 max-w-xl mx-auto"
+                  className="text-xl sm:text-2xl md:text-3xl lg:text-[32px] font-extrabold text-[#A3B18A] font-heading tracking-tight text-center leading-snug select-none md:mb-7 max-w-xl mx-auto"
                 >
                   {WORKSHOP_GREETINGS[greetingIndex](firstName)}
                 </h1>
@@ -1773,7 +1775,7 @@ export function AppDashboard({
               {/* Internal scrolling message history area */}
               <div
                 id="diagnostic-chat-messages"
-                className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 md:px-12 w-full max-w-2xl mx-auto py-4 space-y-5 overscroll-contain"
+                className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 md:px-10 w-full max-w-2xl md:max-w-[720px] mx-auto py-4 space-y-5 overscroll-contain"
               >
                 {messages.map((msg) => {
                   const isImage = msg.attachment?.type === 'image';
@@ -1802,7 +1804,7 @@ export function AppDashboard({
                               />
                             </div>
                             {hasCustomCaption && (
-                              <div className="bg-[#A3B18A] text-[#0E1111] text-sm sm:text-base font-semibold px-5 py-3 rounded-full shadow-md break-words">
+                              <div className="bg-[#A3B18A] text-[#0E1111] text-base leading-normal font-semibold px-5 py-3 rounded-full shadow-md break-words">
                                 <span>{msg.text}</span>
                               </div>
                             )}
@@ -1814,7 +1816,7 @@ export function AppDashboard({
                               duration={msg.attachment?.size}
                             />
                             {hasCustomCaption && (
-                              <div className="bg-[#A3B18A] text-[#0E1111] text-sm sm:text-base font-semibold px-5 py-3 rounded-full shadow-md break-words">
+                              <div className="bg-[#A3B18A] text-[#0E1111] text-base leading-normal font-semibold px-5 py-3 rounded-full shadow-md break-words">
                                 <span>{msg.text}</span>
                               </div>
                             )}
@@ -1831,19 +1833,19 @@ export function AppDashboard({
                               )}
                             </div>
                             {hasCustomCaption && (
-                              <div className="bg-[#A3B18A] text-[#0E1111] text-sm sm:text-base font-semibold px-5 py-3 rounded-full shadow-md break-words">
+                              <div className="bg-[#A3B18A] text-[#0E1111] text-base leading-normal font-semibold px-5 py-3 rounded-full shadow-md break-words">
                                 <span>{msg.text}</span>
                               </div>
                             )}
                           </div>
                         ) : (
-                          <div className="bg-[#A3B18A] text-[#0E1111] text-sm sm:text-base font-semibold px-5 py-3 rounded-full shadow-md max-w-[85%] break-words inline-block">
+                          <div className="bg-[#A3B18A] text-[#0E1111] text-base leading-normal font-semibold px-5 py-3 rounded-full shadow-md max-w-[85%] break-words inline-block">
                             <span>{msg.text}</span>
                           </div>
                         )
                       ) : (
                       /* Mekai response strictly in sage green (#A3B18A) with typed rendering */
-                      <div className={`max-w-[95%] text-sm sm:text-[15px] leading-relaxed space-y-3.5 bg-transparent border-0 p-0 shadow-none ${
+                      <div className={`max-w-[95%] text-base leading-normal space-y-3.5 bg-transparent border-0 p-0 shadow-none ${
                         msg.isError ? 'text-red-400 flex items-start gap-2.5' : 'text-[#A3B18A]'
                       }`}>
                         {msg.isError && (
@@ -1851,7 +1853,7 @@ export function AppDashboard({
                         )}
                         <div className="flex-1 text-[#A3B18A]">
                           {msg.isError ? (
-                            <p className="text-red-400">{msg.text}</p>
+                            <p className="text-red-400 text-base leading-normal">{msg.text}</p>
                           ) : (
                             <MekaiResponseView
                               text={msg.text}
@@ -1887,7 +1889,7 @@ export function AppDashboard({
               </div>
 
               {/* Pinned Bottom Input Bar Container */}
-              <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 md:px-12 pb-4 sm:pb-6 pt-2 shrink-0 bg-[#0E1111] z-10 border-t border-[#192220]/60 sm:border-t-0">
+              <div className="w-full max-w-2xl md:max-w-[720px] mx-auto px-4 sm:px-6 md:px-10 pb-4 sm:pb-6 pt-2 shrink-0 bg-[#0E1111] z-10 border-t border-[#192220]/60 sm:border-t-0">
                 {renderDiagnosticInputBar(true)}
               </div>
             </div>
@@ -1896,7 +1898,7 @@ export function AppDashboard({
           /* Search Chats View - Fixed viewport container with pinned search field & internal scrolling list only */
           <div className="flex-1 min-h-0 flex flex-col h-full w-full overflow-hidden">
             {/* Pinned Search Field Container at Top */}
-            <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 md:px-12 pt-3 sm:pt-6 pb-2 shrink-0 bg-[#0E1111] z-10">
+            <div className="w-full max-w-2xl md:max-w-[720px] mx-auto px-4 sm:px-6 md:px-10 pt-3 sm:pt-6 pb-2 shrink-0 bg-[#0E1111] z-10">
               <div
                 id="search-chats-pill"
                 className="w-full rounded-full border border-[#23312C] bg-[#0E1312] hover:border-[#354841] focus-within:border-[#A3B18A] px-4 sm:px-6 py-3 sm:py-3.5 flex items-center gap-3 transition-all shadow-lg mx-auto"
@@ -1909,7 +1911,7 @@ export function AppDashboard({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search chats by vehicle (e.g. Ford Explorer 2014) or code"
-                  className="flex-1 bg-transparent text-white placeholder-[#5A6964] text-base focus:outline-none font-sans min-w-0"
+                  className="flex-1 bg-transparent text-white placeholder-[#5A6964] text-base leading-normal focus:outline-none font-sans min-w-0"
                 />
                 {searchQuery && (
                   <button
@@ -1933,22 +1935,6 @@ export function AppDashboard({
                 >
                   Recent
                 </h2>
-                {recentSessions.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (confirm('Clear all conversation history?')) {
-                        setRecentSessions([]);
-                        localStorage.removeItem('mekai_diagnostic_sessions');
-                        setCurrentSessionTitle('');
-                      }
-                    }}
-                    className="text-xs text-[#5A6964] hover:text-red-400 transition-colors flex items-center gap-1"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                    <span>Clear history</span>
-                  </button>
-                )}
               </div>
 
               <div id="recent-chats-container" className="space-y-2.5">

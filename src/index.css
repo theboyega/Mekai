@@ -25,6 +25,21 @@ html, body {
   }
 }
 
+/* Prevent browser autofill or selection from creating a harsh white background */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #A3B18A !important;
+  -webkit-box-shadow: 0 0 0px 1000px #0E1312 inset !important;
+  box-shadow: 0 0 0px 1000px #0E1312 inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+input::selection, textarea::selection {
+  background-color: rgba(163, 177, 138, 0.35) !important;
+  color: #A3B18A !important;
+}
+
 #app-dashboard {
   overscroll-behavior: none;
   -webkit-overflow-scrolling: touch;

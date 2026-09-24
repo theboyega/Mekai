@@ -21,7 +21,7 @@ export function PageHeader({
   return (
     <header className="w-full bg-[#0E1111]/95 backdrop-blur-md sticky top-0 z-40 border-b border-[#1C2121]/80">
       <div className="w-full px-6 sm:px-10 lg:px-14 xl:px-20 h-20 sm:h-24 flex items-center justify-between">
-        {/* Left: Brand Logo (Navigates to Homepage) & Breadcrumb */}
+        {/* Left: Brand Logo (Navigates to Homepage) */}
         <div className="flex items-center gap-4 sm:gap-6">
           <a
             href="#"
@@ -34,16 +34,6 @@ export function PageHeader({
           >
             <MekaiLogo iconSize={32} textSize="text-xl tracking-widest font-heading font-extrabold" />
           </a>
-
-          <div className="hidden sm:flex items-center gap-2 text-xs font-heading font-medium text-[#707D7D]">
-            <span>/</span>
-            <span className="text-[#A3B18A] font-semibold">{title}</span>
-            {badge && (
-              <span className="ml-1.5 px-2 py-0.5 rounded-full bg-[#A3B18A]/10 text-[#A3B18A] border border-[#A3B18A]/30 text-[10px] font-bold">
-                {badge}
-              </span>
-            )}
-          </div>
         </div>
 
         {/* Right: Actions */}
