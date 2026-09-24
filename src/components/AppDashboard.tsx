@@ -25,7 +25,10 @@ import {
   ThumbsUp,
   ThumbsDown,
   MoreHorizontal,
-  Edit3
+  Edit3,
+  Pin,
+  HelpCircle,
+  AlertTriangle
 } from 'lucide-react';
 import { MekaiLogo } from './MekaiLogo';
 
@@ -67,6 +70,7 @@ export interface RecentChatSession {
   date: string;
   messages: ChatMessage[];
   updatedAt: number;
+  isPinned?: boolean;
 }
 
 export interface WebhookResult {
@@ -632,6 +636,15 @@ export function AppDashboard({
   const [editMessageText, setEditMessageText] = useState('');
   const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Session ... menu actions state (share, pin, rename, help, report a problem, delete)
+  const [sessionMenuTarget, setSessionMenuTarget] = useState<RecentChatSession | null>(null);
+  const [sessionToRename, setSessionToRename] = useState<RecentChatSession | null>(null);
+  const [renameTitleInput, setRenameTitleInput] = useState('');
+  const [sessionHelpTarget, setSessionHelpTarget] = useState<RecentChatSession | null>(null);
+  const [sessionReportTarget, setSessionReportTarget] = useState<RecentChatSession | null>(null);
+  const [reportIssueText, setReportIssueText] = useState('');
+  const [reportSubmitted, setReportSubmitted] = useState(false);
+
   // Persistent user chat sessions from localStorage
   const [recentSessions, setRecentSessions] = useState<RecentChatSession[]>(() => {
     try {
@@ -644,6 +657,13 @@ export function AppDashboard({
       // ignore
     }
     return [];
+  });
+
+  // Helper to sort sessions with pinned items first
+  const sortedRecentSessions = [...recentSessions].sort((a, b) => {
+    if (a.isPinned && !b.isPinned) return -1;
+    if (!a.isPinned && b.isPinned) return 1;
+    return b.updatedAt - a.updatedAt;
   });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -1292,7 +1312,78 @@ export function AppDashboard({
     }
   };
 
-  const renderDiagnosticInputBar = (showDisclaimer = false) => (
+  const handleShareSession = async (session: RecentChatSession) => {
+    const transcript = session.messages
+      .map((m) => `[${m.sender === 'engineer' ? 'Technician' : 'Mekai AI'}] ${m.timestamp}\n${m.text}\n`)
+      .join('\n---\n\n');
+    const header = `MEKAI DIAGNOSTIC SESSION: ${session.title}\nDate: ${session.date}\n\n`;
+    const fullContent = header + transcript;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Mekai Chat: ${session.title}`,
+          text: fullContent,
+        });
+        setSessionMenuTarget(null);
+        return;
+      } catch {
+        // Fallback to file download
+      }
+    }
+
+    const blob = new Blob([fullContent], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `mekai-${session.title.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${Date.now()}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setSessionMenuTarget(null);
+  };
+
+  const handleTogglePinSession = (sessionId: string) => {
+    setRecentSessions((prev) =>
+      prev.map((s) => (s.id === sessionId ? { ...s, isPinned: !s.isPinned } : s))
+    );
+    setSessionMenuTarget(null);
+  };
+
+  const handleStartRenameSession = (session: RecentChatSession) => {
+    setSessionToRename(session);
+    setRenameTitleInput(session.title);
+    setSessionMenuTarget(null);
+  };
+
+  const handleSaveRenamedSession = () => {
+    if (!sessionToRename || !renameTitleInput.trim()) {
+      setSessionToRename(null);
+      return;
+    }
+    const newTitle = renameTitleInput.trim();
+    setRecentSessions((prev) =>
+      prev.map((s) => (s.id === sessionToRename.id ? { ...s, title: newTitle } : s))
+    );
+    if (currentSessionId === sessionToRename.id) {
+      setCurrentSessionTitle(newTitle);
+    }
+    setSessionToRename(null);
+    setRenameTitleInput('');
+  };
+
+  const handleStartHelpSession = (session: RecentChatSession) => {
+    setSessionHelpTarget(session);
+    setSessionMenuTarget(null);
+  };
+
+  const handleStartReportProblem = (session: RecentChatSession) => {
+    setSessionReportTarget(session);
+    setReportIssueText('');
+    setReportSubmitted(false);
+    setSessionMenuTarget(null);
+  };
+
+  const renderDiagnosticInputBar = () => (
     <div className="w-full relative">
       {/* Staged attachment preview chip */}
       {attachedMedia && (
@@ -1463,12 +1554,6 @@ export function AppDashboard({
           )}
         </div>
       </form>
-
-      {showDisclaimer && (
-        <p className="text-xs md:text-[13px] text-[#707D7A] text-center mt-2 font-normal select-none tracking-normal">
-          Mekai is AI and can make mistakes.
-        </p>
-      )}
     </div>
   );
 
@@ -1490,7 +1575,7 @@ export function AppDashboard({
           className="lg:hidden fixed inset-0 z-50 bg-[#0E1111] flex flex-col justify-between h-[100dvh] max-h-[100dvh] w-full overflow-hidden animate-fadeIn select-none overscroll-none"
         >
           {/* Fixed/Sticky Top Bar: Exact same layout as main header (space-between, left group with logo & hamburger, locked right slot) */}
-          <header className="sticky top-0 z-10 w-full p-4 sm:p-5 md:px-8 bg-[#0E1111] border-b border-[#1A2320]/60 shrink-0 shadow-sm">
+          <header className="sticky top-0 z-10 w-full p-4 sm:p-5 md:px-8 bg-[#0E1111] shrink-0">
             <div className="flex items-center justify-between w-full h-10 md:h-12">
               {/* Left Group: Logo and Hamburger toggle pinned together on the far left */}
               <div className="flex items-center gap-3.5 h-10 md:h-12 shrink-0">
@@ -1593,30 +1678,37 @@ export function AppDashboard({
 
               {!isRecentsCollapsed && (
                 <div className="mt-3 space-y-1.5 animate-fadeIn">
-                  {recentSessions.length > 0 ? (
-                    recentSessions.slice(0, 7).map((session) => (
+                  {sortedRecentSessions.length > 0 ? (
+                    sortedRecentSessions.slice(0, 7).map((session) => (
                       <div
                         key={session.id}
-                        className="flex items-center justify-between group rounded-lg hover:bg-[#151D1B] pr-2 min-h-[40px] md:min-h-[46px]"
+                        className="flex items-center justify-between group rounded-lg hover:bg-[#151D1B] pr-1.5 min-h-[40px] md:min-h-[46px]"
                       >
                         <button
                           type="button"
                           onClick={() => handleOpenRecentSession(session)}
-                          className={`flex-1 text-left px-3 py-2 md:py-2.5 text-sm md:text-base truncate transition-colors ${
+                          className={`flex-1 text-left px-3 py-2 md:py-2.5 text-sm md:text-base truncate transition-colors flex items-center gap-2 ${
                             currentSessionId === session.id
                               ? 'text-[#A3B18A] font-bold bg-[#161F1C] rounded'
                               : 'text-[#8A9A78] hover:text-[#A3B18A]'
                           }`}
                         >
-                          {session.title}
+                          {session.isPinned && (
+                            <Pin className="w-3.5 h-3.5 text-[#A3B18A] shrink-0 fill-[#A3B18A]/30 rotate-45" />
+                          )}
+                          <span className="truncate">{session.title}</span>
                         </button>
                         <button
                           type="button"
-                          onClick={(e) => handleDeleteSession(e, session.id)}
-                          className="opacity-0 group-hover:opacity-100 p-1.5 text-[#5A6964] hover:text-red-400 transition-opacity"
-                          title="Delete chat"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSessionMenuTarget(session);
+                          }}
+                          className="p-1.5 text-[#8A9A78] hover:text-[#A3B18A] hover:bg-[#192220] rounded-lg transition-colors cursor-pointer"
+                          title="Chat session options"
+                          aria-label="Chat session options"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <MoreHorizontal className="w-4 h-4 md:w-5 md:h-5" />
                         </button>
                       </div>
                     ))
@@ -1631,11 +1723,11 @@ export function AppDashboard({
           </div>
 
           {/* Fixed/Pinned Bottom User Profile Bar */}
-          <div className="w-full border-t border-[#192220]/60 bg-[#0E1111] shrink-0">
+          <div className="w-full bg-[#0E1111] shrink-0">
             <div className="max-w-xl md:max-w-2xl mx-auto px-6 py-4 md:px-10 md:py-6 flex items-center justify-between">
               <div className="flex items-center gap-3.5 min-w-0">
                 <div
-                  className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#A3B18A] text-[#0E1111] font-heading font-extrabold text-xs md:text-sm flex items-center justify-center shrink-0 select-none shadow-sm"
+                  className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#A3B18A] text-[#0E1111] font-heading font-extrabold text-sm md:text-base flex items-center justify-center shrink-0 select-none shadow-sm leading-none"
                   aria-label={`Profile for ${displayName}`}
                 >
                   {initials}
@@ -1756,32 +1848,39 @@ export function AppDashboard({
               </button>
 
               {!isRecentsCollapsed && (
-                recentSessions.length > 0 ? (
+                sortedRecentSessions.length > 0 ? (
                   <div className="space-y-1 max-h-60 overflow-y-auto pr-1 animate-fadeIn no-scrollbar">
-                    {recentSessions.slice(0, 7).map((session) => (
+                    {sortedRecentSessions.slice(0, 7).map((session) => (
                       <div
                         key={session.id}
-                        className="group flex items-center justify-between rounded-lg hover:bg-[#151D1B] pr-1.5"
+                        className="group flex items-center justify-between rounded-lg hover:bg-[#151D1B] pr-1"
                       >
                         <button
                           type="button"
                           onClick={() => handleOpenRecentSession(session)}
-                          className={`flex-1 text-left px-2 py-1.5 text-xs truncate transition-colors ${
+                          className={`flex-1 text-left px-2 py-1.5 text-xs truncate transition-colors flex items-center gap-1.5 ${
                             currentSessionId === session.id
                               ? 'text-[#A3B18A] font-semibold bg-[#161F1C] rounded'
                               : 'text-[#8A9A78] hover:text-[#A3B18A]'
                           }`}
                           title={session.title}
                         >
-                          {session.title}
+                          {session.isPinned && (
+                            <Pin className="w-3 h-3 text-[#A3B18A] shrink-0 fill-[#A3B18A]/30 rotate-45" />
+                          )}
+                          <span className="truncate">{session.title}</span>
                         </button>
                         <button
                           type="button"
-                          onClick={(e) => handleDeleteSession(e, session.id)}
-                          className="opacity-0 group-hover:opacity-100 p-1 text-[#5A6964] hover:text-red-400 transition-opacity"
-                          title="Delete chat"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSessionMenuTarget(session);
+                          }}
+                          className="opacity-70 group-hover:opacity-100 p-1 text-[#8A9A78] hover:text-[#A3B18A] hover:bg-[#192220] rounded transition-all cursor-pointer"
+                          title="Chat session options"
+                          aria-label="Chat session options"
                         >
-                          <Trash2 className="w-3 h-3" />
+                          <MoreHorizontal className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     ))}
@@ -1795,10 +1894,10 @@ export function AppDashboard({
             </div>
           </div>
 
-          <div className="p-6 border-t border-[#192220]/60 flex items-center justify-between">
+          <div className="p-6 flex items-center justify-between">
             <div className="flex items-center gap-3 min-w-0">
               <div
-                className="w-9 h-9 rounded-full bg-[#A3B18A] text-[#0E1111] font-heading font-extrabold text-xs flex items-center justify-center shrink-0 select-none tracking-tight shadow-sm"
+                className="w-9 h-9 rounded-full bg-[#A3B18A] text-[#0E1111] font-heading font-extrabold text-sm flex items-center justify-center shrink-0 select-none tracking-tight shadow-sm leading-none"
                 aria-label={`Profile for ${displayName}`}
               >
                 {initials}
@@ -1870,7 +1969,7 @@ export function AppDashboard({
             </nav>
           </div>
 
-          <div className="p-6 border-t border-[#192220]/60 flex flex-col items-center gap-4">
+          <div className="p-6 flex flex-col items-center gap-4">
             <button
               type="button"
               onClick={() => setShowSettingsModal(true)}
@@ -1884,7 +1983,7 @@ export function AppDashboard({
             <button
               type="button"
               onClick={() => setIsSidebarOpen(true)}
-              className="w-9 h-9 rounded-full bg-[#A3B18A] text-[#0E1111] font-heading font-extrabold text-xs flex items-center justify-center shrink-0 hover:ring-2 hover:ring-[#A3B18A]/50 transition-all select-none tracking-tight shadow-sm"
+              className="w-9 h-9 rounded-full bg-[#A3B18A] text-[#0E1111] font-heading font-extrabold text-sm flex items-center justify-center shrink-0 hover:ring-2 hover:ring-[#A3B18A]/50 transition-all select-none tracking-tight shadow-sm leading-none"
               title={`${displayName} (Click to expand sidebar)`}
               aria-label={`Profile for ${displayName}`}
             >
@@ -1897,7 +1996,7 @@ export function AppDashboard({
       {/* MAIN VIEW AREA - Fixed height viewport locked container */}
       <main className="flex-1 flex flex-col h-full min-h-0 w-full overflow-hidden relative bg-[#0E1111]">
         {/* Pinned Header */}
-        <header className="w-full p-4 sm:p-5 md:px-8 lg:px-10 z-10 shrink-0 border-b border-[#1A2320]/40 lg:border-b-0">
+        <header className="w-full p-4 sm:p-5 md:px-8 lg:px-10 z-10 shrink-0">
           <div className="flex lg:hidden items-center justify-between w-full h-10 md:h-12">
             {/* Left Group: Logo and Hamburger toggle pinned together on the far left */}
             <div className="flex items-center gap-3.5 h-10 md:h-12 shrink-0">
@@ -1923,7 +2022,7 @@ export function AppDashboard({
                 id="mobile-profile-avatar-btn"
                 type="button"
                 onClick={() => setShowSettingsModal(true)}
-                className="w-10 h-10 md:w-12 md:h-12 min-h-[40px] md:min-h-[48px] rounded-full bg-[#A3B18A] text-[#0E1111] font-heading font-extrabold text-xs md:text-sm flex items-center justify-center shrink-0 shadow-md active:scale-95 transition-transform focus:outline-none cursor-pointer"
+                className="w-10 h-10 md:w-12 md:h-12 min-h-[40px] md:min-h-[48px] rounded-full bg-[#A3B18A] text-[#0E1111] font-heading font-extrabold text-sm md:text-base flex items-center justify-center shrink-0 shadow-md active:scale-95 transition-transform focus:outline-none cursor-pointer leading-none"
                 title={`${displayName} - Workshop Settings`}
                 aria-label={`Profile for ${displayName}`}
               >
@@ -1957,7 +2056,7 @@ export function AppDashboard({
               </div>
 
               <div className="w-full shrink-0">
-                {renderDiagnosticInputBar(false)}
+                {renderDiagnosticInputBar()}
               </div>
             </div>
           ) : (
@@ -2213,6 +2312,13 @@ export function AppDashboard({
                                   </button>
                                 </div>
                               )}
+
+                              {/* Mekai AI Disclaimer directly under response and action bar */}
+                              {!msg.isTyping && (
+                                <p className="text-xs sm:text-[13px] text-[#707D7A] font-normal select-none pt-2 sm:pt-2.5">
+                                  Mekai is AI and can make mistakes.
+                                </p>
+                              )}
                             </>
                           )}
                         </div>
@@ -2236,8 +2342,8 @@ export function AppDashboard({
               </div>
 
               {/* Pinned Bottom Input Bar Container */}
-              <div className="w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-[760px] mx-auto px-4 sm:px-6 md:px-8 pb-4 sm:pb-6 pt-2 shrink-0 bg-[#0E1111] z-10 border-t border-[#192220]/60 sm:border-t-0">
-                {renderDiagnosticInputBar(true)}
+              <div className="w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-[760px] mx-auto px-4 sm:px-6 md:px-8 pb-4 sm:pb-6 pt-2 shrink-0 bg-[#0E1111] z-10">
+                {renderDiagnosticInputBar()}
               </div>
             </div>
           )
@@ -2285,7 +2391,7 @@ export function AppDashboard({
               </div>
 
               <div id="recent-chats-container" className="space-y-2.5">
-                {recentSessions
+                {sortedRecentSessions
                   .filter(
                     (s) =>
                       s.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -2296,11 +2402,14 @@ export function AppDashboard({
                     <div
                       key={session.id}
                       onClick={() => handleOpenRecentSession(session)}
-                      className="w-full text-left p-3.5 sm:p-4 rounded-xl bg-[#131817] hover:bg-[#18201E] border border-[#212C29] transition-all group cursor-pointer relative"
+                      className="w-full text-left p-3.5 sm:p-4 rounded-xl bg-[#131817] hover:bg-[#18201E] border border-[#212C29] transition-all group cursor-pointer relative pr-12"
                     >
                       <div className="flex items-center justify-between mb-1">
-                        <div className="flex items-center gap-2 truncate pr-6">
+                        <div className="flex items-center gap-2 truncate pr-4">
                           <Car className="w-3.5 h-3.5 text-[#A3B18A] shrink-0" />
+                          {session.isPinned && (
+                            <Pin className="w-3.5 h-3.5 text-[#A3B18A] shrink-0 fill-[#A3B18A]/30 rotate-45" />
+                          )}
                           <h3 className="font-heading font-bold text-sm text-[#DDE3E3] group-hover:text-[#A3B18A] transition-colors truncate">
                             {session.title}
                           </h3>
@@ -2314,16 +2423,20 @@ export function AppDashboard({
                       </p>
                       <button
                         type="button"
-                        onClick={(e) => handleDeleteSession(e, session.id)}
-                        className="absolute right-3 top-3 opacity-0 group-hover:opacity-100 p-1 text-[#5A6964] hover:text-red-400 transition-opacity"
-                        title="Delete chat"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSessionMenuTarget(session);
+                        }}
+                        className="absolute right-3 top-3 p-1.5 text-[#8A9A78] hover:text-[#A3B18A] hover:bg-[#1C2522] rounded-lg transition-colors cursor-pointer"
+                        title="Chat options"
+                        aria-label="Chat options"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <MoreHorizontal className="w-4 h-4" />
                       </button>
                     </div>
                   ))}
 
-                {recentSessions.filter(
+                {sortedRecentSessions.filter(
                   (s) =>
                     s.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                     s.snippet.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -2345,7 +2458,7 @@ export function AppDashboard({
           <div className="w-full max-w-md md:max-w-lg bg-[#121616] border border-[#26312E] rounded-2xl md:rounded-3xl p-6 md:p-8 shadow-2xl animate-fadeIn">
             <div className="flex items-center justify-between pb-4 md:pb-5 border-b border-[#202927]">
               <div className="flex items-center gap-3">
-                <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-[#A3B18A] text-[#0E1111] font-heading font-extrabold text-xs md:text-sm flex items-center justify-center shrink-0 select-none">
+                <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-[#A3B18A] text-[#0E1111] font-heading font-extrabold text-sm md:text-base flex items-center justify-center shrink-0 select-none leading-none">
                   {initials}
                 </div>
                 <h3 className="font-heading font-extrabold text-base md:text-lg text-white">Technician Workshop</h3>
@@ -2474,7 +2587,7 @@ export function AppDashboard({
 
               <div className="pt-2 border-t border-[#23312C]/50 flex items-center justify-between text-xs text-[#5A6964]">
                 <span>Mekai Diagnostic Assistant</span>
-                <span>Cestcore Ltd</span>
+                <span>Cestcore Limited</span>
               </div>
             </div>
           </div>
@@ -2581,6 +2694,307 @@ export function AppDashboard({
                 Save
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* SESSION ... ACTION MENU MODAL (Share, Pin, Rename, Help, Report a problem, Delete) */}
+      {sessionMenuTarget && (
+        <div
+          id="session-options-modal"
+          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-4 animate-fadeIn"
+          onClick={() => setSessionMenuTarget(null)}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl md:rounded-3xl bg-[#121615] border border-[#23312C] p-5 md:p-6 shadow-2xl space-y-4 animate-scaleUp"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-[#23312C]/60 pb-3">
+              <div className="min-w-0 pr-2">
+                <span className="font-heading font-bold text-base text-[#A3B18A] block truncate">
+                  {sessionMenuTarget.title}
+                </span>
+                <span className="text-[11px] text-[#5A6964] block font-mono">
+                  {sessionMenuTarget.date}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSessionMenuTarget(null)}
+                className="text-[#8A9A78] hover:text-[#A3B18A] p-1 focus:outline-none shrink-0"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-1">
+              {/* Share */}
+              <button
+                type="button"
+                onClick={() => handleShareSession(sessionMenuTarget)}
+                className="w-full flex items-center gap-3.5 px-3.5 py-3 rounded-xl hover:bg-[#1A2522] text-[#A3B18A] text-sm font-medium transition-colors text-left cursor-pointer"
+              >
+                <Share className="w-4 h-4 text-[#A3B18A] shrink-0 stroke-[1.9]" />
+                <span>Share chat</span>
+              </button>
+
+              {/* Pin / Unpin */}
+              <button
+                type="button"
+                onClick={() => handleTogglePinSession(sessionMenuTarget.id)}
+                className="w-full flex items-center gap-3.5 px-3.5 py-3 rounded-xl hover:bg-[#1A2522] text-[#A3B18A] text-sm font-medium transition-colors text-left cursor-pointer"
+              >
+                <Pin className={`w-4 h-4 text-[#A3B18A] shrink-0 stroke-[1.9] rotate-45 ${sessionMenuTarget.isPinned ? 'fill-[#A3B18A]/40' : ''}`} />
+                <span>{sessionMenuTarget.isPinned ? 'Unpin chat' : 'Pin chat'}</span>
+              </button>
+
+              {/* Rename */}
+              <button
+                type="button"
+                onClick={() => handleStartRenameSession(sessionMenuTarget)}
+                className="w-full flex items-center gap-3.5 px-3.5 py-3 rounded-xl hover:bg-[#1A2522] text-[#A3B18A] text-sm font-medium transition-colors text-left cursor-pointer"
+              >
+                <Edit3 className="w-4 h-4 text-[#A3B18A] shrink-0 stroke-[1.9]" />
+                <span>Rename</span>
+              </button>
+
+              {/* Help */}
+              <button
+                type="button"
+                onClick={() => handleStartHelpSession(sessionMenuTarget)}
+                className="w-full flex items-center gap-3.5 px-3.5 py-3 rounded-xl hover:bg-[#1A2522] text-[#A3B18A] text-sm font-medium transition-colors text-left cursor-pointer"
+              >
+                <HelpCircle className="w-4 h-4 text-[#A3B18A] shrink-0 stroke-[1.9]" />
+                <span>Help</span>
+              </button>
+
+              {/* Report a problem */}
+              <button
+                type="button"
+                onClick={() => handleStartReportProblem(sessionMenuTarget)}
+                className="w-full flex items-center gap-3.5 px-3.5 py-3 rounded-xl hover:bg-[#1A2522] text-[#A3B18A] text-sm font-medium transition-colors text-left cursor-pointer"
+              >
+                <AlertTriangle className="w-4 h-4 text-[#A3B18A] shrink-0 stroke-[1.9]" />
+                <span>Report a problem</span>
+              </button>
+
+              {/* Delete */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  handleDeleteSession(e, sessionMenuTarget.id);
+                  setSessionMenuTarget(null);
+                }}
+                className="w-full flex items-center gap-3.5 px-3.5 py-3 rounded-xl hover:bg-red-950/40 text-red-400 text-sm font-medium transition-colors text-left cursor-pointer"
+              >
+                <Trash2 className="w-4 h-4 text-red-400 shrink-0 stroke-[1.9]" />
+                <span>Delete</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* RENAME SESSION MODAL */}
+      {sessionToRename && (
+        <div
+          id="rename-session-modal"
+          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn"
+          onClick={() => setSessionToRename(null)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl md:rounded-3xl bg-[#121615] border border-[#23312C] p-5 md:p-6 shadow-2xl space-y-4 animate-scaleUp"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-[#23312C]/60 pb-3">
+              <span className="font-heading font-bold text-base text-[#A3B18A]">Rename Chat</span>
+              <button
+                type="button"
+                onClick={() => setSessionToRename(null)}
+                className="text-[#8A9A78] hover:text-[#A3B18A] p-1 focus:outline-none"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-[#8A9A78] uppercase tracking-wider block">
+                Chat Title
+              </label>
+              <input
+                type="text"
+                value={renameTitleInput}
+                onChange={(e) => setRenameTitleInput(e.target.value)}
+                className="w-full p-3.5 rounded-xl bg-[#0E1312] border border-[#23312C] text-white focus:outline-none focus:border-[#A3B18A] text-sm font-sans"
+                placeholder="e.g. Ford Explorer 2014"
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSaveRenamedSession();
+                }}
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => setSessionToRename(null)}
+                className="px-4 py-2 rounded-xl text-xs md:text-sm font-medium text-[#8A9A78] hover:text-white hover:bg-[#19221F] transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveRenamedSession}
+                disabled={!renameTitleInput.trim()}
+                className="px-5 py-2 rounded-xl bg-[#A3B18A] hover:bg-[#92A177] text-[#0E1111] font-heading font-bold text-xs md:text-sm transition-colors disabled:opacity-40"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* HELP MODAL */}
+      {sessionHelpTarget && (
+        <div
+          id="session-help-modal"
+          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn"
+          onClick={() => setSessionHelpTarget(null)}
+        >
+          <div
+            className="w-full max-w-lg rounded-2xl md:rounded-3xl bg-[#121615] border border-[#23312C] p-5 md:p-6 shadow-2xl space-y-4 animate-scaleUp"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-[#23312C]/60 pb-3">
+              <div className="flex items-center gap-2">
+                <HelpCircle className="w-5 h-5 text-[#A3B18A]" />
+                <span className="font-heading font-bold text-base text-[#A3B18A]">Chat Help & Guidelines</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSessionHelpTarget(null)}
+                className="text-[#8A9A78] hover:text-[#A3B18A] p-1 focus:outline-none"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs md:text-sm text-[#A3B18A]/90 leading-relaxed max-h-72 overflow-y-auto pr-1">
+              <div className="p-3 bg-[#161F1C] border border-[#23312C] rounded-xl">
+                <p className="font-bold text-white mb-1">Vehicle Details & DTC Guidance</p>
+                <p className="text-[#8A9A78]">
+                  Specify Year, Make, Model, and Engine (e.g. "2014 Ford Explorer 3.5L") along with DTC fault codes for pinpoint step-by-step diagnostic trees.
+                </p>
+              </div>
+
+              <div className="p-3 bg-[#161F1C] border border-[#23312C] rounded-xl">
+                <p className="font-bold text-white mb-1">Acoustic Diagnostics</p>
+                <p className="text-[#8A9A78]">
+                  Tap the microphone in the prompt bar to record engine knock, valvetrain ticking, wheel bearing hum, or transmission whine.
+                </p>
+              </div>
+
+              <div className="p-3 bg-[#161F1C] border border-[#23312C] rounded-xl">
+                <p className="font-bold text-white mb-1">Session Management</p>
+                <p className="text-[#8A9A78]">
+                  You can Pin critical active bay jobs to the top of your Recents and Search Chats list, rename them to match repair order numbers, or export them to share with technicians.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end pt-2 border-t border-[#23312C]/50">
+              <button
+                type="button"
+                onClick={() => setSessionHelpTarget(null)}
+                className="px-5 py-2 rounded-xl bg-[#A3B18A] hover:bg-[#92A177] text-[#0E1111] font-heading font-bold text-xs md:text-sm transition-colors"
+              >
+                Got It
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* REPORT A PROBLEM MODAL */}
+      {sessionReportTarget && (
+        <div
+          id="report-problem-modal"
+          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn"
+          onClick={() => setSessionReportTarget(null)}
+        >
+          <div
+            className="w-full max-w-lg rounded-2xl md:rounded-3xl bg-[#121615] border border-[#23312C] p-5 md:p-6 shadow-2xl space-y-4 animate-scaleUp"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-[#23312C]/60 pb-3">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-amber-400" />
+                <span className="font-heading font-bold text-base text-[#A3B18A]">Report a Problem</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSessionReportTarget(null)}
+                className="text-[#8A9A78] hover:text-[#A3B18A] p-1 focus:outline-none"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {reportSubmitted ? (
+              <div className="py-6 text-center space-y-2">
+                <Check className="w-8 h-8 text-[#A3B18A] mx-auto stroke-[2.5]" />
+                <p className="font-heading font-bold text-base text-white">Problem Reported</p>
+                <p className="text-xs text-[#8A9A78]">
+                  Thank you. Diagnostic logs for "{sessionReportTarget.title}" have been flagged for engineering review.
+                </p>
+                <div className="pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setSessionReportTarget(null)}
+                    className="px-5 py-2 rounded-xl bg-[#A3B18A] text-[#0E1111] font-heading font-bold text-xs md:text-sm"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="text-xs text-[#8A9A78] leading-relaxed">
+                  Reporting an issue with diagnostic session <strong className="text-white font-mono">"{sessionReportTarget.title}"</strong> ({sessionReportTarget.date}).
+                </div>
+
+                <textarea
+                  value={reportIssueText}
+                  onChange={(e) => setReportIssueText(e.target.value)}
+                  rows={4}
+                  className="w-full p-3.5 rounded-xl bg-[#0E1312] border border-[#23312C] text-white focus:outline-none focus:border-[#A3B18A] text-sm font-sans resize-none leading-relaxed"
+                  placeholder="Describe the issue (e.g. incorrect pinout, inaccurate torque spec, network error)..."
+                  autoFocus
+                />
+
+                <div className="flex items-center justify-end gap-2.5 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setSessionReportTarget(null)}
+                    className="px-4 py-2 rounded-xl text-xs md:text-sm font-medium text-[#8A9A78] hover:text-white hover:bg-[#19221F] transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!reportIssueText.trim()) return;
+                      setReportSubmitted(true);
+                    }}
+                    disabled={!reportIssueText.trim()}
+                    className="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-heading font-bold text-xs md:text-sm transition-colors disabled:opacity-40"
+                  >
+                    Submit Report
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

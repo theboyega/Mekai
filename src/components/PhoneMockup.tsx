@@ -99,7 +99,7 @@ export function PhoneMockups() {
           <div>
             <div className="flex items-center justify-between pt-1.5 sm:pt-2 border-t border-[#1F2525] text-[8px] min-[375px]:text-[9px] sm:text-[10px] text-white">
               <div className="flex items-center gap-1.5 min-w-0">
-                <div className="w-3.5 h-3.5 min-[375px]:w-4 min-[375px]:h-4 rounded-full bg-[#A3B18A] text-[#0E1111] flex items-center justify-center font-bold text-[7px] sm:text-[8px] shrink-0">
+                <div className="w-3.5 h-3.5 min-[375px]:w-4 min-[375px]:h-4 rounded-full bg-[#A3B18A] text-[#0E1111] flex items-center justify-center font-bold text-[8.5px] sm:text-[9.5px] shrink-0 leading-none">
                   A
                 </div>
                 <span className="truncate font-medium text-[#D1D8D8]">Adeyemi Tomiwa</span>
