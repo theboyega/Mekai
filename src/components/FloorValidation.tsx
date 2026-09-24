@@ -36,8 +36,8 @@ export function FloorValidation({ onSignUpClick }: FloorValidationProps) {
           </div>
         </ScrollReveal>
 
-        {/* 4 Cards Grid */}
-        <div id="validation-grid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-7">
+        {/* 4 Cards Grid: Single column for mobile and tablet, 4-column on desktop */}
+        <div id="validation-grid" className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-7 max-w-xl md:max-w-2xl lg:max-w-none mx-auto">
           {/* 3 Metrics Cards */}
           {metrics.map((item, index) => (
             <ScrollReveal
@@ -49,12 +49,12 @@ export function FloorValidation({ onSignUpClick }: FloorValidationProps) {
             >
               <div
                 id={`stat-card-${item.id}`}
-                className="h-full rounded-[22px] bg-[#131616] border border-[#222828] p-7 sm:p-8 flex flex-col justify-between min-h-[290px] transition-all duration-300 hover:border-[#333C3C] hover:bg-[#151919]"
+                className="h-full rounded-[22px] md:rounded-[26px] bg-[#131616] border border-[#222828] p-7 sm:p-8 md:p-9 flex flex-col justify-between min-h-[200px] md:min-h-[240px] transition-all duration-300 hover:border-[#333C3C] hover:bg-[#151919]"
               >
-                <div className="text-4xl sm:text-[46px] font-extrabold text-white tracking-tight font-heading">
+                <div className="text-4xl sm:text-[46px] md:text-5xl font-extrabold text-white tracking-tight font-heading">
                   {item.value}
                 </div>
-                <div className="text-sm font-medium text-[#8F9999]">
+                <div className="text-sm md:text-base font-medium text-[#8F9999]">
                   {item.label}
                 </div>
               </div>
@@ -67,15 +67,15 @@ export function FloorValidation({ onSignUpClick }: FloorValidationProps) {
               id="stat-cta-card-signup"
               type="button"
               onClick={onSignUpClick}
-              className="w-full h-full rounded-[22px] bg-[#A3B18A] p-7 sm:p-8 flex flex-col justify-between min-h-[290px] text-left transition-all duration-300 hover:bg-[#94A27B] hover:-translate-y-1 active:scale-[0.98] group shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-white cursor-pointer"
+              className="w-full h-full rounded-[22px] md:rounded-[26px] bg-[#A3B18A] p-7 sm:p-8 md:p-9 flex flex-col justify-between min-h-[200px] md:min-h-[240px] text-left transition-all duration-300 hover:bg-[#94A27B] hover:-translate-y-1 active:scale-[0.98] group shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-white cursor-pointer"
             >
-              <div className="text-2xl sm:text-3xl font-extrabold text-[#0E1111] leading-tight tracking-tight font-heading">
+              <div className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#0E1111] leading-tight tracking-tight font-heading">
                 Sign up now
               </div>
 
-              <div className="self-start">
-                <div className="w-11 h-11 rounded-full bg-[#0E1111] flex items-center justify-center text-[#A3B18A] transition-transform duration-200 group-hover:translate-x-1.5 shadow-sm">
-                  <ArrowRight className="w-5 h-5" />
+              <div className="self-start mt-6 md:mt-8">
+                <div className="w-11 h-11 md:w-13 md:h-13 rounded-full bg-[#0E1111] flex items-center justify-center text-[#A3B18A] transition-transform duration-200 group-hover:translate-x-1.5 shadow-sm">
+                  <ArrowRight className="w-5 h-5 md:w-6 md:h-6" />
                 </div>
               </div>
             </button>

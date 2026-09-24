@@ -13,11 +13,11 @@ export function HeroSection({ onGetStarted, onLearnMore }: HeroSectionProps) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           
           {/* Left Column: Hero Narrative & CTAs */}
-          <div id="hero-content" className="lg:col-span-6 flex flex-col justify-center">
+          <div id="hero-content" className="lg:col-span-6 flex flex-col justify-center max-w-xl md:max-w-2xl lg:max-w-none mx-auto w-full">
             <ScrollReveal animation="fade-up" duration={480} delay={60}>
               <h1
                 id="hero-heading"
-                className="text-4xl sm:text-5xl lg:text-[54px] font-extrabold text-white tracking-[-0.03em] leading-[1.08] mb-6"
+                className="text-4xl sm:text-5xl md:text-[52px] lg:text-[54px] font-extrabold text-white tracking-[-0.03em] leading-[1.08] mb-6 font-heading"
               >
                 Diagnostic<br className="hidden sm:inline" /> intelligence for the<br className="hidden sm:inline" /> modern workshop.
               </h1>
@@ -26,7 +26,7 @@ export function HeroSection({ onGetStarted, onLearnMore }: HeroSectionProps) {
             <ScrollReveal animation="fade-up" duration={480} delay={120}>
               <p
                 id="hero-description"
-                className="text-base sm:text-lg text-[#9EA8A8] font-normal leading-relaxed mb-8 sm:mb-10 max-w-2xl"
+                className="text-base sm:text-lg md:text-xl text-[#9EA8A8] font-normal leading-relaxed mb-8 sm:mb-10 max-w-2xl"
               >
                 Mekai is an automotive diagnostic assistant designed to analyze OBD-II trouble codes,
                 engine acoustic signatures, and component images to deliver instant repair guidance.
@@ -40,7 +40,7 @@ export function HeroSection({ onGetStarted, onLearnMore }: HeroSectionProps) {
                   id="hero-get-started-btn"
                   type="button"
                   onClick={() => onGetStarted?.()}
-                  className="px-7 py-3.5 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] font-bold text-sm font-heading transition-all duration-200 inline-flex items-center gap-2 group shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-white cursor-pointer"
+                  className="px-7 py-3.5 md:px-8 md:py-4 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] font-bold text-sm md:text-base font-heading transition-all duration-200 inline-flex items-center gap-2 group shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-white cursor-pointer min-h-[44px] md:min-h-[48px]"
                 >
                   <span>Get started</span>
                   <span className="transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
@@ -50,7 +50,7 @@ export function HeroSection({ onGetStarted, onLearnMore }: HeroSectionProps) {
                   id="hero-learn-more-btn"
                   type="button"
                   onClick={onLearnMore}
-                  className="px-7 py-3.5 rounded-full bg-transparent border border-[#2E3636] hover:border-[#A3B18A]/60 hover:bg-white/[0.03] active:scale-95 text-white font-semibold text-sm font-heading transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3B18A] cursor-pointer"
+                  className="px-7 py-3.5 md:px-8 md:py-4 rounded-full bg-transparent border border-[#2E3636] hover:border-[#A3B18A]/60 hover:bg-white/[0.03] active:scale-95 text-white font-semibold text-sm md:text-base font-heading transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3B18A] cursor-pointer min-h-[44px] md:min-h-[48px]"
                 >
                   Learn more
                 </button>
@@ -59,11 +59,11 @@ export function HeroSection({ onGetStarted, onLearnMore }: HeroSectionProps) {
           </div>
 
           {/* Right Column: Diagnostic Session Mockup (Purely for design, non-clickable) */}
-          <div id="hero-mockup-wrapper" className="lg:col-span-6 pointer-events-none select-none">
+          <div id="hero-mockup-wrapper" className="lg:col-span-6 pointer-events-none select-none max-w-xl md:max-w-2xl lg:max-w-none mx-auto w-full">
             <ScrollReveal animation="scale-up" duration={550} delay={150}>
               <div
                 id="diagnostic-session-card"
-                className="w-full bg-[#101414] border border-[#202727] rounded-[24px] p-6 sm:p-7 shadow-2xl"
+                className="w-full bg-[#101414] border border-[#202727] rounded-[24px] md:rounded-[28px] p-6 sm:p-7 md:p-8 shadow-2xl"
                 aria-hidden="true"
               >
                 {/* Session Card Header */}

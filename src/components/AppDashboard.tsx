@@ -1165,18 +1165,18 @@ export function AppDashboard({
       >
         <div
           id="diagnostic-input-pill"
-          className="w-full rounded-full border border-[#23312C] bg-[#0E1312] hover:border-[#354841] focus-within:border-[#A3B18A] px-4 sm:px-6 py-3 sm:py-3.5 flex items-center gap-3 sm:gap-4 transition-all shadow-lg"
+          className="w-full rounded-full border border-[#23312C] bg-[#0E1312] hover:border-[#354841] focus-within:border-[#A3B18A] px-4 sm:px-6 md:px-7 py-3 sm:py-3.5 md:py-4 flex items-center gap-3 sm:gap-4 md:gap-5 transition-all shadow-lg min-h-[52px] md:min-h-[58px]"
         >
           {/* Left Plus Icon to directly send file */}
           <button
             id="send-file-btn"
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="p-0.5 focus:outline-none shrink-0 text-[#8A9A78] hover:text-white transition-colors"
+            className="p-1 md:p-1.5 focus:outline-none shrink-0 text-[#8A9A78] hover:text-white transition-colors min-w-[36px] min-h-[36px] md:min-w-[44px] md:min-h-[44px] flex items-center justify-center"
             title="Send file"
             aria-label="Send file"
           >
-            <Plus className="w-5 h-5 stroke-[2]" />
+            <Plus className="w-5 h-5 md:w-6 md:h-6 stroke-[2]" />
           </button>
 
           {isRecording ? (
@@ -1207,7 +1207,7 @@ export function AppDashboard({
                   <span className="text-red-400 text-xs sm:text-sm font-semibold tracking-wide shrink-0">
                     Listening:
                   </span>
-                  <span className="text-xs sm:text-sm text-[#A3B18A] font-medium truncate">
+                  <span className="text-xs sm:text-sm md:text-base text-[#A3B18A] font-medium truncate">
                     {liveTranscript || promptInput || 'Speak now (e.g. Ford Explorer 2014)'}
                   </span>
                 </div>
@@ -1219,22 +1219,22 @@ export function AppDashboard({
               </div>
 
               {/* Action Buttons: Discard, Done, Send */}
-              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
                 <button
                   type="button"
                   onClick={handleCancelRecording}
-                  className="p-1 text-[#8A9A78] hover:text-red-400 transition-colors"
+                  className="p-1.5 text-[#8A9A78] hover:text-red-400 transition-colors min-w-[36px] min-h-[36px] md:min-w-[44px] md:min-h-[44px] flex items-center justify-center"
                   title="Cancel and discard"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-4 h-4 md:w-5 md:h-5" />
                 </button>
                 <button
                   type="button"
                   onClick={handleStopRecording}
-                  className="px-2.5 py-1 bg-[#202B27] hover:bg-[#283832] text-[#A3B18A] border border-[#2B3E36] rounded-full text-xs font-bold transition-all shadow-sm flex items-center gap-1"
+                  className="px-2.5 md:px-3.5 py-1 md:py-1.5 bg-[#202B27] hover:bg-[#283832] text-[#A3B18A] border border-[#2B3E36] rounded-full text-xs md:text-sm font-bold transition-all shadow-sm flex items-center gap-1 min-h-[36px] md:min-h-[44px]"
                   title="Finish listening"
                 >
-                  <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                  <Check className="w-3.5 h-3.5 md:w-4 md:h-4 stroke-[2.5]" />
                   <span className="hidden sm:inline">Done</span>
                 </button>
                 <button
@@ -1246,10 +1246,10 @@ export function AppDashboard({
                     }, 120);
                   }}
                   disabled={!promptInput.trim() && !liveTranscript.trim() && !attachedMedia}
-                  className="w-8 h-8 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-90 disabled:opacity-40 text-[#0E1111] flex items-center justify-center transition-all shadow-sm shrink-0"
+                  className="w-8 h-8 md:w-10 md:h-10 min-w-[36px] min-h-[36px] md:min-w-[44px] md:min-h-[44px] rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-90 disabled:opacity-40 text-[#0E1111] flex items-center justify-center transition-all shadow-sm shrink-0"
                   title="Send now"
                 >
-                  <ArrowUp className="w-4 h-4 stroke-[2.8]" />
+                  <ArrowUp className="w-4 h-4 md:w-5 md:h-5 stroke-[2.8]" />
                 </button>
               </div>
             </div>
@@ -1264,29 +1264,29 @@ export function AppDashboard({
                 placeholder="Ask Mekai (e.g. Ford Explorer 2014)"
                 autoComplete="off"
                 spellCheck="false"
-                className="flex-1 bg-transparent text-[#A3B18A] caret-[#A3B18A] placeholder-[#5A6964] text-base leading-normal focus:outline-none focus:ring-0 font-sans min-w-0"
+                className="flex-1 bg-transparent text-[#A3B18A] caret-[#A3B18A] placeholder-[#5A6964] text-base md:text-lg leading-normal focus:outline-none focus:ring-0 font-sans min-w-0"
               />
 
               {/* Right Controls: Microphone & Submit Arrow */}
-              <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+              <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                 <button
                   type="button"
                   onClick={handleStartRecording}
-                  className="text-[#8A9A78] hover:text-[#A3B18A] transition-colors p-0.5 focus:outline-none"
+                  className="text-[#8A9A78] hover:text-[#A3B18A] transition-colors p-1 md:p-1.5 focus:outline-none min-w-[36px] min-h-[36px] md:min-w-[44px] md:min-h-[44px] flex items-center justify-center"
                   title="Listen with microphone"
                   aria-label="Listen with microphone"
                 >
-                  <Mic className="w-5 h-5 stroke-[2]" />
+                  <Mic className="w-5 h-5 md:w-6 md:h-6 stroke-[2]" />
                 </button>
 
                 <button
                   id="submit-diagnostic-prompt-btn"
                   type="submit"
                   disabled={(!promptInput.trim() && !attachedMedia) || isAnalyzing}
-                  className="w-8 h-8 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-90 disabled:opacity-40 disabled:hover:bg-[#A3B18A] text-[#0E1111] flex items-center justify-center transition-all shadow-sm shrink-0"
+                  className="w-8 h-8 md:w-10 md:h-10 min-w-[36px] min-h-[36px] md:min-w-[44px] md:min-h-[44px] rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-90 disabled:opacity-40 disabled:hover:bg-[#A3B18A] text-[#0E1111] flex items-center justify-center transition-all shadow-sm shrink-0"
                   title="Send prompt"
                 >
-                  <ArrowUp className="w-4 h-4 stroke-[2.8]" />
+                  <ArrowUp className="w-4 h-4 md:w-5 md:h-5 stroke-[2.8]" />
                 </button>
               </div>
             </>
@@ -1313,25 +1313,25 @@ export function AppDashboard({
         onChange={handleFileSelected}
       />
 
-      {/* MOBILE FULL-SCREEN DRAWER */}
+      {/* MOBILE & TABLET FULL-SCREEN DRAWER */}
       {mobileDrawerOpen && (
         <div
           id="mobile-drawer"
-          className="md:hidden fixed inset-0 z-50 bg-[#0E1111] flex flex-col justify-between h-[100dvh] max-h-[100dvh] w-full overflow-hidden animate-fadeIn select-none overscroll-none"
+          className="lg:hidden fixed inset-0 z-50 bg-[#0E1111] flex flex-col justify-between h-[100dvh] max-h-[100dvh] w-full overflow-hidden animate-fadeIn select-none overscroll-none"
         >
           {/* Fixed/Sticky Top Bar with MEKAI Logo & Close Button */}
-          <div className="sticky top-0 z-10 w-full px-6 py-5 bg-[#0E1111] border-b border-[#1A2320]/60 flex items-center justify-between shrink-0 shadow-sm">
+          <div className="sticky top-0 z-10 w-full px-6 py-4 md:px-10 md:py-6 bg-[#0E1111] border-b border-[#1A2320]/60 flex items-center justify-between shrink-0 shadow-sm">
             <div
-              className="cursor-pointer flex items-center gap-3.5 h-9"
+              className="cursor-pointer flex items-center gap-3.5 h-9 md:h-11"
               onClick={() => {
                 resetDiagnosticsSession();
                 setMobileDrawerOpen(false);
               }}
             >
-              <div className="w-9 h-9 flex items-center justify-center shrink-0">
-                <MekaiLogo iconSize={32} showText={false} />
+              <div className="w-9 h-9 md:w-11 md:h-11 flex items-center justify-center shrink-0">
+                <MekaiLogo iconSize={34} showText={false} />
               </div>
-              <span className="font-heading font-extrabold text-xl tracking-widest text-[#A3B18A] select-none leading-none">
+              <span className="font-heading font-extrabold text-xl md:text-2xl tracking-widest text-[#A3B18A] select-none leading-none">
                 MEKAI
               </span>
             </div>
@@ -1340,16 +1340,16 @@ export function AppDashboard({
               id="mobile-drawer-close-btn"
               type="button"
               onClick={() => setMobileDrawerOpen(false)}
-              className="w-9 h-9 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] flex items-center justify-center shrink-0 transition-transform shadow-md focus:outline-none"
+              className="w-10 h-10 md:w-12 md:h-12 min-h-[40px] md:min-h-[48px] rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] flex items-center justify-center shrink-0 transition-transform shadow-md focus:outline-none"
               aria-label="Close navigation drawer"
             >
-              <X className="w-5 h-5 stroke-[2.5]" />
+              <X className="w-5 h-5 md:w-6 md:h-6 stroke-[2.5]" />
             </button>
           </div>
 
           {/* Scrollable Drawer Content (Nav items and Recents) */}
-          <div className="flex-1 min-h-0 overflow-y-auto px-6 py-6 overscroll-contain no-scrollbar">
-            <nav className="space-y-6">
+          <div className="flex-1 min-h-0 overflow-y-auto px-6 py-6 md:px-10 md:py-8 overscroll-contain no-scrollbar w-full max-w-xl md:max-w-2xl mx-auto">
+            <nav className="space-y-4 md:space-y-5">
               <button
                 id="mobile-nav-new-diagnostics-btn"
                 type="button"
@@ -1357,14 +1357,14 @@ export function AppDashboard({
                   resetDiagnosticsSession();
                   setMobileDrawerOpen(false);
                 }}
-                className={`w-full flex items-center gap-3.5 text-left transition-colors font-heading text-lg ${
+                className={`w-full flex items-center gap-3.5 text-left transition-colors font-heading text-lg md:text-xl py-2 md:py-2.5 min-h-[44px] md:min-h-[50px] ${
                   activeTab === 'new-diagnostics'
                     ? 'text-[#A3B18A] font-extrabold'
                     : 'text-[#A3B18A]/90 hover:text-[#A3B18A] font-bold'
                 }`}
               >
-                <div className="w-8 h-8 flex items-center justify-center shrink-0">
-                  <SquarePen className="w-5 h-5 text-[#A3B18A]" />
+                <div className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center shrink-0">
+                  <SquarePen className="w-5 h-5 md:w-6 md:h-6 text-[#A3B18A]" />
                 </div>
                 <span>New Diagnostics</span>
               </button>
@@ -1376,30 +1376,30 @@ export function AppDashboard({
                   setActiveTab('search-chats');
                   setMobileDrawerOpen(false);
                 }}
-                className={`w-full flex items-center gap-3.5 text-left transition-colors font-heading text-lg ${
+                className={`w-full flex items-center gap-3.5 text-left transition-colors font-heading text-lg md:text-xl py-2 md:py-2.5 min-h-[44px] md:min-h-[50px] ${
                   activeTab === 'search-chats'
                     ? 'text-[#A3B18A] font-extrabold'
                     : 'text-[#A3B18A]/90 hover:text-[#A3B18A] font-bold'
                 }`}
               >
-                <div className="w-8 h-8 flex items-center justify-center shrink-0">
-                  <Search className="w-5 h-5 text-[#A3B18A]" />
+                <div className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center shrink-0">
+                  <Search className="w-5 h-5 md:w-6 md:h-6 text-[#A3B18A]" />
                 </div>
                 <span>Search Chats</span>
               </button>
             </nav>
 
-            {/* Permanent Collapsible Recents in Mobile Drawer (Only up to 7 sessions) */}
-            <div className="mt-10">
+            {/* Permanent Collapsible Recents in Mobile/Tablet Drawer (Only up to 7 sessions) */}
+            <div className="mt-8 md:mt-10">
               <button
                 type="button"
                 onClick={() => setIsRecentsCollapsed((prev) => !prev)}
-                className="w-full flex items-center justify-between text-base font-heading font-bold text-[#A3B18A] tracking-wide cursor-pointer focus:outline-none select-none"
+                className="w-full flex items-center justify-between text-base md:text-lg font-heading font-bold text-[#A3B18A] tracking-wide cursor-pointer focus:outline-none select-none py-1"
               >
                 <div className="flex items-center gap-2">
                   <span>Recents</span>
                   <ChevronDown
-                    className={`w-4 h-4 text-[#A3B18A] transition-transform duration-200 ${
+                    className={`w-4 h-4 md:w-5 md:h-5 text-[#A3B18A] transition-transform duration-200 ${
                       isRecentsCollapsed ? '-rotate-90' : 'rotate-0'
                     }`}
                   />
@@ -1412,12 +1412,12 @@ export function AppDashboard({
                     recentSessions.slice(0, 7).map((session) => (
                       <div
                         key={session.id}
-                        className="flex items-center justify-between group rounded-lg hover:bg-[#151D1B] pr-2"
+                        className="flex items-center justify-between group rounded-lg hover:bg-[#151D1B] pr-2 min-h-[40px] md:min-h-[46px]"
                       >
                         <button
                           type="button"
                           onClick={() => handleOpenRecentSession(session)}
-                          className={`flex-1 text-left px-3 py-2 text-sm truncate transition-colors ${
+                          className={`flex-1 text-left px-3 py-2 md:py-2.5 text-sm md:text-base truncate transition-colors ${
                             currentSessionId === session.id
                               ? 'text-[#A3B18A] font-bold bg-[#161F1C] rounded'
                               : 'text-[#8A9A78] hover:text-[#A3B18A]'
@@ -1428,10 +1428,10 @@ export function AppDashboard({
                         <button
                           type="button"
                           onClick={(e) => handleDeleteSession(e, session.id)}
-                          className="opacity-0 group-hover:opacity-100 p-1 text-[#5A6964] hover:text-red-400 transition-opacity"
+                          className="opacity-0 group-hover:opacity-100 p-1.5 text-[#5A6964] hover:text-red-400 transition-opacity"
                           title="Delete chat"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     ))
@@ -1446,41 +1446,43 @@ export function AppDashboard({
           </div>
 
           {/* Fixed/Pinned Bottom User Profile Bar */}
-          <div className="px-6 py-5 border-t border-[#192220]/60 bg-[#0E1111] shrink-0 flex items-center justify-between">
-            <div className="flex items-center gap-3 min-w-0">
-              <div
-                className="w-9 h-9 rounded-full bg-[#A3B18A] text-[#0E1111] font-heading font-extrabold text-xs flex items-center justify-center shrink-0 select-none shadow-sm"
-                aria-label={`Profile for ${displayName}`}
-              >
-                {initials}
+          <div className="w-full border-t border-[#192220]/60 bg-[#0E1111] shrink-0">
+            <div className="max-w-xl md:max-w-2xl mx-auto px-6 py-4 md:px-10 md:py-6 flex items-center justify-between">
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div
+                  className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#A3B18A] text-[#0E1111] font-heading font-extrabold text-xs md:text-sm flex items-center justify-center shrink-0 select-none shadow-sm"
+                  aria-label={`Profile for ${displayName}`}
+                >
+                  {initials}
+                </div>
+                <span className="font-heading font-bold text-base md:text-lg text-[#A3B18A] truncate">
+                  {displayName}
+                </span>
               </div>
-              <span className="font-heading font-bold text-base text-[#A3B18A] truncate">
-                {displayName}
-              </span>
-            </div>
 
-            <button
-              id="mobile-drawer-settings-btn"
-              type="button"
-              onClick={() => {
-                setMobileDrawerOpen(false);
-                setShowSettingsModal(true);
-              }}
-              className="w-8 h-8 flex items-center justify-center text-[#8A9A78] hover:text-[#A3B18A] transition-colors rounded-lg focus:outline-none"
-              title="Workshop Settings & Profile"
-              aria-label="Workshop Settings"
-            >
-              <Settings className="w-5 h-5 text-[#A3B18A]" />
-            </button>
+              <button
+                id="mobile-drawer-settings-btn"
+                type="button"
+                onClick={() => {
+                  setMobileDrawerOpen(false);
+                  setShowSettingsModal(true);
+                }}
+                className="w-10 h-10 md:w-12 md:h-12 min-h-[40px] md:min-h-[48px] flex items-center justify-center text-[#8A9A78] hover:text-[#A3B18A] transition-colors rounded-xl focus:outline-none hover:bg-[#161F1C]"
+                title="Workshop Settings & Profile"
+                aria-label="Workshop Settings"
+              >
+                <Settings className="w-5 h-5 md:w-6 md:h-6 text-[#A3B18A]" />
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* DESKTOP SIDEBAR */}
+      {/* DESKTOP SIDEBAR (Visible only on Desktop lg:) */}
       {isSidebarOpen ? (
         <aside
           id="dashboard-sidebar-open"
-          className="hidden md:flex w-72 bg-[#0E1111] border-r border-[#192220] flex-col justify-between shrink-0 select-none z-20 transition-all duration-200"
+          className="hidden lg:flex w-72 bg-[#0E1111] border-r border-[#192220] flex-col justify-between shrink-0 select-none z-20 transition-all duration-200"
         >
           <div className="p-6">
             <div className="flex items-center justify-between mb-10 h-8">
@@ -1636,7 +1638,7 @@ export function AppDashboard({
       ) : (
         <aside
           id="dashboard-sidebar-closed"
-          className="hidden md:flex w-20 bg-[#0E1111] border-r border-[#192220] flex-col justify-between shrink-0 select-none z-20 transition-all duration-200"
+          className="hidden lg:flex w-20 bg-[#0E1111] border-r border-[#192220] flex-col justify-between shrink-0 select-none z-20 transition-all duration-200"
         >
           <div className="p-6">
             <div className="flex items-center mb-10 h-8">
@@ -1710,21 +1712,21 @@ export function AppDashboard({
       {/* MAIN VIEW AREA - Fixed height viewport locked container */}
       <main className="flex-1 flex flex-col h-full min-h-0 w-full overflow-hidden relative bg-[#0E1111]">
         {/* Pinned Header */}
-        <header className="w-full p-4 sm:p-6 md:px-10 z-10 shrink-0 border-b border-[#1A2320]/40 md:border-b-0">
-          <div className="flex md:hidden items-center justify-between w-full h-9">
-            <div className="flex items-center gap-3.5 h-9">
+        <header className="w-full p-4 sm:p-5 md:px-8 lg:px-10 z-10 shrink-0 border-b border-[#1A2320]/40 lg:border-b-0">
+          <div className="flex lg:hidden items-center justify-between w-full h-10 md:h-12">
+            <div className="flex items-center gap-3.5 h-10 md:h-12">
               <button
                 id="mobile-drawer-toggle-btn"
                 type="button"
                 onClick={() => setMobileDrawerOpen(true)}
-                className="w-9 h-9 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 flex flex-col items-center justify-center gap-1.5 shrink-0 transition-transform shadow-md focus:outline-none"
+                className="w-10 h-10 md:w-12 md:h-12 min-h-[40px] md:min-h-[48px] rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 flex flex-col items-center justify-center gap-1.5 shrink-0 transition-transform shadow-md focus:outline-none"
                 aria-label="Open navigation drawer"
               >
-                <span className="w-4 h-[2.5px] bg-[#0E1111] rounded-full" />
-                <span className="w-4 h-[2.5px] bg-[#0E1111] rounded-full" />
+                <span className="w-4 md:w-5 h-[2.5px] bg-[#0E1111] rounded-full" />
+                <span className="w-4 md:w-5 h-[2.5px] bg-[#0E1111] rounded-full" />
               </button>
 
-              <span className="font-heading font-extrabold text-xl tracking-widest text-[#A3B18A] select-none leading-none">
+              <span className="font-heading font-extrabold text-xl md:text-2xl tracking-widest text-[#A3B18A] select-none leading-none">
                 MEKAI
               </span>
             </div>
@@ -1733,7 +1735,7 @@ export function AppDashboard({
               id="mobile-profile-avatar-btn"
               type="button"
               onClick={() => setShowSettingsModal(true)}
-              className="w-9 h-9 rounded-full bg-[#A3B18A] text-[#0E1111] font-heading font-extrabold text-xs flex items-center justify-center shrink-0 shadow-md active:scale-95 transition-transform focus:outline-none"
+              className="w-10 h-10 md:w-12 md:h-12 min-h-[40px] md:min-h-[48px] rounded-full bg-[#A3B18A] text-[#0E1111] font-heading font-extrabold text-xs md:text-sm flex items-center justify-center shrink-0 shadow-md active:scale-95 transition-transform focus:outline-none"
               title={`${displayName} - Workshop Settings`}
               aria-label={`Profile for ${displayName}`}
             >
@@ -1741,7 +1743,7 @@ export function AppDashboard({
             </button>
           </div>
 
-          <div className="hidden md:flex items-center justify-end w-full h-9">
+          <div className="hidden lg:flex items-center justify-end w-full h-9">
             <button
               id="upgrade-tier-btn"
               type="button"
@@ -1755,7 +1757,7 @@ export function AppDashboard({
         {activeTab === 'new-diagnostics' ? (
           messages.length === 0 ? (
             /* Clean Empty Initial State */
-            <div className="flex-1 min-h-0 flex flex-col justify-between md:justify-center items-center px-4 sm:px-6 md:px-10 w-full max-w-2xl md:max-w-[720px] mx-auto pb-4 sm:pb-8 md:pb-0 md:-mt-10 overflow-hidden">
+            <div className="flex-1 min-h-0 flex flex-col justify-between md:justify-center items-center px-4 sm:px-6 md:px-8 w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-[760px] mx-auto pb-4 sm:pb-8 md:pb-0 md:-mt-8 overflow-hidden">
               <div className="my-auto md:my-0 text-center">
                 <h1
                   id="diagnostics-prompt-heading"
@@ -1775,7 +1777,7 @@ export function AppDashboard({
               {/* Internal scrolling message history area */}
               <div
                 id="diagnostic-chat-messages"
-                className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 md:px-10 w-full max-w-2xl md:max-w-[720px] mx-auto py-4 space-y-5 overscroll-contain no-scrollbar"
+                className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 md:px-8 w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-[760px] mx-auto py-4 md:py-6 space-y-5 md:space-y-6 overscroll-contain no-scrollbar"
               >
                 {messages.map((msg) => {
                   const isImage = msg.attachment?.type === 'image';
@@ -1889,7 +1891,7 @@ export function AppDashboard({
               </div>
 
               {/* Pinned Bottom Input Bar Container */}
-              <div className="w-full max-w-2xl md:max-w-[720px] mx-auto px-4 sm:px-6 md:px-10 pb-4 sm:pb-6 pt-2 shrink-0 bg-[#0E1111] z-10 border-t border-[#192220]/60 sm:border-t-0">
+              <div className="w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-[760px] mx-auto px-4 sm:px-6 md:px-8 pb-4 sm:pb-6 pt-2 shrink-0 bg-[#0E1111] z-10 border-t border-[#192220]/60 sm:border-t-0">
                 {renderDiagnosticInputBar(true)}
               </div>
             </div>
@@ -1898,12 +1900,12 @@ export function AppDashboard({
           /* Search Chats View - Fixed viewport container with pinned search field & internal scrolling list only */
           <div className="flex-1 min-h-0 flex flex-col h-full w-full overflow-hidden">
             {/* Pinned Search Field Container at Top */}
-            <div className="w-full max-w-2xl md:max-w-[720px] mx-auto px-4 sm:px-6 md:px-10 pt-3 sm:pt-6 pb-2 shrink-0 bg-[#0E1111] z-10">
+            <div className="w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-[760px] mx-auto px-4 sm:px-6 md:px-8 pt-3 sm:pt-6 pb-2 shrink-0 bg-[#0E1111] z-10">
               <div
                 id="search-chats-pill"
-                className="w-full rounded-full border border-[#23312C] bg-[#0E1312] hover:border-[#354841] focus-within:border-[#A3B18A] px-4 sm:px-6 py-3 sm:py-3.5 flex items-center gap-3 transition-all shadow-lg mx-auto"
+                className="w-full rounded-full border border-[#23312C] bg-[#0E1312] hover:border-[#354841] focus-within:border-[#A3B18A] px-4 sm:px-6 md:px-7 py-3 sm:py-3.5 md:py-4 flex items-center gap-3 md:gap-4 transition-all shadow-lg mx-auto min-h-[52px] md:min-h-[58px]"
               >
-                <Search className="w-5 h-5 text-[#A3B18A] shrink-0 stroke-[2]" />
+                <Search className="w-5 h-5 md:w-6 md:h-6 text-[#A3B18A] shrink-0 stroke-[2]" />
                 <input
                   id="search-chats-input"
                   type="text"
@@ -1911,23 +1913,23 @@ export function AppDashboard({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search chats by vehicle (e.g. Ford Explorer 2014) or code"
-                  className="flex-1 bg-transparent text-white placeholder-[#5A6964] text-base leading-normal focus:outline-none font-sans min-w-0"
+                  className="flex-1 bg-transparent text-white placeholder-[#5A6964] text-base md:text-lg leading-normal focus:outline-none font-sans min-w-0"
                 />
                 {searchQuery && (
                   <button
                     type="button"
                     onClick={() => setSearchQuery('')}
-                    className="p-1 text-[#5A6964] hover:text-[#A3B18A] focus:outline-none shrink-0"
+                    className="p-1 md:p-1.5 text-[#5A6964] hover:text-[#A3B18A] focus:outline-none shrink-0 min-w-[32px] min-h-[32px] flex items-center justify-center"
                     title="Clear search"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-4 h-4 md:w-5 md:h-5" />
                   </button>
                 )}
               </div>
             </div>
 
             {/* Internal Scrolling Content List Only */}
-            <div className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 md:px-12 w-full max-w-2xl mx-auto py-2 pb-8 overscroll-contain no-scrollbar">
+            <div className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 md:px-8 w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-[760px] mx-auto py-2 pb-8 overscroll-contain no-scrollbar">
               <div className="flex items-center justify-between mb-4 mt-2">
                 <h2
                   id="recent-chats-heading"
@@ -1995,43 +1997,44 @@ export function AppDashboard({
       {/* SETTINGS MODAL */}
       {showSettingsModal && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-[#121616] border border-[#26312E] rounded-2xl p-6 shadow-2xl animate-fadeIn">
-            <div className="flex items-center justify-between pb-4 border-b border-[#202927]">
-              <div className="flex items-center gap-2.5">
-                <div className="w-6 h-6 rounded-full bg-[#A3B18A] text-[#0E1111] font-heading font-extrabold text-[10px] flex items-center justify-center shrink-0 select-none">
+          <div className="w-full max-w-md md:max-w-lg bg-[#121616] border border-[#26312E] rounded-2xl md:rounded-3xl p-6 md:p-8 shadow-2xl animate-fadeIn">
+            <div className="flex items-center justify-between pb-4 md:pb-5 border-b border-[#202927]">
+              <div className="flex items-center gap-3">
+                <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-[#A3B18A] text-[#0E1111] font-heading font-extrabold text-xs md:text-sm flex items-center justify-center shrink-0 select-none">
                   {initials}
                 </div>
-                <h3 className="font-heading font-extrabold text-base text-white">Technician Workshop</h3>
+                <h3 className="font-heading font-extrabold text-base md:text-lg text-white">Technician Workshop</h3>
               </div>
               <button
                 type="button"
                 onClick={() => setShowSettingsModal(false)}
-                className="text-[#8A9A78] hover:text-white p-1 rounded-lg"
+                className="text-[#8A9A78] hover:text-white p-1.5 md:p-2 rounded-lg min-w-[36px] min-h-[36px] md:min-w-[44px] md:min-h-[44px] flex items-center justify-center"
+                aria-label="Close settings"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5 md:w-6 md:h-6" />
               </button>
             </div>
 
-            <div className="py-5 space-y-4 text-xs sm:text-sm">
-              <div className="p-3 rounded-xl bg-[#171D1B] border border-[#202927]">
-                <div className="text-[11px] uppercase tracking-wider text-[#8A9A78] font-semibold mb-1">
+            <div className="py-5 md:py-6 space-y-4 md:space-y-5 text-xs sm:text-sm">
+              <div className="p-3.5 md:p-4 rounded-xl md:rounded-2xl bg-[#171D1B] border border-[#202927]">
+                <div className="text-[11px] md:text-xs uppercase tracking-wider text-[#8A9A78] font-semibold mb-1">
                   Active Technician
                 </div>
-                <div className="font-heading font-bold text-white text-base">{displayName}</div>
-                <div className="text-xs text-[#8F9999] mt-0.5">Senior Diagnostic Specialist</div>
+                <div className="font-heading font-bold text-white text-base md:text-lg">{displayName}</div>
+                <div className="text-xs md:text-sm text-[#8F9999] mt-0.5">Senior Diagnostic Specialist</div>
               </div>
 
-              <div className="p-3 rounded-xl bg-[#171D1B] border border-[#202927] flex items-center justify-between">
+              <div className="p-3.5 md:p-4 rounded-xl md:rounded-2xl bg-[#171D1B] border border-[#202927] flex items-center justify-between">
                 <div>
-                  <div className="text-[11px] uppercase tracking-wider text-[#8A9A78] font-semibold mb-1">
+                  <div className="text-[11px] md:text-xs uppercase tracking-wider text-[#8A9A78] font-semibold mb-1">
                     Workshop Key
                   </div>
-                  <div className="font-mono text-xs text-white tracking-wider">
+                  <div className="font-mono text-xs md:text-sm text-white tracking-wider">
                     {activeCode || 'CST-ACTIVE-WORKSHOP'}
                   </div>
                 </div>
-                <div className="flex items-center gap-1.5 text-xs text-[#A3B18A] font-semibold bg-[#A3B18A]/10 px-2.5 py-1 rounded-full border border-[#A3B18A]/20">
-                  <ShieldCheck className="w-3.5 h-3.5" />
+                <div className="flex items-center gap-1.5 text-xs md:text-sm text-[#A3B18A] font-semibold bg-[#A3B18A]/10 px-3 py-1.5 rounded-full border border-[#A3B18A]/20">
+                  <ShieldCheck className="w-3.5 h-3.5 md:w-4 md:h-4" />
                   <span>Connected</span>
                 </div>
               </div>
@@ -2043,9 +2046,9 @@ export function AppDashboard({
                     setShowSettingsModal(false);
                     onViewLanding();
                   }}
-                  className="w-full py-2.5 rounded-xl border border-[#2B3834] hover:border-white text-xs font-semibold text-white transition-colors"
+                  className="w-full py-2.5 md:py-3.5 rounded-xl md:rounded-2xl border border-[#2B3834] hover:border-white text-xs md:text-sm font-semibold text-white transition-colors min-h-[44px] md:min-h-[48px]"
                 >
-                  View Marketing Homepage
+                  View Homepage
                 </button>
               )}
 
@@ -2055,9 +2058,9 @@ export function AppDashboard({
                   setShowSettingsModal(false);
                   onSignOut();
                 }}
-                className="w-full py-2.5 rounded-xl bg-red-950/40 border border-red-800/40 hover:bg-red-900/50 text-red-300 font-semibold text-xs flex items-center justify-center gap-2 transition-colors"
+                className="w-full py-2.5 md:py-3.5 rounded-xl md:rounded-2xl bg-red-950/40 border border-red-800/40 hover:bg-red-900/50 text-red-300 font-semibold text-xs md:text-sm flex items-center justify-center gap-2 transition-colors min-h-[44px] md:min-h-[48px]"
               >
-                <LogOut className="w-4 h-4" />
+                <LogOut className="w-4 h-4 md:w-5 md:h-5" />
                 <span>Disconnect & Sign Out</span>
               </button>
             </div>

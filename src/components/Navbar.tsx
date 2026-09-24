@@ -67,23 +67,23 @@ export function Navbar({
 
           {/* Right Navigation Actions */}
           <div id="nav-actions" className="flex items-center gap-4 sm:gap-6">
-            {/* ───────── MOBILE VIEW (< sm:) ───────── */}
-            <div className="flex sm:hidden items-center gap-4">
+            {/* ───────── MOBILE & TABLET VIEW (< lg:) ───────── */}
+            <div className="flex lg:hidden items-center gap-4 md:gap-6">
               {activeCode ? (
-                /* Mobile authenticated state: Open App button + Hamburger */
+                /* Mobile/tablet authenticated state: Open App button + Hamburger */
                 <>
                   {onOpenDashboard && (
                     <button
                       type="button"
                       onClick={onOpenDashboard}
-                      className="px-3.5 py-1.5 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] font-heading font-bold text-xs transition-all shadow-sm"
+                      className="px-3.5 py-1.5 md:px-5 md:py-2.5 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] font-heading font-bold text-xs md:text-sm transition-all shadow-sm min-h-[36px] md:min-h-[44px]"
                     >
                       Open App
                     </button>
                   )}
                 </>
               ) : (
-                /* Mobile unauthenticated state: Original "Sign up →" arrow link beside Hamburger */
+                /* Mobile/tablet unauthenticated state: Original "Sign up →" arrow link beside Hamburger */
                 <a
                   id="mobile-nav-signup-link"
                   href="#signup"
@@ -93,7 +93,7 @@ export function Navbar({
                       onSignUpClick();
                     }
                   }}
-                  className="text-sm font-semibold text-[#A3B18A] hover:text-[#92A177] transition-colors inline-flex items-center gap-1.5 group focus:outline-none focus-visible:ring-1 focus-visible:ring-[#A3B18A] font-heading cursor-pointer"
+                  className="text-sm md:text-base font-semibold text-[#A3B18A] hover:text-[#92A177] transition-colors inline-flex items-center gap-1.5 group focus:outline-none focus-visible:ring-1 focus-visible:ring-[#A3B18A] font-heading cursor-pointer py-1.5"
                 >
                   <span>Sign up</span>
                   <span className="transition-transform group-hover:translate-x-1 text-[#A3B18A]" aria-hidden="true">→</span>
@@ -105,23 +105,23 @@ export function Navbar({
                 id="mobile-nav-hamburger-btn"
                 type="button"
                 onClick={() => setIsMobileMenuOpen((prev) => !prev)}
-                className="w-9 h-9 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 flex flex-col items-center justify-center gap-1.5 shrink-0 transition-transform shadow-md focus:outline-none"
+                className="w-10 h-10 md:w-12 md:h-12 min-h-[40px] md:min-h-[48px] rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 flex flex-col items-center justify-center gap-1.5 shrink-0 transition-transform shadow-md focus:outline-none"
                 aria-label={isMobileMenuOpen ? 'Close navigation drawer' : 'Open navigation drawer'}
                 aria-expanded={isMobileMenuOpen}
               >
                 {isMobileMenuOpen ? (
-                  <X className="w-5 h-5 stroke-[2.5] text-[#0E1111]" />
+                  <X className="w-5 h-5 md:w-6 md:h-6 stroke-[2.5] text-[#0E1111]" />
                 ) : (
                   <>
-                    <span className="w-4 h-[2.5px] bg-[#0E1111] rounded-full" />
-                    <span className="w-4 h-[2.5px] bg-[#0E1111] rounded-full" />
+                    <span className="w-4 md:w-5 h-[2.5px] bg-[#0E1111] rounded-full" />
+                    <span className="w-4 md:w-5 h-[2.5px] bg-[#0E1111] rounded-full" />
                   </>
                 )}
               </button>
             </div>
 
-            {/* ───────── DESKTOP VIEW (≥ sm:) ───────── */}
-            <div className="hidden sm:flex items-center gap-4 sm:gap-6">
+            {/* ───────── DESKTOP VIEW (≥ lg:) ───────── */}
+            <div className="hidden lg:flex items-center gap-4 sm:gap-6">
               {activeCode ? (
                 <div className="flex items-center gap-3">
                   {onOpenDashboard && (
@@ -178,15 +178,15 @@ export function Navbar({
       </header>
 
       {/* ─────────────────────────────────────────────────────────────
-          MOBILE FULL-SCREEN DRAWER (Matching App Dashboard UI Drawer)
+          MOBILE & TABLET FULL-SCREEN DRAWER (Matching App Dashboard UI Drawer)
       ───────────────────────────────────────────────────────────── */}
       {isMobileMenuOpen && (
         <div
           id="homepage-mobile-drawer"
-          className="sm:hidden fixed inset-0 z-50 bg-[#0E1111] flex flex-col justify-between animate-fadeIn select-none"
+          className="lg:hidden fixed inset-0 z-50 bg-[#0E1111] flex flex-col justify-between animate-fadeIn select-none"
         >
           {/* Top Bar: Exact matching horizontal padding, flex properties, and edge alignment */}
-          <div className="w-full px-6 sm:px-10 lg:px-14 xl:px-20 h-20 sm:h-24 flex items-center justify-between shrink-0 border-b border-[#1C2121]/80">
+          <div className="w-full px-6 sm:px-10 md:px-12 lg:px-14 xl:px-20 h-20 sm:h-24 md:h-26 flex items-center justify-between shrink-0 border-b border-[#1C2121]/80">
             <a
               id="drawer-logo-link"
               href="#"
@@ -199,7 +199,7 @@ export function Navbar({
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
             >
-              <MekaiLogo iconSize={32} textSize="text-xl tracking-widest font-heading font-extrabold" />
+              <MekaiLogo iconSize={34} textSize="text-xl md:text-2xl tracking-widest font-heading font-extrabold" />
             </a>
 
             {/* Exact App Dashboard UI Circular Close Button */}
@@ -207,97 +207,97 @@ export function Navbar({
               id="homepage-mobile-drawer-close-btn"
               type="button"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="w-9 h-9 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] flex items-center justify-center shrink-0 transition-transform shadow-md focus:outline-none"
+              className="w-10 h-10 md:w-12 md:h-12 min-h-[40px] md:min-h-[48px] rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] flex items-center justify-center shrink-0 transition-transform shadow-md focus:outline-none"
               aria-label="Close navigation drawer"
             >
-              <X className="w-5 h-5 stroke-[2.5]" />
+              <X className="w-5 h-5 md:w-6 md:h-6 stroke-[2.5]" />
             </button>
           </div>
 
           {/* Drawer Body Content */}
-          <div className="flex-1 overflow-y-auto px-6 py-6 flex flex-col justify-between">
+          <div className="flex-1 overflow-y-auto px-6 py-6 md:px-10 md:py-8 flex flex-col justify-between w-full max-w-xl md:max-w-2xl mx-auto">
             {/* Navigation Section Links */}
             <div>
-              <p className="text-[10px] uppercase tracking-[0.2em] text-[#697474] font-bold px-1 mb-3 font-heading">
+              <p className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-[#697474] font-bold px-1 mb-3 md:mb-4 font-heading">
                 Workshop Architecture
               </p>
               
-              <nav className="space-y-3 mb-6">
+              <nav className="space-y-3 md:space-y-4 mb-6">
                 <button
                   type="button"
                   onClick={() => handleScrollToSection('capabilities-section')}
-                  className="w-full flex items-center justify-between p-3 rounded-xl bg-[#141818] border border-[#202727] text-left hover:border-[#A3B18A]/50 transition-colors"
+                  className="w-full flex items-center justify-between p-3 md:p-4 rounded-xl md:rounded-2xl bg-[#141818] border border-[#202727] text-left hover:border-[#A3B18A]/50 transition-colors min-h-[52px] md:min-h-[60px]"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-[#A3B18A]/10 text-[#A3B18A] flex items-center justify-center">
-                      <Cpu className="w-4 h-4" />
+                  <div className="flex items-center gap-3 md:gap-4">
+                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-[#A3B18A]/10 text-[#A3B18A] flex items-center justify-center shrink-0">
+                      <Cpu className="w-4 h-4 md:w-5 md:h-5" />
                     </div>
                     <div>
-                      <span className="font-heading font-bold text-sm text-white block">Core Capabilities</span>
-                      <span className="text-xs text-[#7F8D8D]">OBD-II, acoustics & vision</span>
+                      <span className="font-heading font-bold text-sm md:text-base text-white block">Core Capabilities</span>
+                      <span className="text-xs md:text-sm text-[#7F8D8D]">OBD-II, acoustics & vision</span>
                     </div>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-[#A3B18A]" />
+                  <ArrowRight className="w-4 h-4 md:w-5 md:h-5 text-[#A3B18A]" />
                 </button>
 
                 <button
                   type="button"
                   onClick={() => handleScrollToSection('workflow-section')}
-                  className="w-full flex items-center justify-between p-3 rounded-xl bg-[#141818] border border-[#202727] text-left hover:border-[#A3B18A]/50 transition-colors"
+                  className="w-full flex items-center justify-between p-3 md:p-4 rounded-xl md:rounded-2xl bg-[#141818] border border-[#202727] text-left hover:border-[#A3B18A]/50 transition-colors min-h-[52px] md:min-h-[60px]"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-[#A3B18A]/10 text-[#A3B18A] flex items-center justify-center">
-                      <Layers className="w-4 h-4" />
+                  <div className="flex items-center gap-3 md:gap-4">
+                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-[#A3B18A]/10 text-[#A3B18A] flex items-center justify-center shrink-0">
+                      <Layers className="w-4 h-4 md:w-5 md:h-5" />
                     </div>
                     <div>
-                      <span className="font-heading font-bold text-sm text-white block">Diagnostic Workflow</span>
-                      <span className="text-xs text-[#7F8D8D]">Capture → Reason → Execute</span>
+                      <span className="font-heading font-bold text-sm md:text-base text-white block">Diagnostic Workflow</span>
+                      <span className="text-xs md:text-sm text-[#7F8D8D]">Capture → Reason → Execute</span>
                     </div>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-[#A3B18A]" />
+                  <ArrowRight className="w-4 h-4 md:w-5 md:h-5 text-[#A3B18A]" />
                 </button>
 
                 <button
                   type="button"
                   onClick={() => handleScrollToSection('validation-section')}
-                  className="w-full flex items-center justify-between p-3 rounded-xl bg-[#141818] border border-[#202727] text-left hover:border-[#A3B18A]/50 transition-colors"
+                  className="w-full flex items-center justify-between p-3 md:p-4 rounded-xl md:rounded-2xl bg-[#141818] border border-[#202727] text-left hover:border-[#A3B18A]/50 transition-colors min-h-[52px] md:min-h-[60px]"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-[#A3B18A]/10 text-[#A3B18A] flex items-center justify-center">
-                      <BarChart3 className="w-4 h-4" />
+                  <div className="flex items-center gap-3 md:gap-4">
+                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-[#A3B18A]/10 text-[#A3B18A] flex items-center justify-center shrink-0">
+                      <BarChart3 className="w-4 h-4 md:w-5 md:h-5" />
                     </div>
                     <div>
-                      <span className="font-heading font-bold text-sm text-white block">Floor Validation</span>
-                      <span className="text-xs text-[#7F8D8D]">Speed, accuracy & efficiency</span>
+                      <span className="font-heading font-bold text-sm md:text-base text-white block">Floor Validation</span>
+                      <span className="text-xs md:text-sm text-[#7F8D8D]">Speed, accuracy & efficiency</span>
                     </div>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-[#A3B18A]" />
+                  <ArrowRight className="w-4 h-4 md:w-5 md:h-5 text-[#A3B18A]" />
                 </button>
 
                 <button
                   type="button"
                   onClick={() => handleScrollToSection('download-section')}
-                  className="w-full flex items-center justify-between p-3 rounded-xl bg-[#141818] border border-[#202727] text-left hover:border-[#A3B18A]/50 transition-colors"
+                  className="w-full flex items-center justify-between p-3 md:p-4 rounded-xl md:rounded-2xl bg-[#141818] border border-[#202727] text-left hover:border-[#A3B18A]/50 transition-colors min-h-[52px] md:min-h-[60px]"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-[#A3B18A]/10 text-[#A3B18A] flex items-center justify-center">
-                      <Smartphone className="w-4 h-4" />
+                  <div className="flex items-center gap-3 md:gap-4">
+                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-[#A3B18A]/10 text-[#A3B18A] flex items-center justify-center shrink-0">
+                      <Smartphone className="w-4 h-4 md:w-5 md:h-5" />
                     </div>
                     <div>
-                      <span className="font-heading font-bold text-sm text-white block">Mobile App</span>
-                      <span className="text-xs text-[#7F8D8D]">Available on iOS & Android</span>
+                      <span className="font-heading font-bold text-sm md:text-base text-white block">Mobile App</span>
+                      <span className="text-xs md:text-sm text-[#7F8D8D]">Available on iOS & Android</span>
                     </div>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-[#A3B18A]" />
+                  <ArrowRight className="w-4 h-4 md:w-5 md:h-5 text-[#A3B18A]" />
                 </button>
               </nav>
             </div>
 
             {/* Drawer Footer Actions (Sign In / Sign Up / Profile) */}
-            <div className="pt-4 border-t border-[#1C2121] space-y-3">
+            <div className="pt-4 md:pt-6 border-t border-[#1C2121] space-y-3 md:space-y-4">
               {activeCode ? (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-[#141818] border border-[#222828] text-xs">
+                <div className="space-y-3 md:space-y-4">
+                  <div className="flex items-center justify-between px-3.5 py-2.5 rounded-lg bg-[#141818] border border-[#222828] text-xs md:text-sm">
                     <div className="flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full bg-[#A3B18A] animate-pulse" />
                       <span className="text-[#8F9999]">Workshop Code:</span>
@@ -309,7 +309,7 @@ export function Navbar({
                         setIsMobileMenuOpen(false);
                         if (onSignOut) onSignOut();
                       }}
-                      className="text-[#8F9999] hover:text-red-400 text-xs font-semibold"
+                      className="text-[#8F9999] hover:text-red-400 text-xs md:text-sm font-semibold p-1"
                     >
                       Sign out
                     </button>
@@ -322,22 +322,22 @@ export function Navbar({
                         setIsMobileMenuOpen(false);
                         onOpenDashboard();
                       }}
-                      className="w-full py-3.5 rounded-full bg-[#A3B18A] hover:bg-[#92A177] text-[#0E1111] font-heading font-bold text-sm transition-all shadow-md flex items-center justify-center gap-2"
+                      className="w-full py-3.5 md:py-4 rounded-full bg-[#A3B18A] hover:bg-[#92A177] text-[#0E1111] font-heading font-bold text-sm md:text-base transition-all shadow-md flex items-center justify-center gap-2 min-h-[44px] md:min-h-[50px]"
                     >
                       <span>Launch Diagnostic Dashboard</span>
-                      <ArrowRight className="w-4 h-4" />
+                      <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
                     </button>
                   )}
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-3 md:gap-4">
                   <button
                     type="button"
                     onClick={() => {
                       setIsMobileMenuOpen(false);
                       if (onLoginClick) onLoginClick();
                     }}
-                    className="w-full py-3 rounded-full text-xs font-semibold font-heading text-[#A3B18A] border border-[#A3B18A]/50 hover:bg-[#A3B18A]/10 active:scale-95 transition-all text-center"
+                    className="w-full py-3 md:py-3.5 rounded-full text-xs md:text-sm font-semibold font-heading text-[#A3B18A] border border-[#A3B18A]/50 hover:bg-[#A3B18A]/10 active:scale-95 transition-all text-center min-h-[44px] md:min-h-[48px]"
                   >
                     Log In
                   </button>
@@ -348,7 +348,7 @@ export function Navbar({
                       setIsMobileMenuOpen(false);
                       if (onSignUpClick) onSignUpClick();
                     }}
-                    className="w-full py-3 rounded-full text-xs font-bold font-heading text-[#0E1111] bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 transition-all text-center shadow-md flex items-center justify-center gap-1.5"
+                    className="w-full py-3 md:py-3.5 rounded-full text-xs md:text-sm font-bold font-heading text-[#0E1111] bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 transition-all text-center shadow-md flex items-center justify-center gap-1.5 min-h-[44px] md:min-h-[48px]"
                   >
                     <span>Sign Up</span>
                     <span>→</span>
