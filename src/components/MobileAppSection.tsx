@@ -38,7 +38,7 @@ export function MobileAppSection({ onAppStoreClick, onPlayStoreClick }: MobileAp
                   id="btn-app-store"
                   type="button"
                   onClick={onAppStoreClick}
-                  className="px-6 py-3 md:px-7 md:py-3.5 min-h-[44px] md:min-h-[48px] rounded-full bg-[#131616] border border-[#2B3232] hover:border-[#A3B18A]/70 hover:bg-[#181D1D] active:scale-95 text-white font-medium text-sm md:text-base transition-all duration-200 inline-flex items-center gap-2.5 shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3B18A] cursor-pointer"
+                  className="px-6 py-3 md:px-7 md:py-3.5 min-h-[44px] md:min-h-[48px] rounded-full bg-[#131616] border border-[#2B3232] hover:border-[#A3B18A] hover:bg-[#181D1D] hover:-translate-y-0.5 active:scale-95 text-white font-medium text-sm md:text-base transition-all duration-200 inline-flex items-center gap-2.5 shadow-sm hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3B18A] cursor-pointer"
                 >
                   {/* Apple Logo SVG */}
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-white shrink-0">
@@ -52,7 +52,7 @@ export function MobileAppSection({ onAppStoreClick, onPlayStoreClick }: MobileAp
                   id="btn-play-store"
                   type="button"
                   onClick={onPlayStoreClick}
-                  className="px-6 py-3 md:px-7 md:py-3.5 min-h-[44px] md:min-h-[48px] rounded-full bg-[#131616] border border-[#2B3232] hover:border-[#A3B18A]/70 hover:bg-[#181D1D] active:scale-95 text-white font-medium text-sm md:text-base transition-all duration-200 inline-flex items-center gap-2.5 shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3B18A] cursor-pointer"
+                  className="px-6 py-3 md:px-7 md:py-3.5 min-h-[44px] md:min-h-[48px] rounded-full bg-[#131616] border border-[#2B3232] hover:border-[#A3B18A] hover:bg-[#181D1D] hover:-translate-y-0.5 active:scale-95 text-white font-medium text-sm md:text-base transition-all duration-200 inline-flex items-center gap-2.5 shadow-sm hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3B18A] cursor-pointer"
                 >
                   {/* Google Play Logo SVG */}
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-white shrink-0">

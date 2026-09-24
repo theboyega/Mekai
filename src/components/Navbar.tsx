@@ -226,7 +226,7 @@ export function Navbar({
                 <button
                   type="button"
                   onClick={() => handleScrollToSection('capabilities-section')}
-                  className="w-full flex items-center justify-between p-3 md:p-4 rounded-xl md:rounded-2xl bg-[#141818] border border-[#202727] text-left hover:border-[#A3B18A]/50 transition-colors min-h-[52px] md:min-h-[60px]"
+                  className="w-full flex items-center justify-between p-3 md:p-4 rounded-xl md:rounded-2xl bg-[#141818] border border-[#202727] text-left hover:border-[#A3B18A]/50 hover:bg-[#181D1D] transition-all duration-200 min-h-[52px] md:min-h-[60px] group cursor-pointer"
                 >
                   <div className="flex items-center gap-3 md:gap-4">
                     <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-[#A3B18A]/10 text-[#A3B18A] flex items-center justify-center shrink-0">
@@ -237,13 +237,13 @@ export function Navbar({
                       <span className="text-xs md:text-sm text-[#7F8D8D]">OBD-II, acoustics & vision</span>
                     </div>
                   </div>
-                  <ArrowRight className="w-4 h-4 md:w-5 md:h-5 text-[#A3B18A]" />
+                  <ArrowRight className="w-4 h-4 md:w-5 md:h-5 text-[#A3B18A] transition-transform duration-200 group-hover:translate-x-1" />
                 </button>
 
                 <button
                   type="button"
                   onClick={() => handleScrollToSection('workflow-section')}
-                  className="w-full flex items-center justify-between p-3 md:p-4 rounded-xl md:rounded-2xl bg-[#141818] border border-[#202727] text-left hover:border-[#A3B18A]/50 transition-colors min-h-[52px] md:min-h-[60px]"
+                  className="w-full flex items-center justify-between p-3 md:p-4 rounded-xl md:rounded-2xl bg-[#141818] border border-[#202727] text-left hover:border-[#A3B18A]/50 hover:bg-[#181D1D] transition-all duration-200 min-h-[52px] md:min-h-[60px] group cursor-pointer"
                 >
                   <div className="flex items-center gap-3 md:gap-4">
                     <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-[#A3B18A]/10 text-[#A3B18A] flex items-center justify-center shrink-0">
@@ -254,13 +254,13 @@ export function Navbar({
                       <span className="text-xs md:text-sm text-[#7F8D8D]">Capture → Reason → Execute</span>
                     </div>
                   </div>
-                  <ArrowRight className="w-4 h-4 md:w-5 md:h-5 text-[#A3B18A]" />
+                  <ArrowRight className="w-4 h-4 md:w-5 md:h-5 text-[#A3B18A] transition-transform duration-200 group-hover:translate-x-1" />
                 </button>
 
                 <button
                   type="button"
                   onClick={() => handleScrollToSection('validation-section')}
-                  className="w-full flex items-center justify-between p-3 md:p-4 rounded-xl md:rounded-2xl bg-[#141818] border border-[#202727] text-left hover:border-[#A3B18A]/50 transition-colors min-h-[52px] md:min-h-[60px]"
+                  className="w-full flex items-center justify-between p-3 md:p-4 rounded-xl md:rounded-2xl bg-[#141818] border border-[#202727] text-left hover:border-[#A3B18A]/50 hover:bg-[#181D1D] transition-all duration-200 min-h-[52px] md:min-h-[60px] group cursor-pointer"
                 >
                   <div className="flex items-center gap-3 md:gap-4">
                     <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-[#A3B18A]/10 text-[#A3B18A] flex items-center justify-center shrink-0">
@@ -271,13 +271,13 @@ export function Navbar({
                       <span className="text-xs md:text-sm text-[#7F8D8D]">Speed, accuracy & efficiency</span>
                     </div>
                   </div>
-                  <ArrowRight className="w-4 h-4 md:w-5 md:h-5 text-[#A3B18A]" />
+                  <ArrowRight className="w-4 h-4 md:w-5 md:h-5 text-[#A3B18A] transition-transform duration-200 group-hover:translate-x-1" />
                 </button>
 
                 <button
                   type="button"
                   onClick={() => handleScrollToSection('download-section')}
-                  className="w-full flex items-center justify-between p-3 md:p-4 rounded-xl md:rounded-2xl bg-[#141818] border border-[#202727] text-left hover:border-[#A3B18A]/50 transition-colors min-h-[52px] md:min-h-[60px]"
+                  className="w-full flex items-center justify-between p-3 md:p-4 rounded-xl md:rounded-2xl bg-[#141818] border border-[#202727] text-left hover:border-[#A3B18A]/50 hover:bg-[#181D1D] transition-all duration-200 min-h-[52px] md:min-h-[60px] group cursor-pointer"
                 >
                   <div className="flex items-center gap-3 md:gap-4">
                     <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-[#A3B18A]/10 text-[#A3B18A] flex items-center justify-center shrink-0">

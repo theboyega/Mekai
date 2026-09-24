@@ -24,7 +24,7 @@ export function CoreCapabilities() {
           <ScrollReveal animation="fade-up" duration={480} delay={80} className="h-full">
             <div
               id="capability-card-obd"
-              className="h-full rounded-[22px] md:rounded-[26px] bg-[#A3B18A] text-[#0E1111] p-7 sm:p-8 md:p-9 flex flex-col justify-between min-h-[260px] md:min-h-[290px] transition-transform duration-300 hover:-translate-y-1 shadow-lg"
+              className="h-full rounded-[22px] md:rounded-[26px] bg-[#A3B18A] text-[#0E1111] p-7 sm:p-8 md:p-9 flex flex-col justify-between min-h-[260px] md:min-h-[290px] transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl"
             >
               <div>
                 {/* OBD-II Diagnostic Telemetry / Fault Icon */}
@@ -46,7 +46,7 @@ export function CoreCapabilities() {
           <ScrollReveal animation="fade-up" duration={480} delay={160} className="h-full">
             <div
               id="capability-card-acoustic"
-              className="h-full rounded-[22px] md:rounded-[26px] bg-[#FFFFFF] text-[#0E1111] p-7 sm:p-8 md:p-9 flex flex-col justify-between min-h-[260px] md:min-h-[290px] transition-transform duration-300 hover:-translate-y-1 shadow-lg"
+              className="h-full rounded-[22px] md:rounded-[26px] bg-[#FFFFFF] text-[#0E1111] p-7 sm:p-8 md:p-9 flex flex-col justify-between min-h-[260px] md:min-h-[290px] transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl"
             >
               <div>
                 {/* Acoustic Soundwave Icon */}
@@ -83,7 +83,7 @@ export function CoreCapabilities() {
           <ScrollReveal animation="fade-up" duration={480} delay={240} className="h-full">
             <div
               id="capability-card-vision"
-              className="h-full rounded-[22px] md:rounded-[26px] bg-[#131616] border border-[#232828] text-white p-7 sm:p-8 md:p-9 flex flex-col justify-between min-h-[260px] md:min-h-[290px] transition-transform duration-300 hover:-translate-y-1 hover:border-[#313939] shadow-lg"
+              className="h-full rounded-[22px] md:rounded-[26px] bg-[#131616] border border-[#232828] text-white p-7 sm:p-8 md:p-9 flex flex-col justify-between min-h-[260px] md:min-h-[290px] transition-all duration-300 hover:-translate-y-1 hover:border-[#333C3C] hover:bg-[#151919] shadow-lg hover:shadow-xl"
             >
               <div>
                 {/* Component Scan Icon */}

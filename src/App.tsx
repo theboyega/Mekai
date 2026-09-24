@@ -365,7 +365,7 @@ export default function App() {
 
         {/* 5. Floor Validation: 3 Metric Cards + Sage Green CTA Card */}
         <FloorValidation
-          onSignUpClick={handleGetStarted}
+          onSignUpClick={() => openAuth('signup')}
           isAuthenticated={!!activeAccessCode}
         />
 

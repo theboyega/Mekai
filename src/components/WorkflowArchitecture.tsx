@@ -49,7 +49,7 @@ export function WorkflowArchitecture() {
             >
               <div
                 id={`workflow-card-${index + 1}`}
-                className="h-full rounded-[22px] md:rounded-[26px] bg-[#131616] border border-[#222828] p-7 sm:p-8 md:p-9 flex flex-col justify-start min-h-[200px] md:min-h-[230px] transition-all duration-300 hover:border-[#333C3C] hover:bg-[#151919]"
+                className="h-full rounded-[22px] md:rounded-[26px] bg-[#131616] border border-[#222828] p-7 sm:p-8 md:p-9 flex flex-col justify-start min-h-[200px] md:min-h-[230px] transition-all duration-300 hover:-translate-y-1 hover:border-[#333C3C] hover:bg-[#151919] shadow-lg hover:shadow-xl"
               >
                 <span className="text-xs md:text-sm font-bold tracking-[0.16em] uppercase text-[#FFFFFF] mb-4 md:mb-5 block font-heading">
                   {item.step}
