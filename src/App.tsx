@@ -162,6 +162,11 @@ export default function App() {
 
   const handleSignOut = () => {
     setActiveAccessCode(null);
+    try {
+      localStorage.removeItem('mekai_workshop_code');
+    } catch {
+      // ignore
+    }
     handleViewHomepage();
   };
 
@@ -171,7 +176,12 @@ export default function App() {
     if (query && query.trim()) {
       setDashboardInitialPrompt(query.trim());
     }
-    // Open auth modal so the user inputs their workshop access code
+    // If the technician is already authenticated, take them directly to the dashboard
+    if (activeAccessCode) {
+      setViewMode('app');
+      return;
+    }
+    // If not authenticated, open auth modal so the user inputs their workshop access code and name
     openAuth('signup');
   };
 
@@ -344,6 +354,7 @@ export default function App() {
         <HeroSection
           onGetStarted={handleGetStarted}
           onLearnMore={handleLearnMore}
+          isAuthenticated={!!activeAccessCode}
         />
 
         {/* 3. Core Capabilities: 3 Cards (Sage OBD-II, White Acoustic, Dark Vision) */}
@@ -353,12 +364,15 @@ export default function App() {
         <WorkflowArchitecture />
 
         {/* 5. Floor Validation: 3 Metric Cards + Sage Green CTA Card */}
-        <FloorValidation onSignUpClick={() => openAuth('signup')} />
+        <FloorValidation
+          onSignUpClick={handleGetStarted}
+          isAuthenticated={!!activeAccessCode}
+        />
 
         {/* 6. Mobile App Download & Dual Phone Mockup View */}
         <MobileAppSection
-          onAppStoreClick={() => openAuth('signup')}
-          onPlayStoreClick={() => openAuth('signup')}
+          onAppStoreClick={activeAccessCode ? () => setViewMode('app') : () => openAuth('signup')}
+          onPlayStoreClick={activeAccessCode ? () => setViewMode('app') : () => openAuth('signup')}
         />
       </main>
 

@@ -3,9 +3,10 @@ import { ScrollReveal } from './ScrollReveal';
 
 interface FloorValidationProps {
   onSignUpClick?: () => void;
+  isAuthenticated?: boolean;
 }
 
-export function FloorValidation({ onSignUpClick }: FloorValidationProps) {
+export function FloorValidation({ onSignUpClick, isAuthenticated = false }: FloorValidationProps) {
   const metrics = [
     {
       id: 'efficiency',
@@ -70,7 +71,7 @@ export function FloorValidation({ onSignUpClick }: FloorValidationProps) {
               className="w-full h-full rounded-[22px] md:rounded-[26px] bg-[#A3B18A] p-7 sm:p-8 md:p-9 flex flex-col justify-between min-h-[200px] md:min-h-[240px] text-left transition-all duration-300 hover:bg-[#94A27B] hover:-translate-y-1 active:scale-[0.98] group shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-white cursor-pointer"
             >
               <div className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#0E1111] leading-tight tracking-tight font-heading">
-                Sign up now
+                {isAuthenticated ? 'Open Dashboard' : 'Sign up now'}
               </div>
 
               <div className="self-start mt-6 md:mt-8">
