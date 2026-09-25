@@ -1286,22 +1286,123 @@ export function AppDashboard({
     }
   };
 
-  const handleSaveEditedMessage = () => {
-    if (!editingMessage || !editMessageText.trim()) {
+  const handleSaveEditedMessage = async () => {
+    if (!editingMessage || !editMessageText.trim() || isAnalyzing) {
       setEditingMessage(null);
       return;
     }
-    const updatedMessages = messages.map((m) =>
-      m.id === editingMessage.id ? { ...m, text: editMessageText.trim() } : m
-    );
-    setMessages(updatedMessages);
-    setRecentSessions((prev) =>
-      prev.map((s) =>
-        s.id === currentSessionId ? { ...s, messages: updatedMessages, updatedAt: Date.now() } : s
-      )
-    );
+
+    const targetMessage = editingMessage;
+    const newText = editMessageText.trim();
+    const activeSessionId = currentSessionId;
+
+    // Locate the edited message index
+    const editIndex = messages.findIndex((m) => m.id === targetMessage.id);
+    if (editIndex === -1) {
+      setEditingMessage(null);
+      setEditMessageText('');
+      return;
+    }
+
+    // Dismiss the edit modal immediately
     setEditingMessage(null);
     setEditMessageText('');
+
+    const updatedUserMsg: ChatMessage = {
+      ...targetMessage,
+      text: newText,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    };
+
+    // Keep all messages before the edited message, plus the edited message itself.
+    // The former old response (and any subsequent messages from that point onward) is removed.
+    const newMessages: ChatMessage[] = [
+      ...messages.slice(0, editIndex).map((m) => ({ ...m, isTyping: false })),
+      updatedUserMsg,
+    ];
+
+    setMessages(newMessages);
+    setIsAnalyzing(true);
+
+    // Sync session list with the updated user message state immediately
+    setRecentSessions((prev) =>
+      prev.map((s) =>
+        s.id === activeSessionId
+          ? {
+              ...s,
+              snippet: newText.substring(0, 70) + (newText.length > 70 ? '...' : ''),
+              messages: newMessages,
+              updatedAt: Date.now(),
+            }
+          : s
+      )
+    );
+
+    try {
+      const webhookResult = await callMekaiWebhook(
+        newText,
+        activeSessionId,
+        displayName,
+        activeCode,
+        targetMessage.attachment
+      );
+
+      const mekaiMsg: ChatMessage = {
+        id: `msg-${Date.now()}-mek`,
+        sender: 'mekai',
+        text: webhookResult.text,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        isTyping: true,
+      };
+
+      const finalMessages = [...newMessages, mekaiMsg];
+      setMessages(finalMessages);
+      setIsAnalyzing(false);
+
+      // Re-evaluate session naming based on the fresh Mekai response
+      const sessionNameFromMekai = extractMekaiSessionName(
+        webhookResult.text,
+        newText,
+        webhookResult,
+        currentSessionTitle
+      );
+
+      setCurrentSessionTitle(sessionNameFromMekai);
+
+      const storedMessages = finalMessages.map((m) =>
+        m.id === mekaiMsg.id ? { ...m, isTyping: false } : m
+      );
+
+      setRecentSessions((prev) => {
+        const filtered = prev.filter((s) => s.id !== activeSessionId);
+        return [
+          {
+            id: activeSessionId,
+            title: sessionNameFromMekai,
+            snippet: webhookResult.text.substring(0, 70) + '...',
+            date: 'Just now',
+            messages: storedMessages,
+            updatedAt: Date.now(),
+          },
+          ...filtered,
+        ];
+      });
+    } catch (err: any) {
+      console.error('Error re-analyzing edited message with Mekai:', err);
+      const friendlyError =
+        err?.message?.includes('Unable to reach Mekai') || err?.message?.includes('Network error')
+          ? 'Unable to reach the Mekai diagnostic engine at this moment. Please check your network connection and try again.'
+          : `Diagnostic communication notice: ${err?.message || 'Please check connection and retry.'}`;
+      const errorMsg: ChatMessage = {
+        id: `msg-${Date.now()}-err`,
+        sender: 'mekai',
+        text: friendlyError,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        isError: true,
+      };
+      setMessages([...newMessages, errorMsg]);
+      setIsAnalyzing(false);
+    }
   };
 
   const handleDeleteSession = (e: React.MouseEvent, sessionId: string) => {
@@ -2671,6 +2772,14 @@ export function AppDashboard({
             <textarea
               value={editMessageText}
               onChange={(e) => setEditMessageText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  if (editMessageText.trim() && !isAnalyzing) {
+                    handleSaveEditedMessage();
+                  }
+                }
+              }}
               rows={4}
               className="w-full p-3.5 rounded-xl bg-[#0E1312] border border-[#23312C] text-white focus:outline-none focus:border-[#A3B18A] text-sm font-sans resize-none leading-relaxed"
               placeholder="Edit your message text..."
@@ -2688,10 +2797,10 @@ export function AppDashboard({
               <button
                 type="button"
                 onClick={handleSaveEditedMessage}
-                disabled={!editMessageText.trim()}
+                disabled={!editMessageText.trim() || isAnalyzing}
                 className="px-5 py-2 rounded-xl bg-[#A3B18A] hover:bg-[#92A177] text-[#0E1111] font-heading font-bold text-xs md:text-sm transition-colors disabled:opacity-40"
               >
-                Save
+                {isAnalyzing ? 'Analyzing...' : 'Save'}
               </button>
             </div>
           </div>

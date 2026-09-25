@@ -133,5 +133,4 @@ npm start
 © **Cestcore Limited**. All rights reserved.
 
 - **Automotive Notice**: Mekai provides AI-powered automotive diagnostic assistance and guidance. Repairs, parts replacements, and safety inspections must be performed by certified, licensed automotive technicians.
-- **Open Source**: Built with open-source libraries licensed under MIT, Apache 2.0, and BSD.
 - **Contact**: For enterprise licensing, workshop fleet deployments, or inquiries, reach out at [compliance@cestcore.com](mailto:compliance@cestcore.com).
