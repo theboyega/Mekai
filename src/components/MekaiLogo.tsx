@@ -35,7 +35,7 @@ export function MekaiLogo({
       </svg>
 
       {showText && (
-        <span className={`font-extrabold uppercase font-heading tracking-widest ${textColor} ${textSize}`}>
+        <span className={`font-extrabold uppercase font-heading tracking-widest leading-none ${textColor} ${textSize}`}>
           MEKAI
         </span>
       )}
