@@ -1,5 +1,6 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { Navbar } from './components/Navbar';
+import { MekaiPageLoader } from './components/MekaiLogo';
 import { HeroSection } from './components/HeroSection';
 import { CoreCapabilities } from './components/CoreCapabilities';
 import { WorkflowArchitecture } from './components/WorkflowArchitecture';
@@ -219,7 +220,7 @@ export default function App() {
   // When authenticated and in app mode, render the App Dashboard
   if (activeAccessCode && viewMode === 'app') {
     return (
-      <Suspense fallback={<div className="fixed inset-0 bg-[#0E1111]" />}>
+      <Suspense fallback={<MekaiPageLoader />}>
         <div className="fixed inset-0 h-screen h-[100dvh] w-full overflow-hidden bg-[#0E1111] text-[#FFFFFF] font-sans selection:bg-[#A3B18A]/30 selection:text-[#FFFFFF]">
           <AppDashboard
             activeCode={activeAccessCode}
@@ -236,7 +237,7 @@ export default function App() {
   // Dedicated Auth Page
   if (activePage === 'auth') {
     return (
-      <Suspense fallback={<div className="min-h-screen bg-[#0E1111]" />}>
+      <Suspense fallback={<MekaiPageLoader />}>
         <AuthPage
           mode={authMode}
           onBack={handleNavigateHome}
@@ -259,7 +260,7 @@ export default function App() {
   // Render individual pages based on activePage
   if (activePage === 'docs') {
     return (
-      <Suspense fallback={<div className="min-h-screen bg-[#0E1111]" />}>
+      <Suspense fallback={<MekaiPageLoader />}>
         <DocsPage {...subPageProps} />
       </Suspense>
     );
@@ -267,7 +268,7 @@ export default function App() {
 
   if (activePage === 'careers') {
     return (
-      <Suspense fallback={<div className="min-h-screen bg-[#0E1111]" />}>
+      <Suspense fallback={<MekaiPageLoader />}>
         <CareersPage {...subPageProps} />
       </Suspense>
     );
@@ -275,7 +276,7 @@ export default function App() {
 
   if (activePage === 'press') {
     return (
-      <Suspense fallback={<div className="min-h-screen bg-[#0E1111]" />}>
+      <Suspense fallback={<MekaiPageLoader />}>
         <PressPage {...subPageProps} />
       </Suspense>
     );
@@ -283,7 +284,7 @@ export default function App() {
 
   if (activePage === 'help') {
     return (
-      <Suspense fallback={<div className="min-h-screen bg-[#0E1111]" />}>
+      <Suspense fallback={<MekaiPageLoader />}>
         <HelpPage {...subPageProps} />
       </Suspense>
     );
@@ -291,7 +292,7 @@ export default function App() {
 
   if (activePage === 'status') {
     return (
-      <Suspense fallback={<div className="min-h-screen bg-[#0E1111]" />}>
+      <Suspense fallback={<MekaiPageLoader />}>
         <StatusPage {...subPageProps} />
       </Suspense>
     );
@@ -299,7 +300,7 @@ export default function App() {
 
   if (activePage === 'terms') {
     return (
-      <Suspense fallback={<div className="min-h-screen bg-[#0E1111]" />}>
+      <Suspense fallback={<MekaiPageLoader />}>
         <TermsPage {...subPageProps} />
       </Suspense>
     );
@@ -307,7 +308,7 @@ export default function App() {
 
   if (activePage === 'privacy') {
     return (
-      <Suspense fallback={<div className="min-h-screen bg-[#0E1111]" />}>
+      <Suspense fallback={<MekaiPageLoader />}>
         <PrivacyPage {...subPageProps} />
       </Suspense>
     );
@@ -315,7 +316,7 @@ export default function App() {
 
   if (activePage === 'licenses') {
     return (
-      <Suspense fallback={<div className="min-h-screen bg-[#0E1111]" />}>
+      <Suspense fallback={<MekaiPageLoader />}>
         <LicensesPage {...subPageProps} />
       </Suspense>
     );

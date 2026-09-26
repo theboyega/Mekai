@@ -81,6 +81,19 @@ h1, h2, h3, h4, h5, h6, .font-heading {
   animation: fadeIn 0.15s ease-out forwards;
 }
 
+@keyframes mekaiSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-mekai-spin {
+  animation: mekaiSpin 1.15s linear infinite;
+}
+
 @keyframes dotPulse {
   0%, 80%, 100% {
     opacity: 0.3;

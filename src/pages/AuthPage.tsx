@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowRight, CheckCircle2, KeyRound, AlertCircle, User } from 'lucide-react';
-import { MekaiLogo } from '../components/MekaiLogo';
+import { MekaiLogo, MekaiSpinner } from '../components/MekaiLogo';
 import { isValidAccessCode, formatAccessCodeInput } from '../data/accessCodes';
 
 interface AuthPageProps {
@@ -29,6 +29,7 @@ export function AuthPage({
   });
   const [error, setError] = useState<string | null>(null);
   const [verifiedCode, setVerifiedCode] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     setCurrentMode(controlledMode);
@@ -65,8 +66,12 @@ export function AuthPage({
 
     // Success: Code authenticated! Advance to Step 2 (Name setup)
     setError(null);
-    setVerifiedCode(cleanCode);
-    setStep('name');
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      setVerifiedCode(cleanCode);
+      setStep('name');
+    }, 350);
   };
 
   // Step 2: Name submitted -> Open App
@@ -82,7 +87,11 @@ export function AuthPage({
     }
 
     if (code) {
-      onAuthenticated(code, finalName);
+      setIsLoading(true);
+      setTimeout(() => {
+        setIsLoading(false);
+        onAuthenticated(code, finalName);
+      }, 350);
     }
   };
 
@@ -179,10 +188,20 @@ export function AuthPage({
                   <button
                     id="submit-technician-name-btn"
                     type="submit"
-                    className="w-full py-3.5 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-[0.99] text-[#0E1111] font-bold text-sm font-heading transition-all duration-200 flex items-center justify-center gap-2 group shadow-md cursor-pointer"
+                    disabled={isLoading}
+                    className="w-full py-3.5 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-[0.99] disabled:opacity-90 text-[#0E1111] font-bold text-sm font-heading transition-all duration-200 flex items-center justify-center gap-2 group shadow-md cursor-pointer"
                   >
-                    <span>Enter Workshop</span>
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    {isLoading ? (
+                      <>
+                        <MekaiSpinner size={18} color="#0E1111" />
+                        <span>Opening Workshop...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Enter Workshop</span>
+                        <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                      </>
+                    )}
                   </button>
                 </form>
               </div>
@@ -239,12 +258,22 @@ export function AuthPage({
                   <button
                     id="submit-access-code-btn"
                     type="submit"
-                    className="w-full py-3.5 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-[0.99] text-[#0E1111] font-bold text-sm font-heading transition-all duration-200 flex items-center justify-center gap-2 group shadow-md cursor-pointer"
+                    disabled={isLoading}
+                    className="w-full py-3.5 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-[0.99] disabled:opacity-90 text-[#0E1111] font-bold text-sm font-heading transition-all duration-200 flex items-center justify-center gap-2 group shadow-md cursor-pointer"
                   >
-                    <span>
-                      {currentMode === 'signup' ? 'Validate & authenticate access' : 'Authenticate technician'}
-                    </span>
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    {isLoading ? (
+                      <>
+                        <MekaiSpinner size={18} color="#0E1111" />
+                        <span>Verifying Access...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>
+                          {currentMode === 'signup' ? 'Validate & authenticate access' : 'Authenticate technician'}
+                        </span>
+                        <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                      </>
+                    )}
                   </button>
                 </form>
 

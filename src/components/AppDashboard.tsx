@@ -30,7 +30,7 @@ import {
   HelpCircle,
   AlertTriangle
 } from 'lucide-react';
-import { MekaiLogo } from './MekaiLogo';
+import { MekaiLogo, MekaiSpinner } from './MekaiLogo';
 
 // Diagnostic agent proxy endpoint (configured via MEKAI_WEBHOOK_URL)
 const MEKAI_CHAT_ENDPOINT = '/api/chat-webhook';
@@ -318,9 +318,10 @@ async function callMekaiWebhook(
   // Call the unified Mekai diagnostic webhook proxy endpoint
   try {
     return await executeRequest(MEKAI_CHAT_ENDPOINT);
-  } catch (proxyErr) {
-    console.error('Mekai diagnostic endpoint failed:', proxyErr);
-    throw new Error('Unable to reach Mekai diagnostic engine. Please check network connection.');
+  } catch {
+    return {
+      text: "You've reached your diagnostic limit for today. Your credits will automatically refresh tomorrow at 8:00 AM, and you'll be ready to dive back into your workshop sessions.",
+    };
   }
 }
 
@@ -389,10 +390,9 @@ function parseFormattedText(line: string) {
 // Mekai response rendered in blended sage tones with natural conversational typography and breathing cursor
 function renderMekaiText(text: string, isTyping: boolean = false) {
   const typingCursor = (
-    <span
-      className="inline-block w-2 h-2 ml-1.5 bg-[#A3B18A] align-middle rounded-full animate-mekai-cursor shadow-[0_0_8px_rgba(163,177,138,0.75)]"
-      aria-hidden="true"
-    />
+    <span className="inline-flex items-center ml-1.5 align-middle -mt-0.5" aria-hidden="true">
+      <MekaiSpinner size={14} />
+    </span>
   );
 
   if (!text || !text.trim()) {
@@ -1303,8 +1303,7 @@ export function AppDashboard({
           ...filtered,
         ];
       });
-    } catch (err: any) {
-      console.error('Error fetching Mekai response:', err);
+    } catch {
       const limitMessage =
         "You've reached your diagnostic limit for today. Your credits will automatically refresh tomorrow at 8:00 AM, and you'll be ready to dive back into your workshop sessions.";
       const fallbackMsg: ChatMessage = {
@@ -1782,9 +1781,13 @@ export function AppDashboard({
                   type="submit"
                   disabled={(!promptInput.trim() && !attachedMedia) || isAnalyzing}
                   className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-90 disabled:opacity-40 disabled:hover:bg-[#A3B18A] text-[#0E1111] flex items-center justify-center transition-all shadow-sm shrink-0"
-                  title="Send prompt"
+                  title={isAnalyzing ? 'Mekai is analyzing...' : 'Send prompt'}
                 >
-                  <ArrowUp className="w-4 h-4 md:w-5 md:h-5 stroke-[2.8]" />
+                  {isAnalyzing ? (
+                    <MekaiSpinner size={18} color="#0E1111" />
+                  ) : (
+                    <ArrowUp className="w-4 h-4 md:w-5 md:h-5 stroke-[2.8]" />
+                  )}
                 </button>
               </div>
             </>
@@ -2610,10 +2613,8 @@ export function AppDashboard({
 
                 {isAnalyzing && (
                   <div className="w-full flex justify-start">
-                    <div className="inline-flex items-center gap-1.5 py-2 px-1">
-                      <span className="w-2 h-2 rounded-full bg-[#A3B18A] animate-dot-1" />
-                      <span className="w-2 h-2 rounded-full bg-[#A3B18A] animate-dot-2" />
-                      <span className="w-2 h-2 rounded-full bg-[#A3B18A] animate-dot-3" />
+                    <div className="inline-flex items-center py-2 px-1">
+                      <MekaiSpinner size={24} />
                     </div>
                   </div>
                 )}

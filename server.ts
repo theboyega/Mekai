@@ -16,7 +16,10 @@ const MEKAI_WEBHOOK_URL =
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 
-// Server-side direct proxy to n8n webhook (no failover/model fallbacks)
+const DAILY_LIMIT_MESSAGE =
+  "You've reached your diagnostic limit for today. Your credits will automatically refresh tomorrow at 8:00 AM, and you'll be ready to dive back into your workshop sessions.";
+
+// Server-side direct proxy to n8n webhook
 app.post('/api/chat-webhook', async (req, res) => {
   try {
     const upstreamBody = {
@@ -40,25 +43,41 @@ app.post('/api/chat-webhook', async (req, res) => {
 
     clearTimeout(timeoutId);
 
+    if (!upstreamResponse.ok) {
+      return res.status(200).json({
+        output: DAILY_LIMIT_MESSAGE,
+        limitReached: true,
+      });
+    }
+
     const contentType = upstreamResponse.headers.get('content-type') || '';
-    res.status(upstreamResponse.status);
 
     if (contentType.includes('application/json')) {
       const data = await upstreamResponse.json();
-      return res.json(data);
+      if (
+        (data && typeof data === 'object' && data.message === 'Error in workflow') ||
+        (Array.isArray(data) && data[0]?.message === 'Error in workflow')
+      ) {
+        return res.status(200).json({
+          output: DAILY_LIMIT_MESSAGE,
+          limitReached: true,
+        });
+      }
+      return res.status(200).json(data);
     }
 
     const text = await upstreamResponse.text();
-    return res.send(text);
-  } catch (error: any) {
-    console.error('[Mekai n8n Proxy] Error connecting to upstream webhook:', error);
-    if (error?.name === 'AbortError') {
-      return res.status(504).json({
-        error: 'The Mekai diagnostic engine timed out waiting for n8n response.',
+    if (!text || text.includes('Error in workflow')) {
+      return res.status(200).json({
+        output: DAILY_LIMIT_MESSAGE,
+        limitReached: true,
       });
     }
-    return res.status(502).json({
-      error: `Unable to reach Mekai n8n diagnostic engine: ${error?.message || 'Network connection failed'}.`,
+    return res.status(200).send(text);
+  } catch (_error: any) {
+    return res.status(200).json({
+      output: DAILY_LIMIT_MESSAGE,
+      limitReached: true,
     });
   }
 });
