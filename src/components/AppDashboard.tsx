@@ -1822,11 +1822,21 @@ export function AppDashboard({
                 <button
                   type="button"
                   onClick={() => setMobileDrawerOpen(false)}
-                  className="w-10 h-10 md:w-12 md:h-12 min-h-[40px] md:min-h-[48px] rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 flex flex-col items-center justify-center gap-1.5 shrink-0 transition-transform shadow-md focus:outline-none cursor-pointer"
+                  className="w-10 h-10 md:w-12 md:h-12 min-h-[40px] md:min-h-[48px] rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 flex items-center justify-center shrink-0 transition-transform shadow-md focus:outline-none cursor-pointer text-[#0E1111]"
                   aria-label="Toggle navigation drawer"
                 >
-                  <span className="w-4 md:w-5 h-[2.5px] bg-[#0E1111] rounded-full" />
-                  <span className="w-4 md:w-5 h-[2.5px] bg-[#0E1111] rounded-full" />
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                  >
+                    <line x1="4.5" y1="7.5" x2="19.5" y2="7.5" />
+                    <line x1="4.5" y1="16.5" x2="19.5" y2="16.5" />
+                  </svg>
                 </button>
 
                 <div
@@ -1851,7 +1861,18 @@ export function AppDashboard({
                   className="w-10 h-10 md:w-12 md:h-12 min-h-[40px] md:min-h-[48px] rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] flex items-center justify-center shrink-0 transition-transform shadow-md focus:outline-none cursor-pointer"
                   aria-label="Close navigation drawer"
                 >
-                  <X className="w-5 h-5 md:w-6 md:h-6 stroke-[2.5]" />
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                  >
+                    <line x1="4.5" y1="12" x2="19.5" y2="12" transform="rotate(45 12 12)" />
+                    <line x1="4.5" y1="12" x2="19.5" y2="12" transform="rotate(-45 12 12)" />
+                  </svg>
                 </button>
               </div>
             </div>
@@ -2263,11 +2284,21 @@ export function AppDashboard({
                 id="mobile-drawer-toggle-btn"
                 type="button"
                 onClick={() => setMobileDrawerOpen(true)}
-                className="w-10 h-10 md:w-12 md:h-12 min-h-[40px] md:min-h-[48px] rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 flex flex-col items-center justify-center gap-1.5 shrink-0 transition-transform shadow-md focus:outline-none cursor-pointer"
+                className="w-10 h-10 md:w-12 md:h-12 min-h-[40px] md:min-h-[48px] rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 flex items-center justify-center shrink-0 transition-transform shadow-md focus:outline-none cursor-pointer text-[#0E1111]"
                 aria-label="Open navigation drawer"
               >
-                <span className="w-4 md:w-5 h-[2.5px] bg-[#0E1111] rounded-full" />
-                <span className="w-4 md:w-5 h-[2.5px] bg-[#0E1111] rounded-full" />
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                >
+                  <line x1="4.5" y1="7.5" x2="19.5" y2="7.5" />
+                  <line x1="4.5" y1="16.5" x2="19.5" y2="16.5" />
+                </svg>
               </button>
 
               <span className="font-heading font-extrabold text-xl md:text-2xl tracking-widest text-[#A3B18A] select-none leading-none">

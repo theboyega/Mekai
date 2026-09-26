@@ -102,7 +102,7 @@ export function HeroSection({ onGetStarted, onLearnMore, isAuthenticated = false
                   </div>
 
                   {/* Assistant Message Content (Exact text from design) */}
-                  <div id="session-assistant-message" className="self-start max-w-[95%] space-y-3.5 text-[#B8C2BF] text-xs sm:text-[13.5px] leading-relaxed">
+                  <div id="session-assistant-message" className="self-start max-w-[95%] space-y-3.5 text-[#A3B18A] text-xs sm:text-[13.5px] leading-relaxed">
                     <p>
                       Hello! I am Mekai, your automotive diagnostic assistant from Cestcore Limited.
                     </p>

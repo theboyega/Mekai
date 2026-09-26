@@ -10,7 +10,7 @@ export function PhoneMockups() {
       {/* Phone 1: Ready For Diagnostics View */}
       <div
         id="phone-mockup-chat"
-        className="w-[calc(50%-6px)] sm:w-[200px] md:w-[215px] lg:w-[225px] h-[340px] min-[375px]:h-[365px] min-[400px]:h-[395px] sm:h-[420px] md:h-[450px] bg-[#0E1111] rounded-[26px] min-[375px]:rounded-[30px] sm:rounded-[38px] p-2 sm:p-2.5 border-[1.5px] sm:border-2 border-[#262C2C] shadow-2xl relative flex flex-col justify-between shrink-0 animate-float-slow transition-transform duration-500 hover:-translate-y-2 hover:border-[#384343]"
+        className="w-[calc(50%-6px)] sm:w-[200px] md:w-[215px] lg:w-[225px] h-[340px] min-[375px]:h-[365px] min-[400px]:h-[395px] sm:h-[420px] md:h-[450px] bg-[#0E1111] rounded-[26px] min-[375px]:rounded-[30px] sm:rounded-[38px] p-2 sm:p-2.5 border-[1.5px] sm:border-2 border-[#262C2C] shadow-2xl relative z-10 flex flex-col justify-between shrink-0 transition-colors duration-300 hover:border-[#384343]"
       >
         {/* Dynamic Island / Notch */}
         <div className="absolute top-2.5 sm:top-3.5 left-1/2 -translate-x-1/2 w-12 sm:w-16 h-2.5 sm:h-3 bg-[#1A1F1F] rounded-full flex items-center justify-center gap-1 z-20">
@@ -54,7 +54,7 @@ export function PhoneMockups() {
       {/* Phone 2: Navigation Drawer View */}
       <div
         id="phone-mockup-drawer"
-        className="w-[calc(50%-6px)] sm:w-[200px] md:w-[215px] lg:w-[225px] h-[340px] min-[375px]:h-[365px] min-[400px]:h-[395px] sm:h-[420px] md:h-[450px] bg-[#0E1111] rounded-[26px] min-[375px]:rounded-[30px] sm:rounded-[38px] p-2 sm:p-2.5 border-[1.5px] sm:border-2 border-[#262C2C] shadow-2xl relative flex flex-col justify-between shrink-0 animate-float-slow-alt transition-transform duration-500 hover:-translate-y-2 hover:border-[#384343]"
+        className="w-[calc(50%-6px)] sm:w-[200px] md:w-[215px] lg:w-[225px] h-[340px] min-[375px]:h-[365px] min-[400px]:h-[395px] sm:h-[420px] md:h-[450px] bg-[#0E1111] rounded-[26px] min-[375px]:rounded-[30px] sm:rounded-[38px] p-2 sm:p-2.5 border-[1.5px] sm:border-2 border-[#262C2C] shadow-2xl relative z-10 flex flex-col justify-between shrink-0 transition-colors duration-300 hover:border-[#384343]"
       >
         {/* Dynamic Island / Notch */}
         <div className="absolute top-2.5 sm:top-3.5 left-1/2 -translate-x-1/2 w-12 sm:w-16 h-2.5 sm:h-3 bg-[#1A1F1F] rounded-full flex items-center justify-center gap-1 z-20">

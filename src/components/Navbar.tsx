@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { MekaiLogo } from './MekaiLogo';
-import { LogOut, X, ArrowRight, Layers, BarChart3, Smartphone, Cpu } from 'lucide-react';
+import { LogOut, ArrowRight, Layers, BarChart3, Smartphone, Cpu } from 'lucide-react';
 
 interface NavbarProps {
   onSignUpClick?: () => void;
@@ -23,15 +23,21 @@ export function Navbar({
 }: NavbarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Prevent background scrolling when mobile menu drawer is open
+  // Prevent background scrolling when mobile menu drawer is open without causing scrollbar width jump
   useEffect(() => {
     if (isMobileMenuOpen) {
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
       document.body.style.overflow = 'hidden';
+      if (scrollbarWidth > 0) {
+        document.body.style.paddingRight = `${scrollbarWidth}px`;
+      }
     } else {
       document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
     }
     return () => {
       document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
     };
   }, [isMobileMenuOpen]);
 
@@ -47,17 +53,20 @@ export function Navbar({
     <>
       <header
         id="main-navigation"
-        className="w-full bg-[#0E1111]/95 backdrop-blur-md sticky top-0 z-50 border-b border-[#1C2121]/80 transition-colors shadow-sm"
+        className={`w-full ${
+          isMobileMenuOpen ? 'bg-[#0E1111]' : 'bg-[#0E1111]/95 backdrop-blur-md'
+        } sticky top-0 z-[60] border-b border-[#1C2121]/80 transition-colors shadow-sm`}
       >
         <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 h-20 sm:h-24 flex items-center justify-between">
           {/* Brand Logo - Full generous size */}
           <a
             id="nav-logo-link"
             href="#"
-            className="group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3B18A] rounded-lg"
+            className="group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3B18A] rounded-lg shrink-0"
             aria-label="Mekai Homepage"
             onClick={(e) => {
               e.preventDefault();
+              setIsMobileMenuOpen(false);
               if (onNavigateHome) onNavigateHome();
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
@@ -66,7 +75,7 @@ export function Navbar({
           </a>
 
           {/* Right Navigation Actions */}
-          <div id="nav-actions" className="flex items-center gap-4 sm:gap-6">
+          <div id="nav-actions" className="flex items-center gap-4 sm:gap-6 shrink-0">
             {/* ───────── MOBILE & TABLET VIEW (< lg:) ───────── */}
             <div className="flex lg:hidden items-center gap-4 md:gap-6">
               {activeCode ? (
@@ -76,7 +85,9 @@ export function Navbar({
                     <button
                       type="button"
                       onClick={onOpenDashboard}
-                      className="px-3.5 py-1.5 md:px-5 md:py-2.5 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] font-heading font-bold text-xs md:text-sm transition-all shadow-sm min-h-[36px] md:min-h-[44px]"
+                      className={`px-3.5 py-1.5 md:px-5 md:py-2.5 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] font-heading font-bold text-xs md:text-sm transition-all shadow-sm min-h-[36px] md:min-h-[44px] ${
+                        isMobileMenuOpen ? 'invisible pointer-events-none' : ''
+                      }`}
                     >
                       Open App
                     </button>
@@ -93,7 +104,9 @@ export function Navbar({
                       onSignUpClick();
                     }
                   }}
-                  className="text-sm md:text-base font-semibold text-[#A3B18A] hover:text-[#92A177] transition-colors inline-flex items-center gap-1.5 group focus:outline-none focus-visible:ring-1 focus-visible:ring-[#A3B18A] font-heading cursor-pointer py-1.5"
+                  className={`text-sm md:text-base font-semibold text-[#A3B18A] hover:text-[#92A177] transition-colors inline-flex items-center gap-1.5 group focus:outline-none focus-visible:ring-1 focus-visible:ring-[#A3B18A] font-heading cursor-pointer py-1.5 ${
+                    isMobileMenuOpen ? 'invisible pointer-events-none' : ''
+                  }`}
                 >
                   <span>Sign up</span>
                   <svg
@@ -118,17 +131,36 @@ export function Navbar({
                 id="mobile-nav-hamburger-btn"
                 type="button"
                 onClick={() => setIsMobileMenuOpen((prev) => !prev)}
-                className="w-10 h-10 md:w-12 md:h-12 min-h-[40px] md:min-h-[48px] rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 flex flex-col items-center justify-center gap-1.5 shrink-0 transition-transform shadow-md focus:outline-none"
+                className="w-10 h-10 md:w-12 md:h-12 min-h-[40px] md:min-h-[48px] rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 flex items-center justify-center shrink-0 transition-transform shadow-md focus:outline-none text-[#0E1111]"
                 aria-label={isMobileMenuOpen ? 'Close navigation drawer' : 'Open navigation drawer'}
                 aria-expanded={isMobileMenuOpen}
               >
                 {isMobileMenuOpen ? (
-                  <X className="w-5 h-5 md:w-6 md:h-6 stroke-[2.5] text-[#0E1111]" />
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                  >
+                    <line x1="4.5" y1="12" x2="19.5" y2="12" transform="rotate(45 12 12)" />
+                    <line x1="4.5" y1="12" x2="19.5" y2="12" transform="rotate(-45 12 12)" />
+                  </svg>
                 ) : (
-                  <>
-                    <span className="w-4 md:w-5 h-[2.5px] bg-[#0E1111] rounded-full" />
-                    <span className="w-4 md:w-5 h-[2.5px] bg-[#0E1111] rounded-full" />
-                  </>
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                  >
+                    <line x1="4.5" y1="7.5" x2="19.5" y2="7.5" />
+                    <line x1="4.5" y1="16.5" x2="19.5" y2="16.5" />
+                  </svg>
                 )}
               </button>
             </div>
@@ -204,42 +236,13 @@ export function Navbar({
       </header>
 
       {/* ─────────────────────────────────────────────────────────────
-          MOBILE & TABLET FULL-SCREEN DRAWER (Matching App Dashboard UI Drawer)
+          MOBILE & TABLET FULL-SCREEN DRAWER (Anchored below persistent header)
       ───────────────────────────────────────────────────────────── */}
       {isMobileMenuOpen && (
         <div
           id="homepage-mobile-drawer"
-          className="lg:hidden fixed inset-0 z-50 bg-[#0E1111] flex flex-col justify-between animate-fadeIn select-none"
+          className="lg:hidden fixed inset-x-0 top-20 sm:top-24 bottom-0 z-50 bg-[#0E1111] flex flex-col justify-between animate-fadeIn select-none"
         >
-          {/* Top Bar: Exact matching horizontal padding, flex properties, and edge alignment */}
-          <div className="w-full px-6 sm:px-10 md:px-12 lg:px-14 xl:px-20 h-20 sm:h-24 md:h-26 flex items-center justify-between shrink-0 border-b border-[#1C2121]/80">
-            <a
-              id="drawer-logo-link"
-              href="#"
-              className="group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3B18A] rounded-lg"
-              aria-label="Mekai Homepage"
-              onClick={(e) => {
-                e.preventDefault();
-                setIsMobileMenuOpen(false);
-                if (onNavigateHome) onNavigateHome();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-            >
-              <MekaiLogo iconSize={34} textSize="text-xl md:text-2xl tracking-widest font-heading font-extrabold" />
-            </a>
-
-            {/* Exact App Dashboard UI Circular Close Button */}
-            <button
-              id="homepage-mobile-drawer-close-btn"
-              type="button"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="w-10 h-10 md:w-12 md:h-12 min-h-[40px] md:min-h-[48px] rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] flex items-center justify-center shrink-0 transition-transform shadow-md focus:outline-none"
-              aria-label="Close navigation drawer"
-            >
-              <X className="w-5 h-5 md:w-6 md:h-6 stroke-[2.5]" />
-            </button>
-          </div>
-
           {/* Drawer Body Content */}
           <div className="flex-1 overflow-y-auto px-5 py-6 sm:px-6 md:px-8 md:py-8 flex flex-col justify-between w-full mx-auto">
             {/* Navigation Section Links */}
