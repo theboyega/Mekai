@@ -22,6 +22,17 @@ export function Navbar({
   onNavigatePage,
 }: NavbarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  // Track window scroll position to reveal header divider line on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 8);
+    };
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Prevent background scrolling when mobile menu drawer is open without causing scrollbar width jump
   useEffect(() => {
@@ -53,9 +64,13 @@ export function Navbar({
     <>
       <header
         id="main-navigation"
-        className={`w-full ${
-          isMobileMenuOpen ? 'bg-[#0E1111]' : 'bg-[#0E1111]/95 backdrop-blur-md'
-        } sticky top-0 z-[60] border-b border-[#1C2121]/80 transition-colors shadow-sm`}
+        className={`w-full sticky top-0 z-[60] border-b transition-all duration-200 ${
+          isMobileMenuOpen
+            ? 'bg-[#0E1111] border-[#1C2121]/80'
+            : isScrolled
+            ? 'bg-[#0E1111]/80 backdrop-blur-md border-[#1C2121]/80 shadow-sm'
+            : 'bg-[#0E1111] border-transparent'
+        }`}
       >
         <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 h-20 sm:h-24 flex items-center justify-between">
           {/* Brand Logo - Full generous size */}

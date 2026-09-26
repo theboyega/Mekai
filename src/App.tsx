@@ -6,10 +6,10 @@ import { WorkflowArchitecture } from './components/WorkflowArchitecture';
 import { FloorValidation } from './components/FloorValidation';
 import { MobileAppSection } from './components/MobileAppSection';
 import { Footer } from './components/Footer';
-import { AuthModal } from './components/AuthModal';
 import { AppDashboard } from './components/AppDashboard';
 
 // Dedicated Sub-Pages
+import { AuthPage } from './pages/AuthPage';
 import { DocsPage } from './pages/DocsPage';
 import { CareersPage } from './pages/CareersPage';
 import { PressPage } from './pages/PressPage';
@@ -21,6 +21,7 @@ import { LicensesPage } from './pages/LicensesPage';
 
 export type AppPage =
   | 'home'
+  | 'auth'
   | 'docs'
   | 'careers'
   | 'press'
@@ -31,6 +32,7 @@ export type AppPage =
   | 'licenses';
 
 const VALID_PAGES: AppPage[] = [
+  'auth',
   'docs',
   'careers',
   'press',
@@ -42,13 +44,7 @@ const VALID_PAGES: AppPage[] = [
 ];
 
 export default function App() {
-  const [authModalState, setAuthModalState] = useState<{
-    isOpen: boolean;
-    mode: 'signup' | 'login';
-  }>({
-    isOpen: false,
-    mode: 'signup',
-  });
+  const [authMode, setAuthMode] = useState<'signup' | 'login'>('signup');
 
   const [activeAccessCode, setActiveAccessCode] = useState<string | null>(() => {
     try {
@@ -72,9 +68,12 @@ export default function App() {
   // Active page routing based on URL hash
   const [activePage, setActivePage] = useState<AppPage>(() => {
     try {
-      const hash = window.location.hash.replace('#', '').toLowerCase() as AppPage;
-      if (VALID_PAGES.includes(hash)) {
-        return hash;
+      const hash = window.location.hash.replace('#', '').toLowerCase();
+      if (hash === 'signup' || hash === 'login' || hash === 'auth') {
+        return 'auth';
+      }
+      if (VALID_PAGES.includes(hash as AppPage)) {
+        return hash as AppPage;
       }
     } catch {
       // ignore
@@ -85,9 +84,14 @@ export default function App() {
   // Listen to hash changes for forward/back browser navigation
   useEffect(() => {
     const handleHashChange = () => {
-      const hash = window.location.hash.replace('#', '').toLowerCase() as AppPage;
-      if (VALID_PAGES.includes(hash)) {
-        setActivePage(hash);
+      const hash = window.location.hash.replace('#', '').toLowerCase();
+      if (hash === 'signup' || hash === 'login' || hash === 'auth') {
+        setAuthMode(hash === 'login' ? 'login' : 'signup');
+        setActivePage('auth');
+        setViewMode('landing');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (VALID_PAGES.includes(hash as AppPage)) {
+        setActivePage(hash as AppPage);
         setViewMode('landing');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else if (!hash || hash === 'home') {
@@ -132,11 +136,11 @@ export default function App() {
   };
 
   const openAuth = (mode: 'signup' | 'login') => {
-    setAuthModalState({ isOpen: true, mode });
-  };
-
-  const closeAuth = () => {
-    setAuthModalState((prev) => ({ ...prev, isOpen: false }));
+    setAuthMode(mode);
+    setActivePage('auth');
+    setViewMode('landing');
+    window.location.hash = mode;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleAuthenticated = (code: string, name?: string) => {
@@ -144,8 +148,11 @@ export default function App() {
     if (name) {
       setTechnicianName(name);
     }
+    setActivePage('home');
     setViewMode('app');
-    closeAuth();
+    if (window.location.hash) {
+      window.location.hash = '';
+    }
   };
 
   const handleViewHomepage = () => {
@@ -181,7 +188,7 @@ export default function App() {
       setViewMode('app');
       return;
     }
-    // If not authenticated, open auth modal so the user inputs their workshop access code and name
+    // If not authenticated, navigate to the dedicated Auth Page
     openAuth('signup');
   };
 
@@ -204,6 +211,18 @@ export default function App() {
     );
   }
 
+  // Dedicated Auth Page
+  if (activePage === 'auth') {
+    return (
+      <AuthPage
+        mode={authMode}
+        onBack={handleNavigateHome}
+        onAuthenticated={handleAuthenticated}
+        activeCode={activeAccessCode}
+      />
+    );
+  }
+
   // Common props for subpages
   const subPageProps = {
     onNavigateHome: handleNavigateHome,
@@ -215,123 +234,35 @@ export default function App() {
 
   // Render individual pages based on activePage
   if (activePage === 'docs') {
-    return (
-      <>
-        <DocsPage {...subPageProps} />
-        <AuthModal
-          isOpen={authModalState.isOpen}
-          mode={authModalState.mode}
-          onClose={closeAuth}
-          onAuthenticated={handleAuthenticated}
-          activeCode={activeAccessCode}
-        />
-      </>
-    );
+    return <DocsPage {...subPageProps} />;
   }
 
   if (activePage === 'careers') {
-    return (
-      <>
-        <CareersPage {...subPageProps} />
-        <AuthModal
-          isOpen={authModalState.isOpen}
-          mode={authModalState.mode}
-          onClose={closeAuth}
-          onAuthenticated={handleAuthenticated}
-          activeCode={activeAccessCode}
-        />
-      </>
-    );
+    return <CareersPage {...subPageProps} />;
   }
 
   if (activePage === 'press') {
-    return (
-      <>
-        <PressPage {...subPageProps} />
-        <AuthModal
-          isOpen={authModalState.isOpen}
-          mode={authModalState.mode}
-          onClose={closeAuth}
-          onAuthenticated={handleAuthenticated}
-          activeCode={activeAccessCode}
-        />
-      </>
-    );
+    return <PressPage {...subPageProps} />;
   }
 
   if (activePage === 'help') {
-    return (
-      <>
-        <HelpPage {...subPageProps} />
-        <AuthModal
-          isOpen={authModalState.isOpen}
-          mode={authModalState.mode}
-          onClose={closeAuth}
-          onAuthenticated={handleAuthenticated}
-          activeCode={activeAccessCode}
-        />
-      </>
-    );
+    return <HelpPage {...subPageProps} />;
   }
 
   if (activePage === 'status') {
-    return (
-      <>
-        <StatusPage {...subPageProps} />
-        <AuthModal
-          isOpen={authModalState.isOpen}
-          mode={authModalState.mode}
-          onClose={closeAuth}
-          onAuthenticated={handleAuthenticated}
-          activeCode={activeAccessCode}
-        />
-      </>
-    );
+    return <StatusPage {...subPageProps} />;
   }
 
   if (activePage === 'terms') {
-    return (
-      <>
-        <TermsPage {...subPageProps} />
-        <AuthModal
-          isOpen={authModalState.isOpen}
-          mode={authModalState.mode}
-          onClose={closeAuth}
-          onAuthenticated={handleAuthenticated}
-          activeCode={activeAccessCode}
-        />
-      </>
-    );
+    return <TermsPage {...subPageProps} />;
   }
 
   if (activePage === 'privacy') {
-    return (
-      <>
-        <PrivacyPage {...subPageProps} />
-        <AuthModal
-          isOpen={authModalState.isOpen}
-          mode={authModalState.mode}
-          onClose={closeAuth}
-          onAuthenticated={handleAuthenticated}
-          activeCode={activeAccessCode}
-        />
-      </>
-    );
+    return <PrivacyPage {...subPageProps} />;
   }
 
   if (activePage === 'licenses') {
-    return (
-      <>
-        <LicensesPage {...subPageProps} />
-        <AuthModal
-          isOpen={authModalState.isOpen}
-          mode={authModalState.mode}
-          onClose={closeAuth}
-          onAuthenticated={handleAuthenticated}
-          activeCode={activeAccessCode}
-        />
-      </>
-    );
+    return <LicensesPage {...subPageProps} />;
   }
 
   // Default: Homepage / Landing Page
@@ -378,15 +309,6 @@ export default function App() {
 
       {/* 7. Global Footer with Linked Pages */}
       <Footer onNavigatePage={handleNavigatePage} />
-
-      {/* Authentication & Access Code Validation Modal */}
-      <AuthModal
-        isOpen={authModalState.isOpen}
-        mode={authModalState.mode}
-        onClose={closeAuth}
-        onAuthenticated={handleAuthenticated}
-        activeCode={activeAccessCode}
-      />
     </div>
   );
 }
