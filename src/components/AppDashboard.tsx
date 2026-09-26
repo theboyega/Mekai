@@ -323,116 +323,194 @@ async function callMekaiWebhook(
   }
 }
 
-function parseFormattedText(line: string) {
-  // If line has an odd number of '**', append temporary closing '**' so partial markdown bold renders smoothly while typing
-  const asterisksCount = (line.match(/\*\*/g) || []).length;
-  const safeLine = asterisksCount % 2 !== 0 ? line + '**' : line;
-  const parts = safeLine.split(/(\*\*.*?\*\*)/g);
-  return parts.map((part, i) => {
-    if (part.startsWith('**') && part.endsWith('**')) {
+function parseInlineTokens(segment: string, keyPrefix: string) {
+  // Split by inline code (`...`) or standalone OBD-II DTC codes (e.g. P0300, P0171, U0100, C0035, B1200)
+  const tokenRegex = /(`[^`]+`|\b[PCBU][0-3][0-9A-F]{3}\b)/g;
+  const parts = segment.split(tokenRegex);
+
+  return parts.map((part, idx) => {
+    if (!part) return null;
+    if (part.startsWith('`') && part.endsWith('`') && part.length >= 2) {
       return (
-        <strong key={i} className="font-bold text-white">
-          {part.slice(2, -2)}
-        </strong>
+        <code
+          key={`${keyPrefix}-code-${idx}`}
+          className="bg-[#151F1C] text-[#D0E0B8] border border-[#263731] px-1.5 py-0.5 rounded-md font-mono text-[13.5px] font-medium mx-0.5"
+        >
+          {part.slice(1, -1)}
+        </code>
+      );
+    }
+    if (/^[PCBU][0-3][0-9A-F]{3}$/.test(part)) {
+      return (
+        <span
+          key={`${keyPrefix}-dtc-${idx}`}
+          className="inline-flex items-center bg-[#151F1C] text-[#D4E3BC] border border-[#283A33] px-1.5 py-0.5 rounded-md font-mono text-[13.5px] font-semibold tracking-tight mx-0.5"
+        >
+          {part}
+        </span>
       );
     }
     return part;
   });
 }
 
-// Mekai response rendered in sage green with optional typewriter cursor
+function parseFormattedText(line: string) {
+  // Clean up trailing unclosed single asterisk while streaming so raw '*' doesn't flash mid-word
+  let cleaned = line.replace(/(?<!\*)\*$/, '');
+
+  // If line has an odd number of '**', append temporary closing '**' so partial markdown bold renders smoothly while typing
+  const asterisksCount = (cleaned.match(/\*\*/g) || []).length;
+  if (asterisksCount % 2 !== 0) {
+    cleaned += '**';
+  }
+
+  // If line has an odd number of '`', append temporary closing '`' so partial inline code renders smoothly while typing
+  const backtickCount = (cleaned.match(/`/g) || []).length;
+  if (backtickCount % 2 !== 0) {
+    cleaned += '`';
+  }
+
+  const parts = cleaned.split(/(\*\*.*?\*\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      const inner = part.slice(2, -2);
+      if (!inner) return null;
+      return (
+        <strong key={i} className="font-semibold text-[#D8E5C4] tracking-[0.004em]">
+          {parseInlineTokens(inner, `b-${i}`)}
+        </strong>
+      );
+    }
+    return <span key={i}>{parseInlineTokens(part, `t-${i}`)}</span>;
+  });
+}
+
+// Mekai response rendered in blended sage tones with natural conversational typography and breathing cursor
 function renderMekaiText(text: string, isTyping: boolean = false) {
+  const typingCursor = (
+    <span
+      className="inline-block w-2 h-2 ml-1.5 bg-[#A3B18A] align-middle rounded-full animate-mekai-cursor shadow-[0_0_8px_rgba(163,177,138,0.75)]"
+      aria-hidden="true"
+    />
+  );
+
   if (!text || !text.trim()) {
     if (isTyping) {
-      return (
-        <span
-          className="inline-block w-2 h-4 bg-[#A3B18A] align-middle rounded-[1px] animate-pulse shadow-[0_0_8px_rgba(163,177,138,0.6)]"
-          aria-hidden="true"
-        />
-      );
+      return <div className="py-1">{typingCursor}</div>;
     }
     return null;
   }
 
   const paragraphs = text.split(/\n\n+/);
   return (
-    <>
+    <div className="space-y-3.5">
       {paragraphs.map((p, pIdx) => {
         const lines = p.split('\n');
         const isLastParagraph = pIdx === paragraphs.length - 1;
 
         return (
-          <div key={pIdx} className="space-y-1.5">
+          <div key={pIdx} className="space-y-2">
             {lines.map((line, lineIdx) => {
               const isLastLine = isLastParagraph && lineIdx === lines.length - 1;
               const trimmed = line.trim();
 
               if (!trimmed) {
                 return (
-                  <div key={lineIdx} className="h-2">
-                    {isTyping && isLastLine && (
-                      <span
-                        className="inline-block w-2 h-4 bg-[#A3B18A] align-middle rounded-[1px] animate-pulse shadow-[0_0_8px_rgba(163,177,138,0.6)]"
-                        aria-hidden="true"
-                      />
-                    )}
+                  <div key={lineIdx} className="h-1.5">
+                    {isTyping && isLastLine && typingCursor}
                   </div>
                 );
               }
 
+              // Horizontal rule (--- or ***)
+              if (/^(-{3,}|\*{3,})$/.test(trimmed)) {
+                return (
+                  <div
+                    key={lineIdx}
+                    className="h-px w-full bg-gradient-to-r from-[#23312C] via-[#23312C]/50 to-transparent my-2.5"
+                  />
+                );
+              }
+
+              // Markdown headings (#, ##, ###, ####)
+              if (/^#{1,4}\s+/.test(trimmed)) {
+                const headingContent = trimmed.replace(/^#{1,4}\s+/, '').replace(/\*\*/g, '');
+                return (
+                  <h4
+                    key={lineIdx}
+                    className="font-heading font-semibold text-[#D8E5C4] text-[16px] sm:text-[16.5px] tracking-tight pt-1.5 pb-0.5 leading-snug animate-mekai-line"
+                  >
+                    {parseInlineTokens(headingContent, `h-${pIdx}-${lineIdx}`)}
+                    {isTyping && isLastLine && typingCursor}
+                  </h4>
+                );
+              }
+
+              // Blockquote (> ...)
+              if (trimmed.startsWith('> ')) {
+                const quoteContent = trimmed.replace(/^>\s*/, '');
+                return (
+                  <div
+                    key={lineIdx}
+                    className="border-l-2 border-[#A3B18A]/45 pl-3.5 py-0.5 text-[#9CB084] italic text-[15px] sm:text-[15.5px] leading-[1.72] animate-mekai-line"
+                  >
+                    {parseFormattedText(quoteContent)}
+                    {isTyping && isLastLine && typingCursor}
+                  </div>
+                );
+              }
+
+              // Bullet points (•, -, *)
               if (trimmed.startsWith('• ') || trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
                 const content = trimmed.replace(/^[•\-*]\s*/, '');
                 return (
-                  <div key={lineIdx} className="flex items-start gap-2 pl-2 text-base leading-normal">
-                    <span className="text-[#A3B18A] mt-0.5 shrink-0 font-bold">•</span>
-                    <span className="text-[#A3B18A]">
+                  <div
+                    key={lineIdx}
+                    className="flex items-start gap-2.5 pl-1 sm:pl-1.5 text-[15.5px] sm:text-base leading-[1.72] animate-mekai-line"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#A3B18A]/85 mt-[10px] shrink-0" />
+                    <span className="flex-1 text-[#A3B18A]">
                       {parseFormattedText(content)}
-                      {isTyping && isLastLine && (
-                        <span
-                          className="inline-block w-2 h-4 ml-1 bg-[#A3B18A] align-middle rounded-[1px] animate-pulse shadow-[0_0_8px_rgba(163,177,138,0.6)]"
-                          aria-hidden="true"
-                        />
-                      )}
+                      {isTyping && isLastLine && typingCursor}
                     </span>
                   </div>
                 );
               }
 
+              // Numbered diagnostic steps (1. , 2. , etc.)
               if (/^\d+\.\s/.test(trimmed)) {
                 const num = trimmed.match(/^(\d+)\.\s/)?.[1];
                 const content = trimmed.replace(/^\d+\.\s*/, '');
                 return (
-                  <div key={lineIdx} className="flex items-start gap-2 pl-2 text-base leading-normal">
-                    <span className="text-[#A3B18A] font-semibold font-mono shrink-0">{num}.</span>
-                    <span className="text-[#A3B18A]">
+                  <div
+                    key={lineIdx}
+                    className="flex items-start gap-2.5 pl-0.5 sm:pl-1 text-[15.5px] sm:text-base leading-[1.72] animate-mekai-line"
+                  >
+                    <span className="w-5 h-5 rounded-full bg-[#151F1C] border border-[#263731] text-[#C8D8B0] font-mono text-[11.5px] font-semibold flex items-center justify-center shrink-0 mt-[3.5px]">
+                      {num}
+                    </span>
+                    <span className="flex-1 text-[#A3B18A]">
                       {parseFormattedText(content)}
-                      {isTyping && isLastLine && (
-                        <span
-                          className="inline-block w-2 h-4 ml-1 bg-[#A3B18A] align-middle rounded-[1px] animate-pulse shadow-[0_0_8px_rgba(163,177,138,0.6)]"
-                          aria-hidden="true"
-                        />
-                      )}
+                      {isTyping && isLastLine && typingCursor}
                     </span>
                   </div>
                 );
               }
 
               return (
-                <p key={lineIdx} className="text-[#A3B18A] text-base leading-normal">
+                <p
+                  key={lineIdx}
+                  className="text-[#A3B18A] text-[15.5px] sm:text-base leading-[1.74] tracking-[0.004em] animate-mekai-line"
+                >
                   {parseFormattedText(line)}
-                  {isTyping && isLastLine && (
-                    <span
-                      className="inline-block w-2 h-4 ml-1 bg-[#A3B18A] align-middle rounded-[1px] animate-pulse shadow-[0_0_8px_rgba(163,177,138,0.6)]"
-                      aria-hidden="true"
-                    />
-                  )}
+                  {isTyping && isLastLine && typingCursor}
                 </p>
               );
             })}
           </div>
         );
       })}
-    </>
+    </div>
   );
 }
 
@@ -449,8 +527,15 @@ function MekaiResponseView({
   onDoneTyping,
   onScrollRequested,
 }: MekaiResponseViewProps) {
-  const [displayedCount, setDisplayedCount] = useState(() => (isTyping ? 1 : text.length));
+  const [displayedCount, setDisplayedCount] = useState(() => (isTyping ? 0 : text.length));
   const lastScrollRef = useRef<number>(0);
+  const onDoneRef = useRef(onDoneTyping);
+  const onScrollRef = useRef(onScrollRequested);
+
+  useEffect(() => {
+    onDoneRef.current = onDoneTyping;
+    onScrollRef.current = onScrollRequested;
+  }, [onDoneTyping, onScrollRequested]);
 
   useEffect(() => {
     if (!isTyping) {
@@ -458,36 +543,90 @@ function MekaiResponseView({
       return;
     }
 
-    setDisplayedCount(1);
     const totalLength = text.length;
-    if (totalLength <= 1) {
-      setDisplayedCount(totalLength);
-      onDoneTyping?.();
+    if (totalLength === 0) {
+      setDisplayedCount(0);
+      onDoneRef.current?.();
       return;
     }
 
-    // Adaptive step size based on total text length so response renders fast and fluidly (~1.2s - 2.5s)
-    const stepSize = Math.max(1, Math.ceil(totalLength / 120));
-    const intervalTime = 16; // 60fps smooth progression
+    // Tokenize into natural words + trailing whitespace/newlines so Mekai speaks word-by-word like a human
+    const tokens = text.match(/\S+\s*|\n+/g) || [text];
+    const cumulativeLengths: number[] = [];
+    let acc = 0;
+    for (const tk of tokens) {
+      acc += tk.length;
+      cumulativeLengths.push(acc);
+    }
 
-    let current = 1;
-    const interval = setInterval(() => {
-      current = Math.min(totalLength, current + stepSize);
-      setDisplayedCount(current);
+    // Start with the first word immediately visible so there's zero blank delay
+    let tokenIdx = 0;
+    setDisplayedCount(cumulativeLengths[0] || 1);
 
-      const now = Date.now();
-      if (now - lastScrollRef.current > 100 || current >= totalLength) {
-        lastScrollRef.current = now;
-        onScrollRequested?.();
+    let timerId: ReturnType<typeof setTimeout> | null = null;
+    let cancelled = false;
+
+    // Scale pacing subtly for very long diagnostic reports while preserving human rhythm and punctuation pauses
+    const speedFactor = tokens.length > 220 ? 0.65 : tokens.length > 120 ? 0.8 : 1;
+
+    const scheduleNextWord = () => {
+      if (cancelled) return;
+      if (tokenIdx >= tokens.length - 1) {
+        setDisplayedCount(totalLength);
+        onScrollRef.current?.();
+        onDoneRef.current?.();
+        return;
       }
 
-      if (current >= totalLength) {
-        clearInterval(interval);
-        onDoneTyping?.();
-      }
-    }, intervalTime);
+      const currentToken = tokens[tokenIdx];
+      const trimmedToken = currentToken.trim();
 
-    return () => clearInterval(interval);
+      // Base natural human speaking cadence per word (~32ms - 46ms with subtle organic variation)
+      let delay = (30 + (tokenIdx % 5) * 4) * speedFactor;
+
+      // Add natural conversational pauses on punctuation and line breaks
+      if (currentToken.includes('\n')) {
+        delay += 130 * speedFactor;
+      } else if (/[.!?]$/.test(trimmedToken)) {
+        delay += 120 * speedFactor;
+      } else if (/[:;]$/.test(trimmedToken)) {
+        delay += 80 * speedFactor;
+      } else if (/[,—–]$/.test(trimmedToken)) {
+        delay += 55 * speedFactor;
+      }
+
+      timerId = setTimeout(() => {
+        if (cancelled) return;
+        tokenIdx += 1;
+        // For very long responses, occasionally pair short connecting words (e.g., "to ", "the ", "a ")
+        if (
+          tokens.length > 160 &&
+          tokenIdx < tokens.length - 1 &&
+          tokens[tokenIdx].trim().length <= 3 &&
+          !tokens[tokenIdx].includes('\n')
+        ) {
+          tokenIdx += 1;
+        }
+
+        const nextCount = cumulativeLengths[tokenIdx] ?? totalLength;
+        setDisplayedCount(nextCount);
+
+        const now = Date.now();
+        if (now - lastScrollRef.current > 120 || nextCount >= totalLength) {
+          lastScrollRef.current = now;
+          onScrollRef.current?.();
+        }
+
+        scheduleNextWord();
+      }, Math.max(18, Math.round(delay)));
+    };
+
+    scheduleNextWord();
+
+    return () => {
+      cancelled = true;
+      if (timerId) clearTimeout(timerId);
+    };
   }, [text, isTyping]);
 
   const currentlyTyping = isTyping && displayedCount < text.length;
@@ -498,12 +637,12 @@ function MekaiResponseView({
       onClick={() => {
         if (currentlyTyping) {
           setDisplayedCount(text.length);
-          onDoneTyping?.();
-          onScrollRequested?.();
+          onDoneRef.current?.();
+          onScrollRef.current?.();
         }
       }}
       className={currentlyTyping ? 'cursor-pointer select-text' : 'select-text'}
-      title={currentlyTyping ? 'Click to show full response immediately' : undefined}
+      title={currentlyTyping ? 'Click to complete response immediately' : undefined}
     >
       {renderMekaiText(visibleText, currentlyTyping)}
     </div>

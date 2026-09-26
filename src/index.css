@@ -107,6 +107,36 @@ h1, h2, h3, h4, h5, h6, .font-heading {
   animation-delay: 0.4s;
 }
 
+@keyframes mekaiLineIn {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-mekai-line {
+  animation: mekaiLineIn 0.24s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes mekaiCursorPulse {
+  0%, 100% {
+    opacity: 0.95;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.82);
+  }
+}
+
+.animate-mekai-cursor {
+  animation: mekaiCursorPulse 1.1s infinite ease-in-out;
+}
+
 /* Reduced motion preference support */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
