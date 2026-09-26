@@ -107,7 +107,7 @@ export function AuthPage({
           {/* Page Heading directly under the logo (outside the card) */}
           <h1
             id="auth-page-title"
-            className="text-2xl sm:text-3xl font-extrabold text-[#A3B18A] tracking-tight font-heading text-center mb-6 sm:mb-8"
+            className="text-xl sm:text-2xl font-extrabold text-[#A3B18A] tracking-tight font-heading text-center mb-6 sm:mb-8"
           >
             {step === 'name'
               ? 'What is your name?'
@@ -255,13 +255,13 @@ export function AuthPage({
               </div>
             )}
           </div>
+
+          {/* Subtle Copyright Directly Below the Auth Card */}
+          <footer className="w-full mt-6 sm:mt-8 text-center text-xs text-[#5A6565]">
+            © {new Date().getFullYear()} Cestcore Limited. All rights reserved.
+          </footer>
         </div>
       </main>
-
-      {/* Subtle Bottom Copyright */}
-      <footer className="w-full pt-2 pb-10 sm:pb-12 text-center text-xs text-[#5A6565]">
-        © {new Date().getFullYear()} Cestcore Limited. All rights reserved.
-      </footer>
     </div>
   );
 }

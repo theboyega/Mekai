@@ -320,6 +320,36 @@ export function Navbar({
                   <ArrowRight className="w-4 h-4 md:w-5 md:h-5 text-[#A3B18A]" />
                 </button>
               </nav>
+
+              {/* Plain left-aligned footer links directly below Mobile App card */}
+              <div className="flex flex-col items-start space-y-3 md:space-y-3.5 pl-1 pt-1 pb-4 text-left">
+                {(
+                  [
+                    { label: 'Docs', page: 'docs' },
+                    { label: 'Careers', page: 'careers' },
+                    { label: 'Press', page: 'press' },
+                    { label: 'Help', page: 'help' },
+                    { label: 'Status', page: 'status' },
+                  ] as const
+                ).map((item) => (
+                  <a
+                    key={item.page}
+                    href={`#${item.page}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setIsMobileMenuOpen(false);
+                      if (onNavigatePage) {
+                        onNavigatePage(item.page);
+                      } else {
+                        window.location.hash = `#${item.page}`;
+                      }
+                    }}
+                    className="text-sm md:text-base font-heading font-semibold text-[#8F9999] hover:text-[#A3B18A] transition-colors text-left cursor-pointer"
+                  >
+                    {item.label}
+                  </a>
+                ))}
+              </div>
             </div>
 
             {/* Drawer Footer Actions (Sign In / Sign Up / Profile) */}
