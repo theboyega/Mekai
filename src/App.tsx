@@ -107,6 +107,14 @@ export default function App() {
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '').toLowerCase();
       if (hash === 'signup' || hash === 'login' || hash === 'auth') {
+        if (activeAccessCode) {
+          setActivePage('home');
+          setViewMode('app');
+          if (window.history && window.history.replaceState) {
+            window.history.replaceState(null, '', window.location.pathname + window.location.search);
+          }
+          return;
+        }
         setAuthMode(hash === 'login' ? 'login' : 'signup');
         setActivePage('auth');
         setViewMode('landing');
@@ -122,7 +130,7 @@ export default function App() {
 
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
+  }, [activeAccessCode]);
 
   useEffect(() => {
     try {
@@ -157,6 +165,15 @@ export default function App() {
   };
 
   const openAuth = (mode: 'signup' | 'login') => {
+    // If access code authentication has already taken place, go straight to the dashboard
+    if (activeAccessCode) {
+      setActivePage('home');
+      setViewMode('app');
+      if (window.location.hash) {
+        window.location.hash = '';
+      }
+      return;
+    }
     setAuthMode(mode);
     setActivePage('auth');
     setViewMode('landing');
@@ -217,8 +234,8 @@ export default function App() {
     handleNavigatePage('docs');
   };
 
-  // When authenticated and in app mode, render the App Dashboard
-  if (activeAccessCode && viewMode === 'app') {
+  // When authenticated and in app mode (or if an auth route was triggered while already authenticated), render the App Dashboard
+  if (activeAccessCode && (viewMode === 'app' || activePage === 'auth')) {
     return (
       <Suspense fallback={<MekaiPageLoader />}>
         <div className="fixed inset-0 h-screen h-[100dvh] w-full overflow-hidden bg-[#0E1111] text-[#FFFFFF] font-sans selection:bg-[#A3B18A]/30 selection:text-[#FFFFFF]">
@@ -358,10 +375,7 @@ export default function App() {
         />
 
         {/* 6. Mobile App Download & Dual Phone Mockup View */}
-        <MobileAppSection
-          onAppStoreClick={activeAccessCode ? () => setViewMode('app') : () => openAuth('signup')}
-          onPlayStoreClick={activeAccessCode ? () => setViewMode('app') : () => openAuth('signup')}
-        />
+        <MobileAppSection />
       </main>
 
       {/* 7. Global Footer with Linked Pages */}

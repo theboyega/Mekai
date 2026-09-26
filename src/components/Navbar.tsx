@@ -78,53 +78,35 @@ export function Navbar({
           <div id="nav-actions" className="flex items-center gap-4 sm:gap-6 shrink-0">
             {/* ───────── MOBILE & TABLET VIEW (< lg:) ───────── */}
             <div className="flex lg:hidden items-center gap-4 md:gap-6">
-              {activeCode ? (
-                /* Mobile/tablet authenticated state: Open App button + Hamburger */
-                <>
-                  {onOpenDashboard && (
-                    <button
-                      type="button"
-                      onClick={onOpenDashboard}
-                      className={`px-3.5 py-1.5 md:px-5 md:py-2.5 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] font-heading font-bold text-xs md:text-sm transition-all shadow-sm min-h-[36px] md:min-h-[44px] ${
-                        isMobileMenuOpen ? 'invisible pointer-events-none' : ''
-                      }`}
-                    >
-                      Open App
-                    </button>
-                  )}
-                </>
-              ) : (
-                /* Mobile/tablet unauthenticated state: Original "Sign up →" arrow link beside Hamburger */
-                <a
-                  id="mobile-nav-signup-link"
-                  href="#signup"
-                  onClick={(e) => {
-                    if (onSignUpClick) {
-                      e.preventDefault();
-                      onSignUpClick();
-                    }
-                  }}
-                  className={`text-sm md:text-base font-semibold text-[#A3B18A] hover:text-[#92A177] transition-colors inline-flex items-center gap-1.5 group focus:outline-none focus-visible:ring-1 focus-visible:ring-[#A3B18A] font-heading cursor-pointer leading-none ${
-                    isMobileMenuOpen ? 'invisible pointer-events-none' : ''
-                  }`}
+              <a
+                id="mobile-nav-signup-link"
+                href="#signup"
+                onClick={(e) => {
+                  if (onSignUpClick) {
+                    e.preventDefault();
+                    onSignUpClick();
+                  }
+                }}
+                className={`text-sm md:text-base font-semibold text-[#A3B18A] hover:text-[#92A177] transition-colors inline-flex items-center gap-1.5 group focus:outline-none focus-visible:ring-1 focus-visible:ring-[#A3B18A] font-heading cursor-pointer leading-none ${
+                  isMobileMenuOpen ? 'invisible pointer-events-none' : ''
+                }`}
+              >
+                <span className="leading-none">Sign up</span>
+                <svg
+                  className="w-4 h-4 md:w-[17px] md:h-[17px] transition-transform group-hover:translate-x-1 text-[#A3B18A] shrink-0"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  aria-hidden="true"
                 >
-                  <span className="leading-none">Sign up</span>
-                  <svg
-                    className="w-4 h-4 md:w-[17px] md:h-[17px] transition-transform group-hover:translate-x-1 text-[#A3B18A] shrink-0"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M3.5 10H16.5M16.5 10L11.75 5.25M16.5 10L11.75 14.75"
-                      stroke="currentColor"
-                      strokeWidth="2.35"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </a>
-              )}
+                  <path
+                    d="M3.5 10H16.5M16.5 10L11.75 5.25M16.5 10L11.75 14.75"
+                    stroke="currentColor"
+                    strokeWidth="2.35"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </a>
 
               {/* Exact App Dashboard UI Hamburger Toggle Button (open / close) */}
               <button
@@ -167,69 +149,42 @@ export function Navbar({
 
             {/* ───────── DESKTOP VIEW (≥ lg:) ───────── */}
             <div className="hidden lg:flex items-center gap-4 sm:gap-6">
-              {activeCode ? (
-                <div className="flex items-center gap-3">
-                  {onOpenDashboard && (
-                    <button
-                      type="button"
-                      onClick={onOpenDashboard}
-                      className="px-5 py-2 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] font-heading font-bold text-xs sm:text-sm transition-all shadow-sm cursor-pointer"
-                    >
-                      Open App
-                    </button>
-                  )}
+              <a
+                id="nav-signup-link"
+                href="#signup"
+                onClick={(e) => {
+                  if (onSignUpClick) {
+                    e.preventDefault();
+                    onSignUpClick();
+                  }
+                }}
+                className="text-sm font-semibold text-[#A3B18A] hover:text-[#92A177] transition-colors inline-flex items-center gap-1.5 group focus:outline-none focus-visible:ring-1 focus-visible:ring-[#A3B18A] font-heading cursor-pointer leading-none"
+              >
+                <span className="leading-none">Sign up</span>
+                <svg
+                  className="w-4 h-4 transition-transform group-hover:translate-x-1 text-[#A3B18A] shrink-0"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M3.5 10H16.5M16.5 10L11.75 5.25M16.5 10L11.75 14.75"
+                    stroke="currentColor"
+                    strokeWidth="2.35"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </a>
 
-                  <button
-                    id="nav-logout-btn"
-                    type="button"
-                    onClick={onSignOut}
-                    title="Sign out of workshop"
-                    className="p-2 rounded-full text-[#8F9999] hover:text-white hover:bg-[#1A1F1F] transition-colors cursor-pointer"
-                    aria-label="Log out"
-                  >
-                    <LogOut className="w-4 h-4" />
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <a
-                    id="nav-signup-link"
-                    href="#signup"
-                    onClick={(e) => {
-                      if (onSignUpClick) {
-                        e.preventDefault();
-                        onSignUpClick();
-                      }
-                    }}
-                    className="text-sm font-semibold text-[#A3B18A] hover:text-[#92A177] transition-colors inline-flex items-center gap-1.5 group focus:outline-none focus-visible:ring-1 focus-visible:ring-[#A3B18A] font-heading cursor-pointer leading-none"
-                  >
-                    <span className="leading-none">Sign up</span>
-                    <svg
-                      className="w-4 h-4 transition-transform group-hover:translate-x-1 text-[#A3B18A] shrink-0"
-                      viewBox="0 0 20 20"
-                      fill="none"
-                      aria-hidden="true"
-                    >
-                      <path
-                        d="M3.5 10H16.5M16.5 10L11.75 5.25M16.5 10L11.75 14.75"
-                        stroke="currentColor"
-                        strokeWidth="2.35"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </a>
-
-                  <button
-                    id="nav-login-btn"
-                    type="button"
-                    onClick={onLoginClick}
-                    className="px-5 py-2 rounded-full text-sm font-semibold text-[#A3B18A] border border-[#A3B18A]/50 hover:border-[#A3B18A] hover:bg-[#A3B18A]/10 active:scale-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3B18A] font-heading cursor-pointer"
-                  >
-                    Log in
-                  </button>
-                </>
-              )}
+              <button
+                id="nav-login-btn"
+                type="button"
+                onClick={onLoginClick}
+                className="px-5 py-2 rounded-full text-sm font-semibold text-[#A3B18A] border border-[#A3B18A]/50 hover:border-[#A3B18A] hover:bg-[#A3B18A]/10 active:scale-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3B18A] font-heading cursor-pointer"
+              >
+                Log in
+              </button>
             </div>
           </div>
         </div>
@@ -352,81 +307,45 @@ export function Navbar({
               </div>
             </div>
 
-            {/* Drawer Footer Actions (Sign In / Sign Up / Profile) */}
+            {/* Drawer Footer Actions (Sign In / Sign Up) */}
             <div className="pt-4 md:pt-6 border-t border-[#1C2121] space-y-3 md:space-y-4">
-              {activeCode ? (
-                <div className="space-y-3 md:space-y-4">
-                  <div className="flex items-center justify-between px-3.5 py-2.5 rounded-lg bg-[#141818] border border-[#222828] text-xs md:text-sm">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-[#A3B18A] animate-pulse" />
-                      <span className="text-[#8F9999]">Workshop Code:</span>
-                      <span className="font-mono font-bold text-[#A3B18A]">{activeCode}</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsMobileMenuOpen(false);
-                        if (onSignOut) onSignOut();
-                      }}
-                      className="text-[#8F9999] hover:text-red-400 text-xs md:text-sm font-semibold p-1"
-                    >
-                      Sign out
-                    </button>
-                  </div>
+              <div className="grid grid-cols-2 gap-3 md:gap-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    if (onLoginClick) onLoginClick();
+                  }}
+                  className="w-full py-3 md:py-3.5 rounded-full text-xs md:text-sm font-semibold font-heading text-[#A3B18A] border border-[#A3B18A]/50 hover:bg-[#A3B18A]/10 active:scale-95 transition-all text-center min-h-[44px] md:min-h-[48px]"
+                >
+                  Log In
+                </button>
 
-                  {onOpenDashboard && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsMobileMenuOpen(false);
-                        onOpenDashboard();
-                      }}
-                      className="w-full py-3.5 md:py-4 rounded-full bg-[#A3B18A] hover:bg-[#92A177] text-[#0E1111] font-heading font-bold text-sm md:text-base transition-all shadow-md flex items-center justify-center gap-2 min-h-[44px] md:min-h-[50px]"
-                    >
-                      <span>Launch Diagnostic Dashboard</span>
-                      <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
-                    </button>
-                  )}
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-3 md:gap-4">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsMobileMenuOpen(false);
-                      if (onLoginClick) onLoginClick();
-                    }}
-                    className="w-full py-3 md:py-3.5 rounded-full text-xs md:text-sm font-semibold font-heading text-[#A3B18A] border border-[#A3B18A]/50 hover:bg-[#A3B18A]/10 active:scale-95 transition-all text-center min-h-[44px] md:min-h-[48px]"
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    if (onSignUpClick) onSignUpClick();
+                  }}
+                  className="w-full py-3 md:py-3.5 rounded-full text-xs md:text-sm font-bold font-heading text-[#0E1111] bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 transition-all text-center shadow-md flex items-center justify-center gap-1.5 min-h-[44px] md:min-h-[48px]"
+                >
+                  <span>Sign Up</span>
+                  <svg
+                    className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    aria-hidden="true"
                   >
-                    Log In
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsMobileMenuOpen(false);
-                      if (onSignUpClick) onSignUpClick();
-                    }}
-                    className="w-full py-3 md:py-3.5 rounded-full text-xs md:text-sm font-bold font-heading text-[#0E1111] bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 transition-all text-center shadow-md flex items-center justify-center gap-1.5 min-h-[44px] md:min-h-[48px]"
-                  >
-                    <span>Sign Up</span>
-                    <svg
-                      className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0"
-                      viewBox="0 0 20 20"
-                      fill="none"
-                      aria-hidden="true"
-                    >
-                      <path
-                        d="M3.5 10H16.5M16.5 10L11.75 5.25M16.5 10L11.75 14.75"
-                        stroke="currentColor"
-                        strokeWidth="2.4"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              )}
+                    <path
+                      d="M3.5 10H16.5M16.5 10L11.75 5.25M16.5 10L11.75 14.75"
+                      stroke="currentColor"
+                      strokeWidth="2.4"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+              </div>
 
               {/* Bottom Home Indicator Bar */}
               <div className="w-12 h-1 bg-[#2C3434] rounded-full mx-auto mt-4" />

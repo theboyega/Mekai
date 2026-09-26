@@ -123,7 +123,7 @@ h1, h2, h3, h4, h5, h6, .font-heading {
 @keyframes mekaiLineIn {
   from {
     opacity: 0;
-    transform: translateY(3px);
+    transform: translateY(2px);
   }
   to {
     opacity: 1;
@@ -132,7 +132,22 @@ h1, h2, h3, h4, h5, h6, .font-heading {
 }
 
 .animate-mekai-line {
-  animation: mekaiLineIn 0.24s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: mekaiLineIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes mekaiStreamChunk {
+  0% {
+    opacity: 0.15;
+    filter: blur(1.5px);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0px);
+  }
+}
+
+.animate-mekai-stream-chunk {
+  animation: mekaiStreamChunk 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes mekaiCursorPulse {

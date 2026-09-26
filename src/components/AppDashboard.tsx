@@ -387,18 +387,29 @@ function parseFormattedText(line: string) {
   });
 }
 
-// Mekai response rendered in blended sage tones with natural conversational typography and breathing cursor
-function renderMekaiText(text: string, isTyping: boolean = false) {
-  const typingCursor = (
-    <span className="inline-flex items-center ml-1.5 align-middle -mt-0.5" aria-hidden="true">
-      <MekaiSpinner size={14} />
-    </span>
+function renderStreamedLineContent(lineText: string, animateTrailing: boolean) {
+  if (!animateTrailing || lineText.length < 10) {
+    return parseFormattedText(lineText);
+  }
+  const splitMatch = lineText.match(/^(.*?\s)(\S+(?:\s+\S+){0,2}\s*)$/);
+  if (!splitMatch) {
+    return <span className="animate-mekai-stream-chunk">{parseFormattedText(lineText)}</span>;
+  }
+  const stablePart = splitMatch[1];
+  const trailingChunk = splitMatch[2];
+  return (
+    <>
+      {parseFormattedText(stablePart)}
+      <span key={lineText.length} className="animate-mekai-stream-chunk">
+        {parseFormattedText(trailingChunk)}
+      </span>
+    </>
   );
+}
 
+// Mekai response rendered in blended sage tones with fluid AI streaming animation
+function renderMekaiText(text: string, isStreaming: boolean = false) {
   if (!text || !text.trim()) {
-    if (isTyping) {
-      return <div className="py-1">{typingCursor}</div>;
-    }
     return null;
   }
 
@@ -413,14 +424,11 @@ function renderMekaiText(text: string, isTyping: boolean = false) {
           <div key={pIdx} className="space-y-2">
             {lines.map((line, lineIdx) => {
               const isLastLine = isLastParagraph && lineIdx === lines.length - 1;
+              const animateTrailing = isStreaming && isLastLine;
               const trimmed = line.trim();
 
               if (!trimmed) {
-                return (
-                  <div key={lineIdx} className="h-1.5">
-                    {isTyping && isLastLine && typingCursor}
-                  </div>
-                );
+                return <div key={lineIdx} className="h-1.5" />;
               }
 
               // Horizontal rule (--- or ***)
@@ -442,7 +450,6 @@ function renderMekaiText(text: string, isTyping: boolean = false) {
                     className="font-heading font-semibold text-[#D8E5C4] text-[16px] sm:text-[16.5px] tracking-tight pt-1.5 pb-0.5 leading-snug animate-mekai-line"
                   >
                     {parseInlineTokens(headingContent, `h-${pIdx}-${lineIdx}`)}
-                    {isTyping && isLastLine && typingCursor}
                   </h4>
                 );
               }
@@ -455,8 +462,7 @@ function renderMekaiText(text: string, isTyping: boolean = false) {
                     key={lineIdx}
                     className="border-l-2 border-[#A3B18A]/45 pl-3.5 py-0.5 text-[#9CB084] italic text-[15px] sm:text-[15.5px] leading-[1.72] animate-mekai-line"
                   >
-                    {parseFormattedText(quoteContent)}
-                    {isTyping && isLastLine && typingCursor}
+                    {renderStreamedLineContent(quoteContent, animateTrailing)}
                   </div>
                 );
               }
@@ -471,8 +477,7 @@ function renderMekaiText(text: string, isTyping: boolean = false) {
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-[#A3B18A]/85 mt-[10px] shrink-0" />
                     <span className="flex-1 text-[#A3B18A]">
-                      {parseFormattedText(content)}
-                      {isTyping && isLastLine && typingCursor}
+                      {renderStreamedLineContent(content, animateTrailing)}
                     </span>
                   </div>
                 );
@@ -491,8 +496,7 @@ function renderMekaiText(text: string, isTyping: boolean = false) {
                       {num}
                     </span>
                     <span className="flex-1 text-[#A3B18A]">
-                      {parseFormattedText(content)}
-                      {isTyping && isLastLine && typingCursor}
+                      {renderStreamedLineContent(content, animateTrailing)}
                     </span>
                   </div>
                 );
@@ -503,8 +507,7 @@ function renderMekaiText(text: string, isTyping: boolean = false) {
                   key={lineIdx}
                   className="text-[#A3B18A] text-[15.5px] sm:text-base leading-[1.74] tracking-[0.004em] animate-mekai-line"
                 >
-                  {parseFormattedText(line)}
-                  {isTyping && isLastLine && typingCursor}
+                  {renderStreamedLineContent(line, animateTrailing)}
                 </p>
               );
             })}
@@ -551,7 +554,7 @@ function MekaiResponseView({
       return;
     }
 
-    // Tokenize into natural words + trailing whitespace/newlines so Mekai speaks word-by-word like a human
+    // Tokenize into natural words/whitespace so streaming never splits words or markdown tokens mid-token
     const tokens = text.match(/\S+\s*|\n+/g) || [text];
     const cumulativeLengths: number[] = [];
     let acc = 0;
@@ -560,17 +563,15 @@ function MekaiResponseView({
       cumulativeLengths.push(acc);
     }
 
-    // Start with the first word immediately visible so there's zero blank delay
-    let tokenIdx = 0;
-    setDisplayedCount(cumulativeLengths[0] || 1);
+    // Stream multi-token chunks smoothly like an LLM token stream (no artificial typewriter pauses)
+    const tokensPerTick = tokens.length > 240 ? 4 : tokens.length > 100 ? 3 : 2;
+    let tokenIdx = Math.min(tokens.length - 1, tokensPerTick - 1);
+    setDisplayedCount(cumulativeLengths[tokenIdx] || totalLength);
 
     let timerId: ReturnType<typeof setTimeout> | null = null;
     let cancelled = false;
 
-    // Scale pacing subtly for very long diagnostic reports while preserving human rhythm and punctuation pauses
-    const speedFactor = tokens.length > 220 ? 0.65 : tokens.length > 120 ? 0.8 : 1;
-
-    const scheduleNextWord = () => {
+    const streamNextChunk = () => {
       if (cancelled) return;
       if (tokenIdx >= tokens.length - 1) {
         setDisplayedCount(totalLength);
@@ -579,50 +580,23 @@ function MekaiResponseView({
         return;
       }
 
-      const currentToken = tokens[tokenIdx];
-      const trimmedToken = currentToken.trim();
-
-      // Base natural human speaking cadence per word (~32ms - 46ms with subtle organic variation)
-      let delay = (30 + (tokenIdx % 5) * 4) * speedFactor;
-
-      // Add natural conversational pauses on punctuation and line breaks
-      if (currentToken.includes('\n')) {
-        delay += 130 * speedFactor;
-      } else if (/[.!?]$/.test(trimmedToken)) {
-        delay += 120 * speedFactor;
-      } else if (/[:;]$/.test(trimmedToken)) {
-        delay += 80 * speedFactor;
-      } else if (/[,—–]$/.test(trimmedToken)) {
-        delay += 55 * speedFactor;
-      }
-
       timerId = setTimeout(() => {
         if (cancelled) return;
-        tokenIdx += 1;
-        // For very long responses, occasionally pair short connecting words (e.g., "to ", "the ", "a ")
-        if (
-          tokens.length > 160 &&
-          tokenIdx < tokens.length - 1 &&
-          tokens[tokenIdx].trim().length <= 3 &&
-          !tokens[tokenIdx].includes('\n')
-        ) {
-          tokenIdx += 1;
-        }
-
+        tokenIdx = Math.min(tokens.length - 1, tokenIdx + tokensPerTick);
         const nextCount = cumulativeLengths[tokenIdx] ?? totalLength;
         setDisplayedCount(nextCount);
 
         const now = Date.now();
-        if (now - lastScrollRef.current > 120 || nextCount >= totalLength) {
+        if (now - lastScrollRef.current > 90 || nextCount >= totalLength) {
           lastScrollRef.current = now;
           onScrollRef.current?.();
         }
 
-        scheduleNextWord();
-      }, Math.max(18, Math.round(delay)));
+        streamNextChunk();
+      }, 24);
     };
 
-    scheduleNextWord();
+    streamNextChunk();
 
     return () => {
       cancelled = true;
@@ -630,22 +604,22 @@ function MekaiResponseView({
     };
   }, [text, isTyping]);
 
-  const currentlyTyping = isTyping && displayedCount < text.length;
+  const currentlyStreaming = isTyping && displayedCount < text.length;
   const visibleText = text ? text.slice(0, displayedCount) : '';
 
   return (
     <div
       onClick={() => {
-        if (currentlyTyping) {
+        if (currentlyStreaming) {
           setDisplayedCount(text.length);
           onDoneRef.current?.();
           onScrollRef.current?.();
         }
       }}
-      className={currentlyTyping ? 'cursor-pointer select-text' : 'select-text'}
-      title={currentlyTyping ? 'Click to complete response immediately' : undefined}
+      className={currentlyStreaming ? 'cursor-pointer select-text' : 'select-text'}
+      title={currentlyStreaming ? 'Click to complete response immediately' : undefined}
     >
-      {renderMekaiText(visibleText, currentlyTyping)}
+      {renderMekaiText(visibleText, currentlyStreaming)}
     </div>
   );
 }
