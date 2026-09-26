@@ -10,11 +10,11 @@ interface HeroSectionProps {
 export function HeroSection({ onGetStarted, onLearnMore, isAuthenticated = false }: HeroSectionProps) {
   return (
     <section id="hero-section" className="relative pt-12 sm:pt-16 lg:pt-20 pb-20 sm:pb-24 lg:pb-28">
-      <div className="w-full px-6 sm:px-10 lg:px-14 xl:px-20">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+      <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 xl:gap-16 items-center">
           
           {/* Left Column: Hero Narrative & CTAs */}
-          <div id="hero-content" className="lg:col-span-6 flex flex-col justify-center max-w-xl md:max-w-2xl lg:max-w-none mx-auto w-full">
+          <div id="hero-content" className="lg:col-span-6 flex flex-col justify-center w-full">
             <ScrollReveal animation="fade-up" duration={480} delay={60}>
               <h1
                 id="hero-heading"
@@ -73,7 +73,7 @@ export function HeroSection({ onGetStarted, onLearnMore, isAuthenticated = false
           </div>
 
           {/* Right Column: Diagnostic Session Mockup (Purely for design, non-clickable) */}
-          <div id="hero-mockup-wrapper" className="lg:col-span-6 pointer-events-none select-none max-w-xl md:max-w-2xl lg:max-w-none mx-auto w-full">
+          <div id="hero-mockup-wrapper" className="lg:col-span-6 pointer-events-none select-none w-full">
             <ScrollReveal animation="scale-up" duration={550} delay={150}>
               <div
                 id="diagnostic-session-card"

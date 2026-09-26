@@ -1858,7 +1858,7 @@ export function AppDashboard({
           </header>
 
           {/* Scrollable Drawer Content (Nav items and Recents) */}
-          <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5 md:px-10 md:py-6 overscroll-contain no-scrollbar w-full max-w-xl md:max-w-2xl mx-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto px-5 py-5 sm:px-6 md:px-8 md:py-6 overscroll-contain no-scrollbar w-full mx-auto">
             <nav className="space-y-2.5 md:space-y-3">
               <button
                 id="mobile-nav-new-diagnostics-btn"
@@ -1964,7 +1964,7 @@ export function AppDashboard({
 
           {/* Fixed/Pinned Bottom User Profile Bar */}
           <div className="w-full bg-[#0E1111] shrink-0">
-            <div className="max-w-xl md:max-w-2xl mx-auto px-6 py-4 md:px-10 md:py-6 flex items-center justify-between">
+            <div className="w-full mx-auto px-5 py-4 sm:px-6 md:px-8 md:py-6 flex items-center justify-between">
               <div className="flex items-center gap-3.5 min-w-0">
                 <div
                   className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#A3B18A] text-[#0E1111] font-heading font-extrabold text-sm md:text-base flex items-center justify-center shrink-0 select-none shadow-sm leading-none"
@@ -2286,10 +2286,10 @@ export function AppDashboard({
           messages.length === 0 ? (
             /* Clean Empty Initial State */
             <div className="flex-1 min-h-0 flex flex-col justify-between md:justify-center items-center px-4 sm:px-6 md:px-8 w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-[760px] mx-auto pb-4 sm:pb-8 md:pb-0 md:-mt-8 overflow-hidden">
-              <div className="my-auto md:my-0 text-center">
+              <div className="my-auto md:my-0 text-center w-full">
                 <h1
                   id="diagnostics-prompt-heading"
-                  className="text-xl sm:text-2xl md:text-3xl lg:text-[32px] font-extrabold text-[#A3B18A] font-heading tracking-tight text-center leading-snug select-none md:mb-7 max-w-xl mx-auto"
+                  className="text-base sm:text-lg md:text-xl lg:text-[22px] xl:text-2xl font-extrabold text-[#A3B18A] font-heading tracking-tight text-center leading-snug select-none md:mb-8 whitespace-nowrap mx-auto"
                 >
                   {WORKSHOP_GREETINGS[greetingIndex](firstName)}
                 </h1>

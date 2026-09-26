@@ -49,7 +49,7 @@ export function Navbar({
         id="main-navigation"
         className="w-full bg-[#0E1111]/95 backdrop-blur-md sticky top-0 z-50 border-b border-[#1C2121]/80 transition-colors shadow-sm"
       >
-        <div className="w-full px-6 sm:px-10 lg:px-14 xl:px-20 h-20 sm:h-24 flex items-center justify-between">
+        <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 h-20 sm:h-24 flex items-center justify-between">
           {/* Brand Logo - Full generous size */}
           <a
             id="nav-logo-link"
@@ -241,7 +241,7 @@ export function Navbar({
           </div>
 
           {/* Drawer Body Content */}
-          <div className="flex-1 overflow-y-auto px-6 py-6 md:px-10 md:py-8 flex flex-col justify-between w-full max-w-xl md:max-w-2xl mx-auto">
+          <div className="flex-1 overflow-y-auto px-5 py-6 sm:px-6 md:px-8 md:py-8 flex flex-col justify-between w-full mx-auto">
             {/* Navigation Section Links */}
             <div>
               <p className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-[#697474] font-bold px-1 mb-3 md:mb-4 font-heading">

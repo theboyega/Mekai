@@ -4,7 +4,7 @@ import { ScrollReveal } from './ScrollReveal';
 export function CoreCapabilities() {
   return (
     <section id="capabilities-section" className="py-16 sm:py-20 lg:py-24 border-t border-[#1C2121]/60">
-      <div className="w-full px-6 sm:px-10 lg:px-14 xl:px-20">
+      <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16">
         {/* Section Header */}
         <ScrollReveal animation="fade-up" duration={480} delay={0}>
           <div id="capabilities-header" className="mb-10 sm:mb-12">
@@ -17,8 +17,8 @@ export function CoreCapabilities() {
           </div>
         </ScrollReveal>
 
-        {/* 3-Card Grid: Single column for mobile and tablet, 3-column on desktop */}
-        <div id="capabilities-grid" className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-7 max-w-xl md:max-w-2xl lg:max-w-none mx-auto">
+        {/* 3-Card Grid: Full width on mobile, tablet, desktop, and ultra-wide */}
+        <div id="capabilities-grid" className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-7 w-full">
           
           {/* Card 1: OBD-II Fault Analysis (Sage Green Background) */}
           <ScrollReveal animation="fade-up" duration={480} delay={80} className="h-full">

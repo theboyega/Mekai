@@ -40,12 +40,12 @@ export function Footer({ onNavigatePage }: FooterProps) {
 
   return (
     <footer id="main-footer" className="pt-16 sm:pt-20 pb-12 border-t border-[#1C2121] bg-[#0E1111]">
-      <div className="w-full px-6 sm:px-10 lg:px-14 xl:px-20">
+      <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16">
         <ScrollReveal animation="fade-up" duration={480} delay={0}>
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 md:gap-12 lg:gap-16 pb-16 max-w-xl md:max-w-2xl lg:max-w-none mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-10 md:gap-12 lg:gap-16 pb-16 w-full">
             
             {/* Left Column: Brand, Mission, & Socials */}
-            <div className="lg:col-span-7">
+            <div className="sm:col-span-2 lg:col-span-7">
               <a
                 href="#"
                 onClick={handleLogoClick}

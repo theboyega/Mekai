@@ -24,7 +24,7 @@ export function WorkflowArchitecture() {
 
   return (
     <section id="workflow-section" className="py-16 sm:py-20 lg:py-24 border-t border-[#1C2121]/60">
-      <div className="w-full px-6 sm:px-10 lg:px-14 xl:px-20">
+      <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16">
         {/* Section Header */}
         <ScrollReveal animation="fade-up" duration={480} delay={0}>
           <div id="workflow-header" className="mb-10 sm:mb-12">
@@ -37,8 +37,8 @@ export function WorkflowArchitecture() {
           </div>
         </ScrollReveal>
 
-        {/* 3 Steps Grid: Single column for mobile and tablet, 3-column on desktop */}
-        <div id="workflow-grid" className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-7 max-w-xl md:max-w-2xl lg:max-w-none mx-auto">
+        {/* 3 Steps Grid: Full width across mobile, tablet, desktop, and ultra-wide */}
+        <div id="workflow-grid" className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-7 w-full">
           {steps.map((item, index) => (
             <ScrollReveal
               key={item.step}

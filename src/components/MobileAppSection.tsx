@@ -9,11 +9,11 @@ interface MobileAppSectionProps {
 export function MobileAppSection({ onAppStoreClick, onPlayStoreClick }: MobileAppSectionProps) {
   return (
     <section id="download-section" className="py-16 sm:py-20 lg:py-24 border-t border-[#1C2121]/60 overflow-hidden w-full max-w-full">
-      <div className="w-full px-4 sm:px-8 lg:px-14 xl:px-20 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+      <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 xl:gap-16 items-center">
           
           {/* Left Column: Download Narrative & Store Links */}
-          <div id="download-content" className="lg:col-span-6 max-w-xl md:max-w-2xl lg:max-w-none mx-auto w-full">
+          <div id="download-content" className="lg:col-span-6 w-full">
             <ScrollReveal animation="fade-up" duration={480} delay={0}>
               <p className="text-xs md:text-sm font-bold tracking-[0.18em] uppercase text-[#A3B18A] mb-3 font-heading">
                 Download
@@ -65,7 +65,7 @@ export function MobileAppSection({ onAppStoreClick, onPlayStoreClick }: MobileAp
           </div>
 
           {/* Right Column: High-Fidelity Phone Mockups */}
-          <div id="download-mockup-wrapper" className="lg:col-span-6 flex justify-center lg:justify-end w-full max-w-xl md:max-w-2xl lg:max-w-none mx-auto overflow-hidden">
+          <div id="download-mockup-wrapper" className="lg:col-span-6 flex justify-center lg:justify-end w-full overflow-hidden">
             <ScrollReveal animation="scale-up" duration={550} delay={160}>
               <PhoneMockups />
             </ScrollReveal>
