@@ -62,7 +62,7 @@ export function Navbar({
           <a
             id="nav-logo-link"
             href="#"
-            className="group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3B18A] rounded-lg shrink-0"
+            className="group inline-flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3B18A] rounded-lg shrink-0 leading-none"
             aria-label="Mekai Homepage"
             onClick={(e) => {
               e.preventDefault();
@@ -104,11 +104,11 @@ export function Navbar({
                       onSignUpClick();
                     }
                   }}
-                  className={`text-sm md:text-base font-semibold text-[#A3B18A] hover:text-[#92A177] transition-colors inline-flex items-center gap-1.5 group focus:outline-none focus-visible:ring-1 focus-visible:ring-[#A3B18A] font-heading cursor-pointer py-1.5 ${
+                  className={`text-sm md:text-base font-semibold text-[#A3B18A] hover:text-[#92A177] transition-colors inline-flex items-center gap-1.5 group focus:outline-none focus-visible:ring-1 focus-visible:ring-[#A3B18A] font-heading cursor-pointer leading-none ${
                     isMobileMenuOpen ? 'invisible pointer-events-none' : ''
                   }`}
                 >
-                  <span>Sign up</span>
+                  <span className="leading-none">Sign up</span>
                   <svg
                     className="w-4 h-4 md:w-[17px] md:h-[17px] transition-transform group-hover:translate-x-1 text-[#A3B18A] shrink-0"
                     viewBox="0 0 20 20"
@@ -201,9 +201,9 @@ export function Navbar({
                         onSignUpClick();
                       }
                     }}
-                    className="text-sm font-semibold text-[#A3B18A] hover:text-[#92A177] transition-colors inline-flex items-center gap-1.5 group focus:outline-none focus-visible:ring-1 focus-visible:ring-[#A3B18A] font-heading cursor-pointer"
+                    className="text-sm font-semibold text-[#A3B18A] hover:text-[#92A177] transition-colors inline-flex items-center gap-1.5 group focus:outline-none focus-visible:ring-1 focus-visible:ring-[#A3B18A] font-heading cursor-pointer leading-none"
                   >
-                    <span>Sign up</span>
+                    <span className="leading-none">Sign up</span>
                     <svg
                       className="w-4 h-4 transition-transform group-hover:translate-x-1 text-[#A3B18A] shrink-0"
                       viewBox="0 0 20 20"

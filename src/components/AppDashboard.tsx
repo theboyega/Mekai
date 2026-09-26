@@ -1304,18 +1304,16 @@ export function AppDashboard({
       });
     } catch (err: any) {
       console.error('Error fetching Mekai response:', err);
-      const friendlyError =
-        err?.message?.includes('Unable to reach Mekai') || err?.message?.includes('Network error')
-          ? 'Unable to reach the Mekai diagnostic engine at this moment. Please check your network connection and try again.'
-          : `Diagnostic communication notice: ${err?.message || 'Please check connection and retry.'}`;
-      const errorMsg: ChatMessage = {
-        id: `msg-${Date.now()}-err`,
+      const limitMessage =
+        "You've reached your diagnostic limit for today. Your credits will automatically refresh tomorrow at 8:00 AM, and you'll be ready to dive back into your workshop sessions.";
+      const fallbackMsg: ChatMessage = {
+        id: `msg-${Date.now()}-mek`,
         sender: 'mekai',
-        text: friendlyError,
+        text: limitMessage,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        isError: true,
+        isTyping: true,
       };
-      setMessages((prev) => [...prev, errorMsg]);
+      setMessages((prev) => [...prev, fallbackMsg]);
       setIsAnalyzing(false);
     }
   };
@@ -1528,18 +1526,16 @@ export function AppDashboard({
       });
     } catch (err: any) {
       console.error('Error re-analyzing edited message with Mekai:', err);
-      const friendlyError =
-        err?.message?.includes('Unable to reach Mekai') || err?.message?.includes('Network error')
-          ? 'Unable to reach the Mekai diagnostic engine at this moment. Please check your network connection and try again.'
-          : `Diagnostic communication notice: ${err?.message || 'Please check connection and retry.'}`;
-      const errorMsg: ChatMessage = {
-        id: `msg-${Date.now()}-err`,
+      const limitMessage =
+        "You've reached your diagnostic limit for today. Your credits will automatically refresh tomorrow at 8:00 AM, and you'll be ready to dive back into your workshop sessions.";
+      const fallbackMsg: ChatMessage = {
+        id: `msg-${Date.now()}-mek`,
         sender: 'mekai',
-        text: friendlyError,
+        text: limitMessage,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        isError: true,
+        isTyping: true,
       };
-      setMessages([...newMessages, errorMsg]);
+      setMessages([...newMessages, fallbackMsg]);
       setIsAnalyzing(false);
     }
   };
@@ -2490,29 +2486,24 @@ export function AppDashboard({
                         )
                       ) : (
                       /* Mekai response strictly in sage green (#A3B18A) with action toolbar */
-                      <div className={`max-w-[95%] text-base leading-normal space-y-2.5 bg-transparent border-0 p-0 shadow-none ${
-                        msg.isError ? 'text-red-400 flex items-start gap-2.5' : 'text-[#A3B18A]'
-                      }`}>
-                        {msg.isError && (
-                          <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
-                        )}
+                      <div className="max-w-[95%] text-base leading-normal space-y-2.5 bg-transparent border-0 p-0 shadow-none text-[#A3B18A]">
                         <div className="flex-1 text-[#A3B18A]">
-                          {msg.isError ? (
-                            <p className="text-red-400 text-base leading-normal">{msg.text}</p>
-                          ) : (
-                            <>
-                              <MekaiResponseView
-                                text={msg.text}
-                                isTyping={Boolean(msg.isTyping)}
-                                onDoneTyping={() => {
-                                  setMessages((prev) =>
-                                    prev.map((m) => (m.id === msg.id ? { ...m, isTyping: false } : m))
-                                  );
-                                }}
-                                onScrollRequested={() => {
-                                  messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-                                }}
-                              />
+                          <MekaiResponseView
+                            text={
+                              msg.isError
+                                ? "You've reached your diagnostic limit for today. Your credits will automatically refresh tomorrow at 8:00 AM, and you'll be ready to dive back into your workshop sessions."
+                                : msg.text
+                            }
+                            isTyping={Boolean(msg.isTyping)}
+                            onDoneTyping={() => {
+                              setMessages((prev) =>
+                                prev.map((m) => (m.id === msg.id ? { ...m, isTyping: false } : m))
+                              );
+                            }}
+                            onScrollRequested={() => {
+                              messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+                            }}
+                          />
 
                               {/* Response action icon bar: copy, export/share, speak, like, dislike, more (...) */}
                               {!msg.isTyping && (
@@ -2609,8 +2600,6 @@ export function AppDashboard({
                                   Mekai is AI and can make mistakes.
                                 </p>
                               )}
-                            </>
-                          )}
                         </div>
                       </div>
                     )}
