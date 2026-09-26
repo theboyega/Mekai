@@ -96,7 +96,20 @@ export function Navbar({
                   className="text-sm md:text-base font-semibold text-[#A3B18A] hover:text-[#92A177] transition-colors inline-flex items-center gap-1.5 group focus:outline-none focus-visible:ring-1 focus-visible:ring-[#A3B18A] font-heading cursor-pointer py-1.5"
                 >
                   <span>Sign up</span>
-                  <span className="transition-transform group-hover:translate-x-1 text-[#A3B18A]" aria-hidden="true">→</span>
+                  <svg
+                    className="w-4 h-4 md:w-[17px] md:h-[17px] transition-transform group-hover:translate-x-1 text-[#A3B18A] shrink-0"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M3.5 10H16.5M16.5 10L11.75 5.25M16.5 10L11.75 14.75"
+                      stroke="currentColor"
+                      strokeWidth="2.35"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
                 </a>
               )}
 
@@ -159,7 +172,20 @@ export function Navbar({
                     className="text-sm font-semibold text-[#A3B18A] hover:text-[#92A177] transition-colors inline-flex items-center gap-1.5 group focus:outline-none focus-visible:ring-1 focus-visible:ring-[#A3B18A] font-heading cursor-pointer"
                   >
                     <span>Sign up</span>
-                    <span className="transition-transform group-hover:translate-x-1 text-[#A3B18A]" aria-hidden="true">→</span>
+                    <svg
+                      className="w-4 h-4 transition-transform group-hover:translate-x-1 text-[#A3B18A] shrink-0"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M3.5 10H16.5M16.5 10L11.75 5.25M16.5 10L11.75 14.75"
+                        stroke="currentColor"
+                        strokeWidth="2.35"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
                   </a>
 
                   <button
@@ -351,7 +377,20 @@ export function Navbar({
                     className="w-full py-3 md:py-3.5 rounded-full text-xs md:text-sm font-bold font-heading text-[#0E1111] bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 transition-all text-center shadow-md flex items-center justify-center gap-1.5 min-h-[44px] md:min-h-[48px]"
                   >
                     <span>Sign Up</span>
-                    <span>→</span>
+                    <svg
+                      className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M3.5 10H16.5M16.5 10L11.75 5.25M16.5 10L11.75 14.75"
+                        stroke="currentColor"
+                        strokeWidth="2.4"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
                   </button>
                 </div>
               )}
