@@ -9,6 +9,8 @@
 
 **Mekai** is an enterprise-grade automotive diagnostic platform and workshop copilot. Engineered specifically for professional mechanics, automotive technicians, garage managers, and modern dealerships, Mekai turns raw vehicle symptoms, diagnostic trouble codes (DTCs), sensor readings, and acoustic observations into root-cause diagnoses, step-by-step repair roadmaps, and OEM component verification.
 
+> **Disclaimer:** Beta preview slots share a limited daily test window. If limits are reached, please check back after the reset cycle.
+
 ---
 
 ## ✨ Key Features
@@ -26,6 +28,7 @@
 - **🔐 Dedicated Full-Screen Authentication Page (`#signup` / `#login`)**:
   - Clicking **Sign up**, **Log in**, or **Get started** navigates to a dedicated full-screen Auth Page (`src/pages/AuthPage.tsx`).
   - Features the clickable Mekai logo at the top (returning to the homepage), followed by **Activate Workshop Access** / **Technician Login** headings outside the card, center-aligned card layout with left-aligned input labels and fields, and a two-step verification flow (12-character `CST-XXXX-XXXX` workshop access code verification followed by Technician Name setup).
+  - **Disclaimer**: Beta preview slots share a limited daily test window. If limits are reached, please check back after the reset cycle.
 - **🧭 Precision Navigation & Mobile Menu Drawer**:
   - Sticky translucent obsidian header (`#0E1111/80` with `backdrop-blur-md` and bottom divider border) with vertically centered brand logo, Sign up link, and custom animated two-bar hamburger button.
   - Lock-scroll mobile menu drawer with zero layout shift, quick section navigation, resource links, and a full-width sage-green **Log in** pill button.

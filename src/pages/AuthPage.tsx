@@ -101,13 +101,15 @@ export function AuthPage({
             className="group inline-flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3B18A] rounded-lg shrink-0 leading-none cursor-pointer mb-6 sm:mb-7"
             aria-label="Mekai Homepage"
           >
-            <MekaiLogo iconSize={32} textSize="text-xl tracking-widest font-heading font-extrabold" />
+            <MekaiLogo iconSize={44} showText={false} />
           </a>
 
           {/* Page Heading directly under the logo (outside the card) */}
           <h1
             id="auth-page-title"
-            className="text-xl sm:text-2xl font-extrabold text-[#A3B18A] tracking-tight font-heading text-center mb-6 sm:mb-8"
+            className={`text-xl sm:text-2xl font-extrabold text-[#A3B18A] tracking-tight font-heading text-center ${
+              step === 'name' ? 'mb-6 sm:mb-8' : 'mb-2'
+            }`}
           >
             {step === 'name'
               ? 'What is your name?'
@@ -115,6 +117,12 @@ export function AuthPage({
               ? 'Activate Workshop Access'
               : 'Technician Login'}
           </h1>
+
+          {step !== 'name' && (
+            <p className="text-xs sm:text-sm text-[#8F9999] leading-relaxed text-center max-w-md mx-auto mb-6 sm:mb-8">
+              Enter your 12-character workshop code to begin session.
+            </p>
+          )}
 
           <div className="w-full bg-[#121515] border border-[#252C2C] rounded-[24px] p-6 sm:p-8 shadow-2xl relative text-white text-center animate-fadeIn">
             {step === 'name' ? (
@@ -181,9 +189,9 @@ export function AuthPage({
             ) : (
               /* ──────── STEP 1: INPUT WORKSHOP ACCESS CODE FIRST ──────── */
               <div className="flex flex-col items-center text-center">
-                <div className="mb-6">
-                  <p className="text-xs sm:text-sm text-[#8F9999] leading-relaxed text-center max-w-md mx-auto">
-                    Mekai is currently in exclusive preview for automotive technicians. Enter your 12-character workshop access code to continue.
+                <div className="w-full mb-6 text-left">
+                  <p className="text-xs sm:text-sm text-[#8F9999] leading-relaxed text-left">
+                    <span className="font-semibold text-[#A3B18A]">Disclaimer:</span> Beta preview slots share a limited daily test window. If limits are reached, please check back after the reset cycle.
                   </p>
                 </div>
 
