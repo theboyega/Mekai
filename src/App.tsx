@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { CoreCapabilities } from './components/CoreCapabilities';
@@ -6,18 +6,38 @@ import { WorkflowArchitecture } from './components/WorkflowArchitecture';
 import { FloorValidation } from './components/FloorValidation';
 import { MobileAppSection } from './components/MobileAppSection';
 import { Footer } from './components/Footer';
-import { AppDashboard } from './components/AppDashboard';
 
-// Dedicated Sub-Pages
-import { AuthPage } from './pages/AuthPage';
-import { DocsPage } from './pages/DocsPage';
-import { CareersPage } from './pages/CareersPage';
-import { PressPage } from './pages/PressPage';
-import { HelpPage } from './pages/HelpPage';
-import { StatusPage } from './pages/StatusPage';
-import { TermsPage } from './pages/TermsPage';
-import { PrivacyPage } from './pages/PrivacyPage';
-import { LicensesPage } from './pages/LicensesPage';
+// Lazy-loaded heavy dashboard & dedicated sub-pages for fast initial homepage load
+const AppDashboard = lazy(() =>
+  import('./components/AppDashboard').then((m) => ({ default: m.AppDashboard }))
+);
+const AuthPage = lazy(() =>
+  import('./pages/AuthPage').then((m) => ({ default: m.AuthPage }))
+);
+const DocsPage = lazy(() =>
+  import('./pages/DocsPage').then((m) => ({ default: m.DocsPage }))
+);
+const CareersPage = lazy(() =>
+  import('./pages/CareersPage').then((m) => ({ default: m.CareersPage }))
+);
+const PressPage = lazy(() =>
+  import('./pages/PressPage').then((m) => ({ default: m.PressPage }))
+);
+const HelpPage = lazy(() =>
+  import('./pages/HelpPage').then((m) => ({ default: m.HelpPage }))
+);
+const StatusPage = lazy(() =>
+  import('./pages/StatusPage').then((m) => ({ default: m.StatusPage }))
+);
+const TermsPage = lazy(() =>
+  import('./pages/TermsPage').then((m) => ({ default: m.TermsPage }))
+);
+const PrivacyPage = lazy(() =>
+  import('./pages/PrivacyPage').then((m) => ({ default: m.PrivacyPage }))
+);
+const LicensesPage = lazy(() =>
+  import('./pages/LicensesPage').then((m) => ({ default: m.LicensesPage }))
+);
 
 export type AppPage =
   | 'home'
@@ -199,27 +219,31 @@ export default function App() {
   // When authenticated and in app mode, render the App Dashboard
   if (activeAccessCode && viewMode === 'app') {
     return (
-      <div className="fixed inset-0 h-screen h-[100dvh] w-full overflow-hidden bg-[#0E1111] text-[#FFFFFF] font-sans selection:bg-[#A3B18A]/30 selection:text-[#FFFFFF]">
-        <AppDashboard
-          activeCode={activeAccessCode}
-          technicianName={technicianName}
-          onSignOut={handleSignOut}
-          onViewLanding={handleViewHomepage}
-          initialPrompt={dashboardInitialPrompt}
-        />
-      </div>
+      <Suspense fallback={<div className="fixed inset-0 bg-[#0E1111]" />}>
+        <div className="fixed inset-0 h-screen h-[100dvh] w-full overflow-hidden bg-[#0E1111] text-[#FFFFFF] font-sans selection:bg-[#A3B18A]/30 selection:text-[#FFFFFF]">
+          <AppDashboard
+            activeCode={activeAccessCode}
+            technicianName={technicianName}
+            onSignOut={handleSignOut}
+            onViewLanding={handleViewHomepage}
+            initialPrompt={dashboardInitialPrompt}
+          />
+        </div>
+      </Suspense>
     );
   }
 
   // Dedicated Auth Page
   if (activePage === 'auth') {
     return (
-      <AuthPage
-        mode={authMode}
-        onBack={handleNavigateHome}
-        onAuthenticated={handleAuthenticated}
-        activeCode={activeAccessCode}
-      />
+      <Suspense fallback={<div className="min-h-screen bg-[#0E1111]" />}>
+        <AuthPage
+          mode={authMode}
+          onBack={handleNavigateHome}
+          onAuthenticated={handleAuthenticated}
+          activeCode={activeAccessCode}
+        />
+      </Suspense>
     );
   }
 
@@ -234,35 +258,67 @@ export default function App() {
 
   // Render individual pages based on activePage
   if (activePage === 'docs') {
-    return <DocsPage {...subPageProps} />;
+    return (
+      <Suspense fallback={<div className="min-h-screen bg-[#0E1111]" />}>
+        <DocsPage {...subPageProps} />
+      </Suspense>
+    );
   }
 
   if (activePage === 'careers') {
-    return <CareersPage {...subPageProps} />;
+    return (
+      <Suspense fallback={<div className="min-h-screen bg-[#0E1111]" />}>
+        <CareersPage {...subPageProps} />
+      </Suspense>
+    );
   }
 
   if (activePage === 'press') {
-    return <PressPage {...subPageProps} />;
+    return (
+      <Suspense fallback={<div className="min-h-screen bg-[#0E1111]" />}>
+        <PressPage {...subPageProps} />
+      </Suspense>
+    );
   }
 
   if (activePage === 'help') {
-    return <HelpPage {...subPageProps} />;
+    return (
+      <Suspense fallback={<div className="min-h-screen bg-[#0E1111]" />}>
+        <HelpPage {...subPageProps} />
+      </Suspense>
+    );
   }
 
   if (activePage === 'status') {
-    return <StatusPage {...subPageProps} />;
+    return (
+      <Suspense fallback={<div className="min-h-screen bg-[#0E1111]" />}>
+        <StatusPage {...subPageProps} />
+      </Suspense>
+    );
   }
 
   if (activePage === 'terms') {
-    return <TermsPage {...subPageProps} />;
+    return (
+      <Suspense fallback={<div className="min-h-screen bg-[#0E1111]" />}>
+        <TermsPage {...subPageProps} />
+      </Suspense>
+    );
   }
 
   if (activePage === 'privacy') {
-    return <PrivacyPage {...subPageProps} />;
+    return (
+      <Suspense fallback={<div className="min-h-screen bg-[#0E1111]" />}>
+        <PrivacyPage {...subPageProps} />
+      </Suspense>
+    );
   }
 
   if (activePage === 'licenses') {
-    return <LicensesPage {...subPageProps} />;
+    return (
+      <Suspense fallback={<div className="min-h-screen bg-[#0E1111]" />}>
+        <LicensesPage {...subPageProps} />
+      </Suspense>
+    );
   }
 
   // Default: Homepage / Landing Page

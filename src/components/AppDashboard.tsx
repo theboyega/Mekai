@@ -32,9 +32,8 @@ import {
 } from 'lucide-react';
 import { MekaiLogo } from './MekaiLogo';
 
-// Diagnostic agent endpoints: local proxy for dev/server and direct n8n webhook as primary/direct
+// Diagnostic agent proxy endpoint (configured via MEKAI_WEBHOOK_URL)
 const MEKAI_CHAT_ENDPOINT = '/api/chat-webhook';
-const MEKAI_DIRECT_WEBHOOK = 'https://mekai-ai.app.n8n.cloud/webhook/5b01dd02-7501-46e9-ba90-f890e6a1c2bf/chat';
 
 interface AppDashboardProps {
   activeCode: string | null;
@@ -97,6 +96,25 @@ function cleanMakeName(make: string): string {
   return make.charAt(0).toUpperCase() + make.slice(1);
 }
 
+// Pre-compiled regex patterns per vehicle make for fast zero-allocation vehicle extraction
+const COMPILED_VEHICLE_PATTERNS = VEHICLE_MAKES.map((make) => ({
+  cleanMake: cleanMakeName(make),
+  yearLastRegex: new RegExp(
+    `\\b${make}\\s+([A-Za-z0-9\\-]+(?:\\s+[A-Za-z0-9\\-]+){0,2})\\s+(19\\d\\d|20\\d\\d)\\b`,
+    'i'
+  ),
+  yearFirstRegex: new RegExp(
+    `\\b(19\\d\\d|20\\d\\d)\\s+${make}\\s+([A-Za-z0-9\\-]+(?:\\s+[A-Za-z0-9\\-]+){0,2})\\b`,
+    'i'
+  ),
+  makeModelRegex: new RegExp(
+    `\\b${make}\\s+([A-Za-z0-9\\-]+(?:\\s+[A-Za-z0-9\\-]+){0,1})\\b`,
+    'i'
+  ),
+}));
+
+const YEAR_REGEX = /\b(19\d\d|20\d\d)\b/;
+
 // Extraction of vehicle details from conversation as fallback
 export function extractVehicleDetails(
   userText: string,
@@ -105,44 +123,32 @@ export function extractVehicleDetails(
 ): string | null {
   const combined = `${userText}\n${mekaiText}`;
 
-  for (const make of VEHICLE_MAKES) {
+  for (const { cleanMake, yearLastRegex, yearFirstRegex, makeModelRegex } of COMPILED_VEHICLE_PATTERNS) {
     // 1. [Make] [Model words] [Year] -> e.g., "Ford Explorer 2014"
-    const yearLastRegex = new RegExp(
-      `\\b${make}\\s+([A-Za-z0-9\\-]+(?:\\s+[A-Za-z0-9\\-]+){0,2})\\s+(19\\d\\d|20\\d\\d)\\b`,
-      'i'
-    );
     const m1 = combined.match(yearLastRegex);
     if (m1) {
       const model = m1[1].trim();
       const year = m1[2];
-      return `${cleanMakeName(make)} ${model} ${year}`;
+      return `${cleanMake} ${model} ${year}`;
     }
 
     // 2. [Year] [Make] [Model words] -> e.g., "2014 Ford Explorer" -> "Ford Explorer 2014"
-    const yearFirstRegex = new RegExp(
-      `\\b(19\\d\\d|20\\d\\d)\\s+${make}\\s+([A-Za-z0-9\\-]+(?:\\s+[A-Za-z0-9\\-]+){0,2})\\b`,
-      'i'
-    );
     const m2 = combined.match(yearFirstRegex);
     if (m2) {
       const year = m2[1];
       const model = m2[2].trim();
-      return `${cleanMakeName(make)} ${model} ${year}`;
+      return `${cleanMake} ${model} ${year}`;
     }
 
     // 3. [Make] [Model words]
-    const makeModelRegex = new RegExp(
-      `\\b${make}\\s+([A-Za-z0-9\\-]+(?:\\s+[A-Za-z0-9\\-]+){0,1})\\b`,
-      'i'
-    );
     const m3 = combined.match(makeModelRegex);
     if (m3) {
       const model = m3[1].trim();
-      const yearMatch = combined.match(/\b(19\\d\\d|20\\d\\d)\b/);
+      const yearMatch = combined.match(YEAR_REGEX);
       if (yearMatch) {
-        return `${cleanMakeName(make)} ${model} ${yearMatch[1]}`;
+        return `${cleanMake} ${model} ${yearMatch[1]}`;
       }
-      return `${cleanMakeName(make)} ${model}`;
+      return `${cleanMake} ${model}`;
     }
   }
 
@@ -309,17 +315,12 @@ async function callMekaiWebhook(
     return { text: textResp };
   };
 
-  // Try direct n8n webhook first, fallback to proxy endpoint if network requires internal routing
+  // Call the unified Mekai diagnostic webhook proxy endpoint
   try {
-    return await executeRequest(MEKAI_DIRECT_WEBHOOK);
-  } catch (directErr) {
-    console.warn('Direct n8n webhook call failed, trying proxy endpoint:', directErr);
-    try {
-      return await executeRequest(MEKAI_CHAT_ENDPOINT);
-    } catch (proxyErr) {
-      console.error('All diagnostic endpoints failed:', proxyErr);
-      throw new Error('Unable to reach Mekai diagnostic engine. Please check network connection.');
-    }
+    return await executeRequest(MEKAI_CHAT_ENDPOINT);
+  } catch (proxyErr) {
+    console.error('Mekai diagnostic endpoint failed:', proxyErr);
+    throw new Error('Unable to reach Mekai diagnostic engine. Please check network connection.');
   }
 }
 

@@ -7,7 +7,7 @@
 
 ## 🏎️ Overview
 
-**Mekai** is an enterprise-grade AI automotive diagnostic platform and workshop copilot. Engineered specifically for professional mechanics, automotive technicians, garage managers, and modern dealerships, Mekai turns raw vehicle symptoms, diagnostic trouble codes (DTCs), sensor readings, and acoustic observations into root-cause diagnoses, step-by-step repair roadmaps, and OEM component verification.
+**Mekai** is an enterprise-grade automotive diagnostic platform and workshop copilot. Engineered specifically for professional mechanics, automotive technicians, garage managers, and modern dealerships, Mekai turns raw vehicle symptoms, diagnostic trouble codes (DTCs), sensor readings, and acoustic observations into root-cause diagnoses, step-by-step repair roadmaps, and OEM component verification.
 
 ---
 
@@ -19,23 +19,27 @@
 - **🎙️ Acoustic & Symptom Diagnostic Analysis**:
   - Diagnoses complex mechanical symptoms (engine knocks, vacuum leaks, belt squeals, transmission slips, suspension rattles).
   - Audio recording input & photo inspection support for workshop floor triage.
-- **🤖 Dedicated Diagnostics Pipeline**:
-  - Integrated via real-time proxy to Mekai's n8n workflow reasoning engine.
+- **🤖 Dedicated Diagnostics Pipeline & Graceful Quota Handling**:
+  - Integrated via real-time proxy (`/api/chat-webhook`) to Mekai's n8n workflow reasoning engine.
   - Interactive follow-ups, workshop notes generation, parts recommendation, and printable diagnostic work orders.
+  - Seamless standard Mekai response when daily diagnostic credits are reached or the engine is temporarily unreachable (*"You've reached your diagnostic limit for today. Your credits will automatically refresh tomorrow at 8:00 AM, and you'll be ready to dive back into your workshop sessions."*).
+- **🔐 Dedicated Full-Screen Authentication Page (`#signup` / `#login`)**:
+  - Clicking **Sign up**, **Log in**, or **Get started** navigates to a dedicated full-screen Auth Page (`src/pages/AuthPage.tsx`).
+  - Features the clickable Mekai logo at the top (returning to the homepage), followed by **Activate Workshop Access** / **Technician Login** headings outside the card, center-aligned card layout with left-aligned input labels and fields, and a two-step verification flow (12-character `CST-XXXX-XXXX` workshop access code verification followed by Technician Name setup).
+- **🧭 Precision Navigation & Mobile Menu Drawer**:
+  - Sticky translucent obsidian header (`#0E1111/80` with `backdrop-blur-md` and bottom divider border) with vertically centered brand logo, Sign up link, and custom animated two-bar hamburger button.
+  - Lock-scroll mobile menu drawer with zero layout shift, quick section navigation, resource links, and a full-width sage-green **Log in** pill button.
+- **📱 Sage Green Dual Phone Mockups**:
+  - Dual interactive mobile app mockups (`PhoneMockup.tsx`) showcasing the *Ready for Diagnostics* prompt view and the *Navigation Drawer* view, styled cohesively in Mekai's signature sage green (`#A3B18A`).
 - **🛠️ Technician Workshop Workspace**:
-  - Vehicle profile management (VIN, Make, Model, Year, Mileage, Trim).
-  - Chat history session persistence with search, rename, and quick reload capabilities.
-  - Technician quick-action prompt tiles (OBD-II, Engine Noise, Electrical Glitch, Transmission, Braking System).
-- **🔒 Workshop Privacy & Data Integrity**:
-  - Self-custodial session model; private, local-first garage storage without unnecessary telemetry.
-- **📱 Fully Responsive Design**:
-  - Tailored specifically for workshop environments: rugged mobile view, tablet wallboard mode, laptop, and ultra-wide monitor desktop setups.
+  - Chat history session persistence with search, rename, delete, and quick reload capabilities.
+  - Responsive workshop interface across mobile, tablet, laptop, and ultra-wide desktop displays.
 
 ---
 
 ## 🏗️ Architecture & Tech Stack
 
-- **Frontend**: React 19, TypeScript, Vite 8, Tailwind CSS v4
+- **Frontend**: React 19, TypeScript, Vite 6, Tailwind CSS v4
 - **Animations & Icons**: Motion, Lucide React
 - **Backend / API Gateway**: Express (Node.js / tsx) with `/api/chat-webhook` proxy to the Mekai n8n reasoning workflow
 - **Deployment**: Docker/Node container ready, cloud hosting ready
@@ -101,29 +105,41 @@ npm start
 ## 📁 Project Structure
 
 ```text
-├── index.html                   # App entry HTML & meta tags
-├── metadata.json                # AI Studio & applet metadata
-├── package.json                 # Dependencies & scripts
-├── server.ts                    # Express API server & n8n webhook proxy
-├── tsconfig.json                # TypeScript compiler config
-├── vite.config.ts               # Vite configuration with Tailwind CSS plugin
-├── public/                      # Static assets & icons
+├── index.html                        # App entry HTML, SEO & OpenGraph meta tags
+├── metadata.json                     # Applet metadata
+├── package.json                      # Dependencies & scripts
+├── server.ts                         # Express API server & n8n webhook proxy
+├── tsconfig.json                     # TypeScript compiler config
+├── vite.config.ts                    # Vite configuration with Tailwind CSS plugin
+├── public/                           # Static assets & icons
 └── src/
-    ├── App.tsx                  # Main React application router & entry
-    ├── main.tsx                 # React DOM mount point
-    ├── index.css                # Tailwind CSS v4 entry
+    ├── App.tsx                       # Main React application router & entry
+    ├── main.tsx                      # React DOM mount point
+    ├── index.css                     # Tailwind CSS v4 entry & custom animations
+    ├── data/
+    │   └── accessCodes.ts            # Workshop invitation access codes & formatter
     ├── components/
-    │   ├── AppDashboard.tsx     # Full workshop technician interface & chat
-    │   ├── AuthModal.tsx        # Workshop technician code & account modal
-    │   ├── CoreCapabilities.tsx # Landing page capabilities section
-    │   ├── FloorValidation.tsx  # Workshop floor validation & metrics
-    │   ├── Footer.tsx           # Global footer & legal page links
-    │   ├── HeroSection.tsx      # Landing page hero with interactive prompt
-    │   ├── MobileAppSection.tsx # Native mobile app download showcase
-    │   ├── Navbar.tsx           # Main navigation bar
-    │   ├── PhoneMockup.tsx      # Interactive mobile app preview mockup
-    │   ├── WorkflowArchitecture.tsx # High-level system architecture section
-    │   └── LegalPages.tsx       # Docs, Terms, Privacy, Licenses, Help, Status
+    │   ├── AppDashboard.tsx          # Full workshop technician interface & chat
+    │   ├── CoreCapabilities.tsx      # Landing page capabilities section
+    │   ├── FloorValidation.tsx       # Workshop floor validation & metrics
+    │   ├── Footer.tsx                # Global footer & sub-page navigation links
+    │   ├── HeroSection.tsx           # Landing page hero with interactive diagnostic preview
+    │   ├── MekaiLogo.tsx             # Hexagonal mechanical nut brand logo SVG
+    │   ├── MobileAppSection.tsx      # Native mobile app download showcase
+    │   ├── Navbar.tsx                # Sticky translucent navigation bar & mobile drawer
+    │   ├── PageHeader.tsx            # Shared header for informational sub-pages
+    │   ├── PhoneMockup.tsx           # Sage green dual mobile app preview mockups
+    │   └── WorkflowArchitecture.tsx  # Capture → Reason → Execute workflow section
+    └── pages/
+        ├── AuthPage.tsx              # Dedicated full-screen workshop authentication page
+        ├── CareersPage.tsx           # Careers & open roles page
+        ├── DocsPage.tsx              # Technical documentation & OBD-II reference
+        ├── HelpPage.tsx              # Workshop support & FAQ page
+        ├── LicensesPage.tsx          # Open-source & OEM data licensing page
+        ├── PressPage.tsx             # Press releases & brand kit page
+        ├── PrivacyPage.tsx           # Workshop data privacy policy page
+        ├── StatusPage.tsx            # Real-time diagnostic system status page
+        └── TermsPage.tsx             # Terms of service page
 ```
 
 ---
@@ -132,5 +148,5 @@ npm start
 
 © **Cestcore Limited**. All rights reserved.
 
-- **Automotive Notice**: Mekai provides AI-powered automotive diagnostic assistance and guidance. Repairs, parts replacements, and safety inspections must be performed by certified, licensed automotive technicians.
+- **Automotive Notice**: Mekai provides automotive diagnostic assistance and guidance. Repairs, parts replacements, and safety inspections must be performed by certified, licensed automotive technicians.
 - **Contact**: For enterprise licensing, workshop fleet deployments, or inquiries, reach out at [compliance@cestcore.com](mailto:compliance@cestcore.com).
