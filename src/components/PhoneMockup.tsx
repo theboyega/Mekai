@@ -10,15 +10,20 @@ export function PhoneMockups() {
       {/* Phone 1: Ready For Diagnostics View */}
       <div
         id="phone-mockup-chat"
-        className="w-[calc(50%-6px)] sm:w-[200px] md:w-[215px] lg:w-[225px] h-[340px] min-[375px]:h-[365px] min-[400px]:h-[395px] sm:h-[420px] md:h-[450px] bg-[#0E1111] rounded-[26px] min-[375px]:rounded-[30px] sm:rounded-[38px] p-2 sm:p-2.5 border-[1.5px] sm:border-2 border-[#A3B18A]/30 shadow-2xl relative z-10 flex flex-col justify-between shrink-0 transition-colors duration-300 hover:border-[#A3B18A]/60"
+        className="w-[calc(50%-6px)] sm:w-[200px] md:w-[215px] lg:w-[225px] h-[340px] min-[375px]:h-[365px] min-[400px]:h-[395px] sm:h-[420px] md:h-[450px] bg-[#0B0D0D] rounded-[26px] min-[375px]:rounded-[30px] sm:rounded-[38px] p-2 sm:p-2.5 border-[1.5px] sm:border-2 border-[#2A3131] ring-1 ring-white/[0.07] shadow-[0_24px_50px_rgba(0,0,0,0.85)] relative z-10 flex flex-col justify-between shrink-0"
       >
+        {/* Realistic Side Hardware Buttons */}
+        <div className="hidden sm:block absolute -left-[3px] top-16 w-[2px] h-6 bg-[#2A3131] rounded-l-sm" />
+        <div className="hidden sm:block absolute -left-[3px] top-24 w-[2px] h-9 bg-[#2A3131] rounded-l-sm" />
+        <div className="hidden sm:block absolute -right-[3px] top-20 w-[2px] h-11 bg-[#2A3131] rounded-r-sm" />
+
         {/* Dynamic Island / Notch */}
-        <div className="absolute top-2.5 sm:top-3.5 left-1/2 -translate-x-1/2 w-12 sm:w-16 h-2.5 sm:h-3 bg-[#1A1F1F] border border-[#A3B18A]/20 rounded-full flex items-center justify-center gap-1 z-20">
-          <span className="w-1 sm:w-1.5 h-1 sm:h-1.5 rounded-full bg-[#A3B18A]/60" />
+        <div className="absolute top-3 sm:top-4 left-1/2 -translate-x-1/2 w-12 sm:w-16 h-2.5 sm:h-3 bg-[#050707] border border-[#1E2424] rounded-full flex items-center justify-end pr-1.5 z-20 shadow-inner">
+          <span className="w-1 sm:w-1.5 h-1 sm:h-1.5 rounded-full bg-[#131B26] ring-1 ring-[#233044]" />
         </div>
 
         {/* Screen Content Wrapper */}
-        <div className="w-full h-full bg-[#121515] rounded-[20px] min-[375px]:rounded-[24px] sm:rounded-[30px] flex flex-col justify-between p-2.5 min-[375px]:p-3 sm:p-3.5 pt-4 min-[375px]:pt-5 sm:pt-7 border border-[#A3B18A]/20 overflow-hidden select-none text-[#A3B18A]">
+        <div className="w-full h-full bg-[#121515] rounded-[20px] min-[375px]:rounded-[24px] sm:rounded-[30px] flex flex-col justify-between p-2.5 min-[375px]:p-3 sm:p-3.5 pt-4 min-[375px]:pt-5 sm:pt-7 border border-[#1E2424] overflow-hidden select-none text-[#A3B18A]">
           {/* Top Bar inside Screen */}
           <div className="flex items-center justify-between">
             <MekaiLogo iconSize={13} textSize="text-[8.5px] min-[375px]:text-[9.5px] sm:text-[10px] tracking-wider" />
@@ -46,7 +51,7 @@ export function PhoneMockups() {
             </div>
 
             {/* Home Indicator bar */}
-            <div className="w-9 sm:w-12 h-0.5 sm:h-1 bg-[#A3B18A]/40 rounded-full mx-auto" />
+            <div className="w-9 sm:w-12 h-0.5 sm:h-1 bg-white/25 rounded-full mx-auto" />
           </div>
         </div>
       </div>
@@ -54,15 +59,20 @@ export function PhoneMockups() {
       {/* Phone 2: Navigation Drawer View */}
       <div
         id="phone-mockup-drawer"
-        className="w-[calc(50%-6px)] sm:w-[200px] md:w-[215px] lg:w-[225px] h-[340px] min-[375px]:h-[365px] min-[400px]:h-[395px] sm:h-[420px] md:h-[450px] bg-[#0E1111] rounded-[26px] min-[375px]:rounded-[30px] sm:rounded-[38px] p-2 sm:p-2.5 border-[1.5px] sm:border-2 border-[#A3B18A]/30 shadow-2xl relative z-10 flex flex-col justify-between shrink-0 transition-colors duration-300 hover:border-[#A3B18A]/60"
+        className="w-[calc(50%-6px)] sm:w-[200px] md:w-[215px] lg:w-[225px] h-[340px] min-[375px]:h-[365px] min-[400px]:h-[395px] sm:h-[420px] md:h-[450px] bg-[#0B0D0D] rounded-[26px] min-[375px]:rounded-[30px] sm:rounded-[38px] p-2 sm:p-2.5 border-[1.5px] sm:border-2 border-[#2A3131] ring-1 ring-white/[0.07] shadow-[0_24px_50px_rgba(0,0,0,0.85)] relative z-10 flex flex-col justify-between shrink-0"
       >
+        {/* Realistic Side Hardware Buttons */}
+        <div className="hidden sm:block absolute -left-[3px] top-16 w-[2px] h-6 bg-[#2A3131] rounded-l-sm" />
+        <div className="hidden sm:block absolute -left-[3px] top-24 w-[2px] h-9 bg-[#2A3131] rounded-l-sm" />
+        <div className="hidden sm:block absolute -right-[3px] top-20 w-[2px] h-11 bg-[#2A3131] rounded-r-sm" />
+
         {/* Dynamic Island / Notch */}
-        <div className="absolute top-2.5 sm:top-3.5 left-1/2 -translate-x-1/2 w-12 sm:w-16 h-2.5 sm:h-3 bg-[#1A1F1F] border border-[#A3B18A]/20 rounded-full flex items-center justify-center gap-1 z-20">
-          <span className="w-1 sm:w-1.5 h-1 sm:h-1.5 rounded-full bg-[#A3B18A]/60" />
+        <div className="absolute top-3 sm:top-4 left-1/2 -translate-x-1/2 w-12 sm:w-16 h-2.5 sm:h-3 bg-[#050707] border border-[#1E2424] rounded-full flex items-center justify-end pr-1.5 z-20 shadow-inner">
+          <span className="w-1 sm:w-1.5 h-1 sm:h-1.5 rounded-full bg-[#131B26] ring-1 ring-[#233044]" />
         </div>
 
         {/* Screen Content Wrapper */}
-        <div className="w-full h-full bg-[#121515] rounded-[20px] min-[375px]:rounded-[24px] sm:rounded-[30px] flex flex-col justify-between p-2.5 min-[375px]:p-3 sm:p-3.5 pt-4 min-[375px]:pt-5 sm:pt-7 border border-[#A3B18A]/20 overflow-hidden select-none text-[#A3B18A]">
+        <div className="w-full h-full bg-[#121515] rounded-[20px] min-[375px]:rounded-[24px] sm:rounded-[30px] flex flex-col justify-between p-2.5 min-[375px]:p-3 sm:p-3.5 pt-4 min-[375px]:pt-5 sm:pt-7 border border-[#1E2424] overflow-hidden select-none text-[#A3B18A]">
           {/* Top Bar with Close Icon */}
           <div>
             <div className="flex items-center justify-between mb-3 min-[375px]:mb-4 sm:mb-5">
@@ -108,7 +118,7 @@ export function PhoneMockups() {
             </div>
 
             {/* Home Indicator bar */}
-            <div className="w-9 sm:w-12 h-0.5 sm:h-1 bg-[#A3B18A]/40 rounded-full mx-auto mt-1.5 sm:mt-2" />
+            <div className="w-9 sm:w-12 h-0.5 sm:h-1 bg-white/25 rounded-full mx-auto mt-1.5 sm:mt-2" />
           </div>
         </div>
       </div>
