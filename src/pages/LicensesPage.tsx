@@ -94,7 +94,7 @@ export function LicensesPage({
               Open-source software
             </h2>
             <p className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed pl-5 sm:pl-6 border-l border-[#1E2525]">
-              Mekai is built with open-source software used under their respective licenses (including MIT, Apache 2.0, and BSD). Attributions are available on request at{' '}
+              Mekai is built with open-source software used under their respective licenses. Attributions are available on request at{' '}
               <a
                 href="mailto:legal@cestcore.com"
                 className="text-[#A3B18A] hover:underline font-medium"
