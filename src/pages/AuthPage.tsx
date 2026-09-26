@@ -89,7 +89,7 @@ export function AuthPage({
   return (
     <div className="min-h-screen bg-[#0E1111] text-white font-sans selection:bg-[#A3B18A]/30 selection:text-white flex flex-col items-center justify-between relative overflow-x-clip text-center">
       {/* Main Centered Auth Card with Logo and Heading at the Top of the Card */}
-      <main className="flex-1 w-full flex flex-col items-center justify-center p-4 sm:p-6">
+      <main className="flex-1 w-full flex flex-col items-center justify-center p-4 sm:p-6 pt-10 sm:pt-14">
         <div className="w-full max-w-lg flex flex-col items-center text-center mx-auto">
           {/* Logo positioned at the top */}
           <a
@@ -98,7 +98,7 @@ export function AuthPage({
               e.preventDefault();
               onBack();
             }}
-            className="group inline-flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3B18A] rounded-lg shrink-0 leading-none cursor-pointer mb-4"
+            className="group inline-flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3B18A] rounded-lg shrink-0 leading-none cursor-pointer mb-6 sm:mb-7"
             aria-label="Mekai Homepage"
           >
             <MekaiLogo iconSize={32} textSize="text-xl tracking-widest font-heading font-extrabold" />
@@ -259,7 +259,7 @@ export function AuthPage({
       </main>
 
       {/* Subtle Bottom Copyright */}
-      <footer className="w-full py-6 text-center text-xs text-[#5A6565]">
+      <footer className="w-full pt-2 pb-10 sm:pb-12 text-center text-xs text-[#5A6565]">
         © {new Date().getFullYear()} Cestcore Limited. All rights reserved.
       </footer>
     </div>
