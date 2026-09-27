@@ -213,7 +213,11 @@ export function extractMekaiSessionName(
     return `${dtcMatch[1].toUpperCase()} Diagnostics`;
   }
 
-  return userText.length > 28 ? userText.substring(0, 28) + '...' : userText;
+  const trimmedUser = userText.trim();
+  if (!trimmedUser) {
+    return currentTitle || 'Acoustic Diagnostic';
+  }
+  return trimmedUser.length > 28 ? trimmedUser.substring(0, 28) + '...' : trimmedUser;
 }
 
 const UNTRAINED_MEDIA_FEATURE_MESSAGE =
@@ -839,8 +843,9 @@ export function AppDashboard({
   // Staged attachment for next chat query (file & audio)
   const [attachedMedia, setAttachedMedia] = useState<ChatAttachment | null>(null);
 
-  // Audio recording state & refs
+  // Audio recording & detection state & refs
   const [isRecording, setIsRecording] = useState(false);
+  const [isDetectingAudio, setIsDetectingAudio] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
   const [liveTranscript, setLiveTranscript] = useState('');
   const [audioVolume, setAudioVolume] = useState(0); // 0 to 100 for visual wave
@@ -852,12 +857,54 @@ export function AppDashboard({
   const speechRecognitionRef = useRef<any>(null);
   const isRecordingRef = useRef(false);
   const basePromptRef = useRef('');
+  const liveTranscriptRef = useRef('');
+  const recordingDurationRef = useRef(0);
+  const wasCancelledRef = useRef(false);
+  const autoSubmitOnStopRef = useRef(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animFrameRef = useRef<number | null>(null);
 
   // Hidden file input ref for direct file selection
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const promptTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const [isInputMultiline, setIsInputMultiline] = useState(false);
+  const multilineTriggerLengthRef = useRef<number>(0);
+
+  // Auto-adjust chat bar textarea height and detect when text spans into another line
+  useEffect(() => {
+    const el = promptTextareaRef.current;
+    if (!el) return;
+
+    if (!promptInput) {
+      el.style.height = 'auto';
+      multilineTriggerLengthRef.current = 0;
+      if (isInputMultiline) setIsInputMultiline(false);
+      return;
+    }
+
+    el.style.height = 'auto';
+    const scrollH = el.scrollHeight;
+    const hasNewline = promptInput.includes('\n');
+
+    if (!isInputMultiline) {
+      if (hasNewline || scrollH > 38) {
+        multilineTriggerLengthRef.current = promptInput.length;
+        setIsInputMultiline(true);
+      }
+    } else {
+      if (
+        !hasNewline &&
+        scrollH <= 38 &&
+        promptInput.length < Math.max(1, multilineTriggerLengthRef.current - 2)
+      ) {
+        multilineTriggerLengthRef.current = 0;
+        setIsInputMultiline(false);
+      }
+    }
+
+    el.style.height = `${Math.min(scrollH, 168)}px`;
+  }, [promptInput, isInputMultiline, isRecording]);
 
   // Resolved technician name and first name for prompt greeting
   const displayName = technicianName || 'Adeyemi Tomiwa';
@@ -957,6 +1004,15 @@ export function AppDashboard({
         });
       };
       reader.readAsDataURL(file);
+    } else if (file.type.startsWith('audio/')) {
+      const audioUrl = URL.createObjectURL(file);
+      setAttachedMedia({
+        type: 'audio',
+        name: file.name,
+        url: audioUrl,
+        size: formattedSize,
+        file,
+      });
     } else {
       setAttachedMedia({
         type: 'file',
@@ -970,11 +1026,11 @@ export function AppDashboard({
   };
 
   const handleStartRecording = async () => {
-    // If already recording, stop
     if (isRecording) {
       handleStopRecording();
       return;
     }
+    if (isDetectingAudio) return;
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -987,8 +1043,13 @@ export function AppDashboard({
       mediaStreamRef.current = stream;
       audioChunksRef.current = [];
       isRecordingRef.current = true;
+      wasCancelledRef.current = false;
+      autoSubmitOnStopRef.current = false;
       basePromptRef.current = promptInput;
+      liveTranscriptRef.current = '';
+      recordingDurationRef.current = 0;
       setLiveTranscript('');
+      setIsDetectingAudio(false);
       setIsRecording(true);
       setRecordingDuration(0);
 
@@ -1023,7 +1084,7 @@ export function AppDashboard({
         console.warn('AudioContext visualization setup warning:', audioErr);
       }
 
-      // 2. MediaRecorder for acoustic diagnostic audio file capture
+      // 2. MediaRecorder for capturing audio blob
       try {
         let options: MediaRecorderOptions = {};
         if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
@@ -1041,30 +1102,15 @@ export function AppDashboard({
           }
         };
 
-        mediaRecorder.onstop = () => {
-          if (audioChunksRef.current.length > 0) {
-            const mimeType = mediaRecorder.mimeType || 'audio/webm';
-            const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
-            if (audioBlob.size > 200) {
-              const audioUrl = URL.createObjectURL(audioBlob);
-              setAttachedMedia({
-                type: 'audio',
-                name: `Acoustic-Diagnostic-${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}.webm`,
-                url: audioUrl,
-                size: `${recordingDuration > 0 ? `${recordingDuration}s` : 'Audio'}`,
-              });
-            }
-          }
-        };
-
         mediaRecorder.start(200);
         mediaRecorderRef.current = mediaRecorder;
       } catch (recErr) {
         console.warn('MediaRecorder init fallback:', recErr);
       }
 
-      // 3. Speech Recognition - actively listens to what is being spoken
+      // 3. Speech Recognition - captures spoken text in background while recording
       const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      let completedSegments = '';
       if (SpeechRec) {
         try {
           const rec = new SpeechRec();
@@ -1073,6 +1119,7 @@ export function AppDashboard({
           rec.lang = 'en-US';
 
           rec.onresult = (event: any) => {
+            if (wasCancelledRef.current) return;
             let interimTranscript = '';
             let finalTranscript = '';
             for (let i = 0; i < event.results.length; ++i) {
@@ -1083,12 +1130,14 @@ export function AppDashboard({
                 interimTranscript += res[0].transcript;
               }
             }
-            const spokenNow = (finalTranscript + interimTranscript).trim();
+            const currentSessionText = (finalTranscript + interimTranscript).trim();
+            const spokenNow = [completedSegments.trim(), currentSessionText]
+              .filter(Boolean)
+              .join(' ')
+              .trim();
             if (spokenNow) {
+              liveTranscriptRef.current = spokenNow;
               setLiveTranscript(spokenNow);
-              const base = basePromptRef.current.trim();
-              const combined = base ? `${base} ${spokenNow}` : spokenNow;
-              setPromptInput(combined);
             }
           };
 
@@ -1097,8 +1146,10 @@ export function AppDashboard({
           };
 
           rec.onend = () => {
-            // Automatically keep listening if user hasn't finished recording
-            if (isRecordingRef.current) {
+            if (liveTranscriptRef.current.trim()) {
+              completedSegments = liveTranscriptRef.current.trim();
+            }
+            if (isRecordingRef.current && !wasCancelledRef.current) {
               try {
                 rec.start();
               } catch {
@@ -1116,17 +1167,20 @@ export function AppDashboard({
 
       // 4. Duration Timer
       recordingTimerRef.current = setInterval(() => {
+        recordingDurationRef.current += 1;
         setRecordingDuration((prev) => prev + 1);
       }, 1000);
     } catch (err) {
       console.warn('Microphone access warning:', err);
-      alert('Microphone access is needed so Mekai can listen to what is being spoken. Please allow microphone permissions.');
+      alert('Microphone access is needed so Mekai can record audio. Please allow microphone permissions.');
       setIsRecording(false);
+      setIsDetectingAudio(false);
       isRecordingRef.current = false;
     }
   };
 
   const handleStopRecording = () => {
+    if (!isRecordingRef.current) return;
     isRecordingRef.current = false;
 
     if (recordingTimerRef.current) {
@@ -1148,37 +1202,113 @@ export function AppDashboard({
       audioContextRef.current = null;
     }
 
-    if (speechRecognitionRef.current) {
-      try {
-        speechRecognitionRef.current.onend = null;
-        speechRecognitionRef.current.stop();
-      } catch {
-        // ignore
-      }
-      speechRecognitionRef.current = null;
-    }
-
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-      try {
-        mediaRecorderRef.current.stop();
-      } catch {
-        // ignore
-      }
-    }
-
-    if (mediaStreamRef.current) {
-      mediaStreamRef.current.getTracks().forEach((track) => track.stop());
-      mediaStreamRef.current = null;
-    }
-
+    // Switch UI from recording to rolling Mekai nut icon ("Detecting audio...")
     setIsRecording(false);
     setAudioVolume(0);
+    setIsDetectingAudio(true);
+
+    const detectStartTime = Date.now();
+    const MIN_DETECT_SPIN_MS = 1000;
+
+    const finishAudioDetection = () => {
+      let recordedBlob: Blob | null = null;
+      const recorder = mediaRecorderRef.current;
+
+      const completeClassification = () => {
+        if (mediaStreamRef.current) {
+          mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+          mediaStreamRef.current = null;
+        }
+
+        const elapsed = Date.now() - detectStartTime;
+        const remainingSpin = Math.max(0, MIN_DETECT_SPIN_MS - elapsed);
+
+        setTimeout(() => {
+          if (wasCancelledRef.current) {
+            setIsDetectingAudio(false);
+            return;
+          }
+
+          const detectedSpeech = liveTranscriptRef.current.trim();
+
+          if (detectedSpeech.length > 0) {
+            // Speech detected -> render what was said in the chat bar ONLY
+            const base = basePromptRef.current.trim();
+            const combinedText = base ? `${base} ${detectedSpeech}` : detectedSpeech;
+            setPromptInput(combinedText);
+            setAttachedMedia(null);
+          } else if (recordedBlob && recordedBlob.size > 200) {
+            // Vehicle sound / non-speech audio -> allow sending the audio file to Mekai
+            const audioUrl = URL.createObjectURL(recordedBlob);
+            const durationSecs = Math.max(1, recordingDurationRef.current);
+            setAttachedMedia({
+              type: 'audio',
+              name: `Acoustic-Diagnostic-${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}.webm`,
+              url: audioUrl,
+              size: formatRecordingTime(durationSecs),
+            });
+          }
+
+          setIsDetectingAudio(false);
+        }, remainingSpin);
+      };
+
+      if (recorder && recorder.state !== 'inactive') {
+        recorder.onstop = () => {
+          if (audioChunksRef.current.length > 0) {
+            const mimeType = recorder.mimeType || 'audio/webm';
+            recordedBlob = new Blob(audioChunksRef.current, { type: mimeType });
+          }
+          completeClassification();
+        };
+        try {
+          recorder.stop();
+        } catch {
+          completeClassification();
+        }
+      } else {
+        if (audioChunksRef.current.length > 0) {
+          recordedBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        }
+        completeClassification();
+      }
+    };
+
+    // First stop SpeechRecognition and let it flush any final spoken words (e.g. "Good morning") while mic stream is still open
+    if (speechRecognitionRef.current) {
+      const rec = speechRecognitionRef.current;
+      speechRecognitionRef.current = null;
+      let settled = false;
+      const onSpeechFlushed = () => {
+        if (settled) return;
+        settled = true;
+        finishAudioDetection();
+      };
+      const flushTimer = setTimeout(onSpeechFlushed, 850);
+      rec.onend = () => {
+        clearTimeout(flushTimer);
+        setTimeout(onSpeechFlushed, 100);
+      };
+      try {
+        rec.stop();
+      } catch {
+        clearTimeout(flushTimer);
+        onSpeechFlushed();
+      }
+    } else {
+      finishAudioDetection();
+    }
   };
 
   const handleCancelRecording = () => {
     isRecordingRef.current = false;
+    wasCancelledRef.current = true;
+    autoSubmitOnStopRef.current = false;
+    liveTranscriptRef.current = '';
+    recordingDurationRef.current = 0;
     setPromptInput(basePromptRef.current);
     setLiveTranscript('');
+    setIsDetectingAudio(false);
     audioChunksRef.current = [];
 
     if (recordingTimerRef.current) {
@@ -1249,20 +1379,26 @@ export function AppDashboard({
 
   // Submit diagnostic prompt handler - connects to real n8n webhook
   // Naming on the session is picked from Mekai as configured
-  const handlePromptSubmit = async (promptOverride?: string) => {
+  const handlePromptSubmit = async (
+    promptOverride?: string,
+    attachmentOverride?: ChatAttachment | null
+  ) => {
+    const currentAttachment =
+      attachmentOverride !== undefined ? attachmentOverride : attachedMedia;
     const textToSubmit = (promptOverride !== undefined ? promptOverride : promptInput).trim();
-    if ((!textToSubmit && !attachedMedia) || isAnalyzing) return;
+    if ((!textToSubmit && !currentAttachment) || isAnalyzing) return;
 
-    const currentAttachment = attachedMedia;
+    const isAudioAttachment = currentAttachment?.type === 'audio';
     const defaultText = currentAttachment
       ? currentAttachment.type === 'image'
         ? 'Diagnostic inspection photo attached for analysis.'
         : currentAttachment.type === 'audio'
-        ? `Acoustic audio sample recorded (${currentAttachment.size || 'Diagnostic clip'}).`
+        ? ''
         : `Diagnostic document attached (${currentAttachment.name}).`
       : '';
 
-    const finalText = textToSubmit || defaultText;
+    // Sent audio files must never have text displayed underneath them
+    const finalText = isAudioAttachment ? '' : textToSubmit || defaultText;
 
     const userMsg: ChatMessage = {
       id: `msg-${Date.now()}-eng`,
@@ -1690,14 +1826,20 @@ export function AppDashboard({
       >
         <div
           id="diagnostic-input-pill"
-          className="w-full rounded-full border border-[#23312C] bg-[#0E1312] hover:border-[#354841] focus-within:border-[#A3B18A] pl-4 sm:pl-6 md:pl-7 pr-2.5 sm:pr-3 md:pr-3.5 h-[52px] sm:h-[56px] md:h-[60px] flex items-center gap-3 sm:gap-4 md:gap-5 transition-all shadow-lg"
+          className={`w-full rounded-[26px] sm:rounded-[28px] md:rounded-[30px] border border-[#23312C] bg-[#0E1312] hover:border-[#354841] focus-within:border-[#A3B18A] min-h-[52px] sm:min-h-[56px] md:min-h-[60px] transition-all shadow-lg ${
+            !isRecording && isInputMultiline
+              ? 'flex flex-wrap items-center justify-between px-4 sm:px-5 md:px-6 pt-3 pb-2.5 gap-y-2'
+              : 'flex items-center gap-3 sm:gap-4 md:gap-5 pl-4 sm:pl-6 md:pl-7 pr-2.5 sm:pr-3 md:pr-3.5 py-2 sm:py-2.5'
+          }`}
         >
-          {/* Left Plus Icon to directly send file */}
+          {/* Left Plus Icon to directly send file (moves to bottom-left below text when multiline) */}
           <button
             id="send-file-btn"
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="p-1 focus:outline-none shrink-0 text-[#8A9A78] hover:text-white transition-colors w-8 h-8 md:w-9 md:h-9 flex items-center justify-center"
+            className={`p-1 focus:outline-none shrink-0 text-[#8A9A78] hover:text-white transition-colors w-8 h-8 md:w-9 md:h-9 flex items-center justify-center ${
+              !isRecording && isInputMultiline ? 'order-2' : 'order-1'
+            }`}
             title="Send file"
             aria-label="Send file"
           >
@@ -1705,15 +1847,15 @@ export function AppDashboard({
           </button>
 
           {isRecording ? (
-            <div className="flex-1 flex items-center justify-between min-w-0 py-0.5 gap-2 sm:gap-3">
-              <div className="flex items-center gap-2 min-w-0 flex-1">
-                {/* Pulsing listening indicator */}
+            <div className="order-2 flex-1 flex items-center justify-between min-w-0 py-0.5 gap-2 sm:gap-3">
+              <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                {/* Pulsing recording indicator */}
                 <div className="relative flex items-center justify-center shrink-0">
                   <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping absolute" />
                   <span className="w-2.5 h-2.5 rounded-full bg-red-500 relative" />
                 </div>
 
-                {/* Dynamic Sound Equalizer Waves responding to voice volume */}
+                {/* Dynamic Sound Equalizer Waves responding to audio volume */}
                 <div className="flex items-center gap-0.5 shrink-0 h-4" title="Audio meter">
                   {[0.5, 1.2, 0.7, 1.5, 0.9].map((multiplier, i) => {
                     const dynamicHeight = Math.max(4, Math.min(18, Math.round((audioVolume * multiplier * 0.25) + 4)));
@@ -1727,79 +1869,73 @@ export function AppDashboard({
                   })}
                 </div>
 
-                {/* Live Speech Recognition Transcription */}
-                <div className="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
-                  <span className="text-red-400 text-xs sm:text-sm font-semibold tracking-wide shrink-0">
-                    Listening:
-                  </span>
-                  <span className="text-xs sm:text-sm md:text-base text-[#A3B18A] font-medium truncate">
-                    {liveTranscript || promptInput || 'Speak now (e.g. Ford Explorer 2014)'}
-                  </span>
-                </div>
+                <span className="text-xs sm:text-sm md:text-base text-[#A3B18A] font-medium truncate">
+                  Recording audio...
+                </span>
 
                 {/* Recording Duration */}
-                <span className="text-[#A3B18A] font-mono text-xs sm:text-sm shrink-0 ml-1">
+                <span className="text-[#A3B18A] font-mono text-xs sm:text-sm shrink-0 ml-auto pr-1">
                   {formatRecordingTime(recordingDuration)}
                 </span>
               </div>
 
-              {/* Action Buttons: Discard, Done, Send */}
-              <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+              {/* Action Buttons: Cancel (Trash) & Stop Icon (Square) */}
+              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                 <button
                   type="button"
                   onClick={handleCancelRecording}
                   className="p-1 text-[#8A9A78] hover:text-red-400 transition-colors w-8 h-8 md:w-9 md:h-9 flex items-center justify-center"
-                  title="Cancel and discard"
+                  title="Cancel recording"
+                  aria-label="Cancel recording"
                 >
                   <Trash2 className="w-4 h-4 md:w-5 md:h-5" />
                 </button>
                 <button
+                  id="stop-recording-btn"
                   type="button"
                   onClick={handleStopRecording}
-                  className="px-2.5 md:px-3.5 h-8 md:h-9 bg-[#202B27] hover:bg-[#283832] text-[#A3B18A] border border-[#2B3E36] rounded-full text-xs md:text-sm font-bold transition-all shadow-sm flex items-center gap-1"
-                  title="Finish listening"
+                  className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-400 active:scale-90 flex items-center justify-center transition-all shadow-sm shrink-0 cursor-pointer"
+                  title="Stop recording"
+                  aria-label="Stop recording"
                 >
-                  <Check className="w-3.5 h-3.5 md:w-4 md:h-4 stroke-[2.5]" />
-                  <span className="hidden sm:inline">Done</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    handleStopRecording();
-                    setTimeout(() => {
-                      handlePromptSubmit();
-                    }, 120);
-                  }}
-                  disabled={!promptInput.trim() && !liveTranscript.trim() && !attachedMedia}
-                  className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-90 disabled:opacity-40 text-[#0E1111] flex items-center justify-center transition-all shadow-sm shrink-0"
-                  title="Send now"
-                >
-                  <ArrowUp className="w-4 h-4 md:w-5 md:h-5 stroke-[2.8]" />
+                  <Square className="w-3.5 h-3.5 md:w-4 md:h-4 fill-current" />
                 </button>
               </div>
             </div>
           ) : (
             <>
-              {/* Main Prompt Input Field */}
-              <input
+              {/* Auto-Expanding Prompt Textarea (moves up above the icons when multiline) */}
+              <textarea
+                ref={promptTextareaRef}
                 id="diagnostic-prompt-input"
-                type="text"
+                rows={1}
                 value={promptInput}
                 onChange={(e) => setPromptInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handlePromptSubmit();
+                  }
+                }}
                 placeholder="Ask Mekai (e.g. Ford Explorer 2014)"
                 autoComplete="off"
                 spellCheck="false"
-                className="flex-1 bg-transparent text-[#A3B18A] caret-[#A3B18A] placeholder-[#5A6964] text-base md:text-lg leading-normal focus:outline-none focus:ring-0 font-sans min-w-0"
+                className={`bg-transparent text-[#A3B18A] caret-[#A3B18A] placeholder-[#5A6964] text-base md:text-lg leading-relaxed focus:outline-none focus:ring-0 font-sans min-w-0 resize-none max-h-[168px] overflow-y-auto no-scrollbar ${
+                  isInputMultiline
+                    ? 'order-1 w-full basis-full px-1 py-0.5'
+                    : 'order-2 flex-1 py-1 self-center'
+                }`}
               />
 
-              {/* Right Controls: Microphone & Submit Arrow */}
-              <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+              {/* Right Controls: Microphone & Submit Arrow (moves to bottom-right below text when multiline) */}
+              <div className="order-3 flex items-center gap-2 sm:gap-3 shrink-0 ml-auto">
                 <button
                   type="button"
                   onClick={handleStartRecording}
-                  className="text-[#8A9A78] hover:text-[#A3B18A] transition-colors p-1 focus:outline-none w-8 h-8 md:w-9 md:h-9 flex items-center justify-center"
-                  title="Listen with microphone"
-                  aria-label="Listen with microphone"
+                  disabled={isDetectingAudio}
+                  className="text-[#8A9A78] hover:text-[#A3B18A] disabled:opacity-40 transition-colors p-1 focus:outline-none w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center"
+                  title="Record audio"
+                  aria-label="Record audio"
                 >
                   <Mic className="w-5 h-5 md:w-6 md:h-6 stroke-[2]" />
                 </button>
@@ -1807,11 +1943,19 @@ export function AppDashboard({
                 <button
                   id="submit-diagnostic-prompt-btn"
                   type="submit"
-                  disabled={(!promptInput.trim() && !attachedMedia) || isAnalyzing}
-                  className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-90 disabled:opacity-40 disabled:hover:bg-[#A3B18A] text-[#0E1111] flex items-center justify-center transition-all shadow-sm shrink-0"
-                  title={isAnalyzing ? 'Mekai is analyzing...' : 'Send prompt'}
+                  disabled={(!promptInput.trim() && !attachedMedia) || isAnalyzing || isDetectingAudio}
+                  className={`w-8 h-8 md:w-9 md:h-9 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-90 ${
+                    isAnalyzing || isDetectingAudio ? 'disabled:opacity-100' : 'disabled:opacity-40'
+                  } disabled:hover:bg-[#A3B18A] text-[#0E1111] flex items-center justify-center transition-all shadow-sm shrink-0`}
+                  title={
+                    isDetectingAudio
+                      ? 'Detecting audio...'
+                      : isAnalyzing
+                      ? 'Mekai is analyzing...'
+                      : 'Send prompt'
+                  }
                 >
-                  {isAnalyzing ? (
+                  {isAnalyzing || isDetectingAudio ? (
                     <MekaiSpinner size={18} color="#0E1111" />
                   ) : (
                     <ArrowUp className="w-4 h-4 md:w-5 md:h-5 stroke-[2.8]" />
@@ -2435,7 +2579,7 @@ export function AppDashboard({
                           </div>
                         ) : isAudio ? (
                           <div
-                            className="flex flex-col items-end gap-2 max-w-[85%] cursor-pointer select-none"
+                            className="flex flex-col items-end max-w-[85%] cursor-pointer select-none"
                             onTouchStart={(e) => handleStartLongPress(e, msg)}
                             onTouchEnd={handleEndLongPress}
                             onTouchCancel={handleEndLongPress}
@@ -2455,11 +2599,6 @@ export function AppDashboard({
                               url={msg.attachment?.url}
                               duration={msg.attachment?.size}
                             />
-                            {hasCustomCaption && (
-                              <div className="bg-[#A3B18A] text-[#0E1111] text-base leading-normal font-semibold px-5 py-3 rounded-full shadow-md break-words">
-                                <span>{msg.text}</span>
-                              </div>
-                            )}
                           </div>
                         ) : isFile ? (
                           <div
