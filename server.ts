@@ -1,10 +1,23 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
-import { isValidAccessCode } from './src/data/accessCodes';
 
 // Load environment variables from .env
 dotenv.config();
+
+const VALID_ACCESS_CODES = new Set([
+  'CST-9482-K8X2',
+  'CST-3105-M9P4',
+  'CST-7621-R4L7',
+  'CST-5839-W6H1',
+  'CST-2490-B3N8',
+  'CST-8164-T5J9',
+  'CST-4927-H2V6',
+]);
+
+function isValidAccessCode(code: string): boolean {
+  return VALID_ACCESS_CODES.has(code.trim().toUpperCase());
+}
 
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
