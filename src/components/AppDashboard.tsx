@@ -216,6 +216,53 @@ export function extractMekaiSessionName(
   return userText.length > 28 ? userText.substring(0, 28) + '...' : userText;
 }
 
+const UNTRAINED_MEDIA_FEATURE_MESSAGE =
+  'This feature is not trained yet. You can refer to our status page to see which features are nominal for use.';
+
+// Detects if the user uploaded, sent, or referenced an image, video, or audio file for analysis
+function isMediaAnalysisRequest(prompt: string, attachment?: ChatAttachment): boolean {
+  if (attachment) {
+    return true;
+  }
+
+  const text = prompt.trim();
+  if (!text) return false;
+
+  // 1. Direct media file extensions referenced in the message
+  if (/\b\S+\.(?:jpg|jpeg|png|webp|gif|heic|bmp|svg|mp4|mov|avi|mkv|webm|m4v|mp3|wav|m4a|ogg|flac|aac)\b/i.test(text)) {
+    return true;
+  }
+
+  // 2. Action verbs paired with image, photo, video, audio file, or recording
+  if (
+    /\b(?:upload(?:ed|ing)?|attach(?:ed|ing)?|send(?:ing)?|sent|share(?:d|ing)?|here(?:'s|\s+is)|look\s+at|check(?:\s+out)?|analy[sz](?:e|ing)|inspect(?:ing)?|scan(?:ning)?|examine|see|watch|listen\s+to|review)\b[^.?!]{0,50}\b(?:image|photo|photograph|picture|pic|screenshot|snapshot|video|footage|clip|audio|recording|voice\s*note|sound\s*file|sound\s*clip|media\s*file)\b/i.test(
+      text
+    )
+  ) {
+    return true;
+  }
+
+  // 3. References to "this/the/my/attached/uploaded image/photo/video/audio/recording/file"
+  if (
+    /\b(?:this|the|my|an|attached|uploaded|recorded)\s+(?:image|photo|photograph|picture|pic|screenshot|snapshot|video|footage|video\s*clip|audio(?:\s*file|\s*clip|\s*recording|\s*sample)?|sound\s*(?:file|clip|recording|sample)|voice\s*(?:note|recording)|recording|media\s*file)\b/i.test(
+      text
+    )
+  ) {
+    return true;
+  }
+
+  // 4. Requests for image/video/audio file analysis or uploading media
+  if (
+    /\b(?:image|photo|picture|video|audio)\s+(?:analysis|inspection|diagnostics?|upload|file|clip|recording)\b/i.test(
+      text
+    )
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
 // Real API call to the Mekai n8n webhook
 async function callMekaiWebhook(
   prompt: string,
@@ -224,6 +271,13 @@ async function callMekaiWebhook(
   activeCode: string | null,
   attachment?: ChatAttachment
 ): Promise<WebhookResult> {
+  if (isMediaAnalysisRequest(prompt, attachment)) {
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    return {
+      text: UNTRAINED_MEDIA_FEATURE_MESSAGE,
+    };
+  }
+
   const payload = {
     action: 'sendMessage',
     chatInput: prompt,
