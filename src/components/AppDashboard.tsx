@@ -31,8 +31,10 @@ import {
 } from 'lucide-react';
 import { MekaiLogo, MekaiSpinner } from './MekaiLogo';
 
-// Diagnostic agent proxy endpoint (configured via MEKAI_WEBHOOK_URL)
+// Diagnostic agent endpoints
 const MEKAI_CHAT_ENDPOINT = '/api/chat-webhook';
+const MEKAI_DIRECT_WEBHOOK_URL =
+  'https://mekai-ai.app.n8n.cloud/webhook/5b01dd02-7501-46e9-ba90-f890e6a1c2bf/chat';
 
 interface AppDashboardProps {
   activeCode: string | null;
@@ -345,17 +347,26 @@ async function callMekaiWebhook(
         if (data.message === 'Error in workflow') {
           throw new Error('The n8n diagnostic workflow reported an execution error.');
         }
-        const textVal =
-          data.output ||
-          data.text ||
-          data.response ||
-          data.message ||
-          data.result ||
+        const rawVal =
+          data.output ??
+          data.text ??
+          data.response ??
+          data.message ??
+          data.result ??
           data.data;
+        const textVal =
+          typeof rawVal === 'string'
+            ? rawVal
+            : rawVal !== undefined && rawVal !== null
+            ? JSON.stringify(rawVal)
+            : '';
         if (!textVal) {
           throw new Error('Invalid diagnostic response format from workflow.');
         }
-        if (typeof textVal === 'string' && (textVal.trim().startsWith('<!doctype html') || textVal.trim().startsWith('<html'))) {
+        if (
+          textVal.trim().toLowerCase().startsWith('<!doctype html') ||
+          textVal.trim().toLowerCase().startsWith('<html')
+        ) {
           throw new Error('Received HTML document instead of diagnostic JSON');
         }
         return {
@@ -366,19 +377,28 @@ async function callMekaiWebhook(
       }
     }
     const textResp = await res.text();
-    if (textResp.trim().startsWith('<!doctype html') || textResp.trim().startsWith('<html') || textResp.trim().startsWith('<!DOCTYPE html')) {
+    if (
+      !textResp.trim() ||
+      textResp.trim().toLowerCase().startsWith('<!doctype html') ||
+      textResp.trim().toLowerCase().startsWith('<html')
+    ) {
       throw new Error('Received HTML document instead of diagnostic JSON');
     }
     return { text: textResp };
   };
 
-  // Call the unified Mekai diagnostic webhook proxy endpoint
+  // Call the Mekai diagnostic webhook proxy endpoint first, then direct endpoint if proxy is unavailable.
+  // Only return the daily limit message if Mekai genuinely cannot be reached.
   try {
     return await executeRequest(MEKAI_CHAT_ENDPOINT);
   } catch {
-    return {
-      text: "You've reached your diagnostic limit for today. Your credits will automatically refresh tomorrow at 8:00 AM, and you'll be ready to dive back into your workshop sessions.",
-    };
+    try {
+      return await executeRequest(MEKAI_DIRECT_WEBHOOK_URL);
+    } catch {
+      return {
+        text: "You've reached your diagnostic limit for today. Your credits will automatically refresh tomorrow at 8:00 AM, and you'll be ready to dive back into your workshop sessions.",
+      };
+    }
   }
 }
 
