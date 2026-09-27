@@ -65,23 +65,28 @@ const VALID_PAGES: AppPage[] = [
   'licenses',
 ];
 
+function getStoredValidAccessCode(): string | null {
+  try {
+    const saved = localStorage.getItem('mekai_workshop_code');
+    if (saved) {
+      const normalized = saved.trim().toUpperCase();
+      if (isValidAccessCode(normalized)) {
+        return normalized;
+      }
+      localStorage.removeItem('mekai_workshop_code');
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export default function App() {
   const [authMode, setAuthMode] = useState<'signup' | 'login'>('signup');
 
-  const [activeAccessCode, setActiveAccessCode] = useState<string | null>(() => {
-    try {
-      const saved = localStorage.getItem('mekai_workshop_code');
-      if (saved && isValidAccessCode(saved)) {
-        return saved;
-      }
-      if (saved) {
-        localStorage.removeItem('mekai_workshop_code');
-      }
-      return null;
-    } catch {
-      return null;
-    }
-  });
+  const [activeAccessCode, setActiveAccessCode] = useState<string | null>(() =>
+    getStoredValidAccessCode()
+  );
 
   const [technicianName, setTechnicianName] = useState<string>(() => {
     try {
@@ -92,13 +97,26 @@ export default function App() {
   });
 
   // Controls view mode: 'app' (main dashboard) or 'landing' (marketing & info pages)
-  const [viewMode, setViewMode] = useState<'app' | 'landing'>('landing');
+  const [viewMode, setViewMode] = useState<'app' | 'landing'>(() => {
+    try {
+      const hash = window.location.hash.replace('#', '').toLowerCase();
+      if ((hash === 'signup' || hash === 'login' || hash === 'auth') && getStoredValidAccessCode()) {
+        return 'app';
+      }
+    } catch {
+      // ignore
+    }
+    return 'landing';
+  });
 
   // Active page routing based on URL hash
   const [activePage, setActivePage] = useState<AppPage>(() => {
     try {
       const hash = window.location.hash.replace('#', '').toLowerCase();
       if (hash === 'signup' || hash === 'login' || hash === 'auth') {
+        if (getStoredValidAccessCode()) {
+          return 'home';
+        }
         return 'auth';
       }
       if (VALID_PAGES.includes(hash as AppPage)) {
@@ -115,7 +133,9 @@ export default function App() {
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '').toLowerCase();
       if (hash === 'signup' || hash === 'login' || hash === 'auth') {
-        if (activeAccessCode) {
+        const resolvedCode = activeAccessCode || getStoredValidAccessCode();
+        if (resolvedCode) {
+          if (!activeAccessCode) setActiveAccessCode(resolvedCode);
           setActivePage('home');
           setViewMode('app');
           if (window.history && window.history.replaceState) {
@@ -152,6 +172,14 @@ export default function App() {
     }
   }, [activeAccessCode]);
 
+  const clearUrlHashQuietly = () => {
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    } else if (window.location.hash) {
+      window.location.hash = '';
+    }
+  };
+
   const handleNavigatePage = (page: string) => {
     const targetPage = page.toLowerCase() as AppPage;
     if (VALID_PAGES.includes(targetPage)) {
@@ -160,7 +188,7 @@ export default function App() {
       window.location.hash = targetPage;
     } else {
       setActivePage('home');
-      window.location.hash = '';
+      clearUrlHashQuietly();
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -168,18 +196,18 @@ export default function App() {
   const handleNavigateHome = () => {
     setActivePage('home');
     setViewMode('landing');
-    window.location.hash = '';
+    clearUrlHashQuietly();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const openAuth = (mode: 'signup' | 'login') => {
     // If access code authentication has already taken place, go straight to the dashboard
-    if (activeAccessCode) {
+    const resolvedCode = activeAccessCode || getStoredValidAccessCode();
+    if (resolvedCode) {
+      if (!activeAccessCode) setActiveAccessCode(resolvedCode);
       setActivePage('home');
       setViewMode('app');
-      if (window.location.hash) {
-        window.location.hash = '';
-      }
+      clearUrlHashQuietly();
       return;
     }
     setAuthMode(mode);
@@ -190,26 +218,25 @@ export default function App() {
   };
 
   const handleAuthenticated = (code: string, name?: string) => {
-    setActiveAccessCode(code);
+    const normalizedCode = code.trim().toUpperCase();
+    try {
+      localStorage.setItem('mekai_workshop_code', normalizedCode);
+    } catch {
+      // ignore
+    }
+    setActiveAccessCode(normalizedCode);
     if (name) {
       setTechnicianName(name);
     }
     setActivePage('home');
     setViewMode('app');
-    if (window.location.hash) {
-      window.location.hash = '';
-    }
+    clearUrlHashQuietly();
   };
 
   const handleViewHomepage = () => {
     setActivePage('home');
     setViewMode('landing');
-    if (window.location.hash) {
-      window.location.hash = '';
-    }
-    if (window.history && window.history.replaceState) {
-      window.history.replaceState(null, '', window.location.pathname + window.location.search);
-    }
+    clearUrlHashQuietly();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -230,8 +257,12 @@ export default function App() {
       setDashboardInitialPrompt(query.trim());
     }
     // If the technician is already authenticated, take them directly to the dashboard
-    if (activeAccessCode) {
+    const resolvedCode = activeAccessCode || getStoredValidAccessCode();
+    if (resolvedCode) {
+      if (!activeAccessCode) setActiveAccessCode(resolvedCode);
+      setActivePage('home');
       setViewMode('app');
+      clearUrlHashQuietly();
       return;
     }
     // If not authenticated, navigate to the dedicated Auth Page
@@ -242,8 +273,8 @@ export default function App() {
     handleNavigatePage('docs');
   };
 
-  // When authenticated and in app mode (or if an auth route was triggered while already authenticated), render the App Dashboard
-  if (activeAccessCode && (viewMode === 'app' || activePage === 'auth')) {
+  // When authenticated and in app mode, render the App Dashboard
+  if (activeAccessCode && viewMode === 'app') {
     return (
       <Suspense fallback={<MekaiPageLoader />}>
         <div className="fixed inset-0 h-screen h-[100dvh] w-full overflow-hidden bg-[#0E1111] text-[#FFFFFF] font-sans selection:bg-[#A3B18A]/30 selection:text-[#FFFFFF]">
@@ -267,17 +298,30 @@ export default function App() {
           mode={authMode}
           onBack={handleNavigateHome}
           onAuthenticated={handleAuthenticated}
+          onCodeVerified={(code) => setActiveAccessCode(code.trim().toUpperCase())}
           activeCode={activeAccessCode}
         />
       </Suspense>
     );
   }
 
+  const handleOpenDashboard = () => {
+    const resolvedCode = activeAccessCode || getStoredValidAccessCode();
+    if (resolvedCode) {
+      if (!activeAccessCode) setActiveAccessCode(resolvedCode);
+      setActivePage('home');
+      setViewMode('app');
+      clearUrlHashQuietly();
+    } else {
+      openAuth('signup');
+    }
+  };
+
   // Common props for subpages
   const subPageProps = {
     onNavigateHome: handleNavigateHome,
     onNavigatePage: handleNavigatePage,
-    onOpenDashboard: () => setViewMode('app'),
+    onOpenDashboard: handleOpenDashboard,
     onOpenAuth: openAuth,
     activeCode: activeAccessCode,
   };
@@ -356,7 +400,7 @@ export default function App() {
         onLoginClick={() => openAuth('login')}
         activeCode={activeAccessCode}
         onSignOut={handleSignOut}
-        onOpenDashboard={() => setViewMode('app')}
+        onOpenDashboard={handleOpenDashboard}
         onNavigateHome={handleNavigateHome}
         onNavigatePage={handleNavigatePage}
       />

@@ -50,7 +50,7 @@ export function PageHeader({
               }}
               className="px-5 py-2.5 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] font-heading font-bold text-xs sm:text-sm transition-all shadow-sm cursor-pointer"
             >
-              <span>Get Started</span>
+              <span>{activeCode ? 'Open app' : 'Get Started'}</span>
             </button>
           )}
         </div>

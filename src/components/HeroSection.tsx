@@ -43,7 +43,7 @@ export function HeroSection({ onGetStarted, onLearnMore, isAuthenticated = false
                   onClick={() => onGetStarted?.()}
                   className="px-7 py-3.5 md:px-8 md:py-4 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] font-bold text-sm md:text-base font-heading transition-all duration-200 inline-flex items-center gap-2 group shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-white cursor-pointer min-h-[44px] md:min-h-[48px]"
                 >
-                  <span>Get started</span>
+                  <span>{isAuthenticated ? 'Open app' : 'Get started'}</span>
                   <svg
                     className="w-4 h-4 md:w-[18px] md:h-[18px] transition-transform group-hover:translate-x-1 shrink-0"
                     viewBox="0 0 20 20"

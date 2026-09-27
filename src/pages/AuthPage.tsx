@@ -7,6 +7,7 @@ interface AuthPageProps {
   mode?: 'signup' | 'login';
   onBack: () => void;
   onAuthenticated: (code: string, name?: string) => void;
+  onCodeVerified?: (code: string) => void;
   activeCode?: string | null;
 }
 
@@ -14,6 +15,7 @@ export function AuthPage({
   mode: controlledMode = 'signup',
   onBack,
   onAuthenticated,
+  onCodeVerified,
   activeCode = null,
 }: AuthPageProps) {
   const [currentMode, setCurrentMode] = useState<'signup' | 'login'>(controlledMode);
@@ -73,7 +75,13 @@ export function AuthPage({
       return;
     }
 
-    // Success: Code authenticated! Advance to Step 2 (Name setup)
+    // Success: Code authenticated! Persist immediately and advance to Step 2 (Name setup)
+    try {
+      localStorage.setItem('mekai_workshop_code', cleanCode);
+    } catch {
+      // ignore
+    }
+    onCodeVerified?.(cleanCode);
     setError(null);
     setIsLoading(true);
     setTimeout(() => {
@@ -90,6 +98,9 @@ export function AuthPage({
     const finalName = technicianName.trim() || 'Adeyemi Tomiwa';
 
     try {
+      if (code) {
+        localStorage.setItem('mekai_workshop_code', code);
+      }
       localStorage.setItem('mekai_technician_name', finalName);
     } catch {
       // ignore
