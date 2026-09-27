@@ -1,4 +1,5 @@
-import { MekaiLogo } from './MekaiLogo';
+import { useState, useEffect, useRef } from 'react';
+import { MekaiLogo, MekaiPageLoader } from './MekaiLogo';
 import { ScrollReveal } from './ScrollReveal';
 
 interface FooterProps {
@@ -6,6 +7,17 @@ interface FooterProps {
 }
 
 export function Footer({ onNavigatePage }: FooterProps) {
+  const [isLoadingPage, setIsLoadingPage] = useState(false);
+  const navTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (navTimerRef.current) {
+        clearTimeout(navTimerRef.current);
+      }
+    };
+  }, []);
+
   const companyLinks = [
     { label: 'Docs', id: 'docs', href: '#docs' },
     { label: 'Careers', id: 'careers', href: '#careers' },
@@ -22,11 +34,21 @@ export function Footer({ onNavigatePage }: FooterProps) {
 
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, pageId: string) => {
     e.preventDefault();
-    window.location.hash = pageId;
-    if (onNavigatePage) {
-      onNavigatePage(pageId);
+    if (isLoadingPage) return;
+
+    setIsLoadingPage(true);
+    if (navTimerRef.current) {
+      clearTimeout(navTimerRef.current);
     }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    navTimerRef.current = setTimeout(() => {
+      window.location.hash = pageId;
+      if (onNavigatePage) {
+        onNavigatePage(pageId);
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setIsLoadingPage(false);
+    }, 900);
   };
 
   const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -39,7 +61,13 @@ export function Footer({ onNavigatePage }: FooterProps) {
   };
 
   return (
-    <footer id="main-footer" className="pt-16 sm:pt-20 pb-12 border-t border-[#1C2121] bg-[#0E1111]">
+    <>
+      {isLoadingPage && (
+        <div className="fixed inset-0 z-[100]">
+          <MekaiPageLoader />
+        </div>
+      )}
+      <footer id="main-footer" className="pt-16 sm:pt-20 pb-12 border-t border-[#1C2121] bg-[#0E1111]">
       <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16">
         <ScrollReveal animation="fade-up" duration={480} delay={0}>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-10 md:gap-12 lg:gap-16 pb-16 w-full">
@@ -168,6 +196,7 @@ export function Footer({ onNavigatePage }: FooterProps) {
         </div>
       </div>
     </footer>
+    </>
   );
 
 }

@@ -4,10 +4,8 @@ import path from 'path';
 import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
-  const webhookUrl = process.env.MEKAI_WEBHOOK_URL;
-  const webhookParsed = webhookUrl ? new URL(webhookUrl) : null;
-  const targetHost = webhookParsed ? webhookParsed.origin : 'https://mekai-ai.app.n8n.cloud';
-  const targetPath = webhookParsed ? webhookParsed.pathname : '/webhook/5b01dd02-7501-46e9-ba90-f890e6a1c2bf/chat';
+  const targetHost = 'https://mek-ai.app.n8n.cloud';
+  const targetPath = '/webhook/5b01dd02-7501-46e9-ba90-f890e6a1c2bf/chat';
 
   return {
     plugins: [react(), tailwindcss()],
