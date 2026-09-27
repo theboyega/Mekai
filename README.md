@@ -22,7 +22,7 @@
   - Diagnoses complex mechanical symptoms (engine knocks, vacuum leaks, belt squeals, transmission slips, suspension rattles).
   - Audio recording input & photo inspection support for workshop floor triage.
 - **🤖 Dedicated Diagnostics Pipeline & Graceful Quota Handling**:
-  - Integrated via real-time proxy (`/api/chat-webhook`) to Mekai's n8n workflow reasoning engine (`https://mek-ai.app.n8n.cloud/webhook/5b01dd02-7501-46e9-ba90-f890e6a1c2bf/chat`).
+  - Integrated via real-time proxy (`/api/chat-webhook`) to Mekai's n8n workflow reasoning engine (`https://mekai-ai.app.n8n.cloud/webhook/5b01dd02-7501-46e9-ba90-f890e6a1c2bf/chat`).
   - Interactive follow-ups, workshop notes generation, parts recommendation, and printable diagnostic work orders.
   - Seamless standard Mekai response when daily diagnostic credits are reached or the engine is temporarily unreachable (*"You've reached your diagnostic limit for today. Your credits will automatically refresh tomorrow at 8:00 AM, and you'll be ready to dive back into your workshop sessions."*).
 - **🔐 Dedicated Full-Screen Authentication Page (`#signup` / `#login`)**:
@@ -80,7 +80,7 @@ Set the following variables in `.env`:
 ```env
 PORT=3000
 # Mekai n8n webhook endpoint
-MEKAI_WEBHOOK_URL=https://mek-ai.app.n8n.cloud/webhook/5b01dd02-7501-46e9-ba90-f890e6a1c2bf/chat
+MEKAI_WEBHOOK_URL=https://mekai-ai.app.n8n.cloud/webhook/5b01dd02-7501-46e9-ba90-f890e6a1c2bf/chat
 ```
 
 ### 3. Run Development Server
