@@ -93,7 +93,7 @@ export function Footer({ onNavigatePage }: FooterProps) {
                 <a
                   href="https://x.com/mekai_ai?s=11"
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   aria-label="Follow Mekai on X"
                   className="hover:text-[#A3B18A] hover:bg-[#A3B18A]/[0.08] rounded-full transition-all duration-200 p-2 hover:-translate-y-0.5"
                 >
@@ -106,7 +106,7 @@ export function Footer({ onNavigatePage }: FooterProps) {
                 <a
                   href="https://www.instagram.com/mekai_ai_?stkn=Yzh6c2FkZDN2MGho&utm_source=qr"
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   aria-label="Follow Mekai on Instagram"
                   className="hover:text-[#A3B18A] hover:bg-[#A3B18A]/[0.08] rounded-full transition-all duration-200 p-2 hover:-translate-y-0.5"
                 >
@@ -121,7 +121,7 @@ export function Footer({ onNavigatePage }: FooterProps) {
                 <a
                   href="https://www.linkedin.com/company/mekai-ai/"
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   aria-label="Connect with Mekai on LinkedIn"
                   className="hover:text-[#A3B18A] hover:bg-[#A3B18A]/[0.08] rounded-full transition-all duration-200 p-2 hover:-translate-y-0.5"
                 >
@@ -134,7 +134,7 @@ export function Footer({ onNavigatePage }: FooterProps) {
                 <a
                   href="https://tiktok.com"
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   aria-label="Follow Mekai on TikTok"
                   className="hover:text-[#A3B18A] hover:bg-[#A3B18A]/[0.08] rounded-full transition-all duration-200 p-2 hover:-translate-y-0.5"
                 >

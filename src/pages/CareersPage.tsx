@@ -1,4 +1,3 @@
-import React from 'react';
 import { PageHeader } from './PageHeader';
 import { Footer } from '../components/Footer';
 import { ScrollReveal } from '../components/ScrollReveal';
@@ -21,7 +20,6 @@ export function CareersPage({
   return (
     <div className="min-h-screen bg-[#0E1111] text-white font-sans flex flex-col selection:bg-[#A3B18A]/30">
       <PageHeader
-        title="Careers"
         onNavigateHome={onNavigateHome}
         onOpenDashboard={onOpenDashboard}
         onOpenAuth={onOpenAuth}

@@ -1,8 +1,7 @@
-import React from 'react';
 import { PageHeader } from './PageHeader';
 import { Footer } from '../components/Footer';
 import { ScrollReveal } from '../components/ScrollReveal';
-import { Mail, Newspaper, FolderDown, Building2 } from 'lucide-react';
+import { Mail, FolderDown, Building2 } from 'lucide-react';
 
 interface PressPageProps {
   onNavigateHome: () => void;
@@ -22,7 +21,6 @@ export function PressPage({
   return (
     <div className="min-h-screen bg-[#0E1111] text-white font-sans flex flex-col selection:bg-[#A3B18A]/30">
       <PageHeader
-        title="Press"
         onNavigateHome={onNavigateHome}
         onOpenDashboard={onOpenDashboard}
         onOpenAuth={onOpenAuth}

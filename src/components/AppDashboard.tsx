@@ -15,7 +15,6 @@ import {
   Square,
   Trash2,
   Volume2,
-  AlertCircle,
   Car,
   Check,
   Play,
@@ -844,7 +843,6 @@ export function AppDashboard({
   const [isRecording, setIsRecording] = useState(false);
   const [isDetectingAudio, setIsDetectingAudio] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
-  const [liveTranscript, setLiveTranscript] = useState('');
   const [audioVolume, setAudioVolume] = useState(0); // 0 to 100 for visual wave
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -857,7 +855,6 @@ export function AppDashboard({
   const liveTranscriptRef = useRef('');
   const recordingDurationRef = useRef(0);
   const wasCancelledRef = useRef(false);
-  const autoSubmitOnStopRef = useRef(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animFrameRef = useRef<number | null>(null);
@@ -1041,11 +1038,9 @@ export function AppDashboard({
       audioChunksRef.current = [];
       isRecordingRef.current = true;
       wasCancelledRef.current = false;
-      autoSubmitOnStopRef.current = false;
       basePromptRef.current = promptInput;
       liveTranscriptRef.current = '';
       recordingDurationRef.current = 0;
-      setLiveTranscript('');
       setIsDetectingAudio(false);
       setIsRecording(true);
       setRecordingDuration(0);
@@ -1134,7 +1129,6 @@ export function AppDashboard({
               .trim();
             if (spokenNow) {
               liveTranscriptRef.current = spokenNow;
-              setLiveTranscript(spokenNow);
             }
           };
 
@@ -1169,7 +1163,6 @@ export function AppDashboard({
       }, 1000);
     } catch (err) {
       console.warn('Microphone access warning:', err);
-      alert('Microphone access is needed so Mekai can record audio. Please allow microphone permissions.');
       setIsRecording(false);
       setIsDetectingAudio(false);
       isRecordingRef.current = false;
@@ -1300,11 +1293,9 @@ export function AppDashboard({
   const handleCancelRecording = () => {
     isRecordingRef.current = false;
     wasCancelledRef.current = true;
-    autoSubmitOnStopRef.current = false;
     liveTranscriptRef.current = '';
     recordingDurationRef.current = 0;
     setPromptInput(basePromptRef.current);
-    setLiveTranscript('');
     setIsDetectingAudio(false);
     audioChunksRef.current = [];
 

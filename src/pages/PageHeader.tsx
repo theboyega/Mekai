@@ -1,9 +1,6 @@
-import React from 'react';
 import { MekaiLogo } from '../components/MekaiLogo';
 
 interface PageHeaderProps {
-  title: string;
-  badge?: string;
   onNavigateHome: () => void;
   onOpenDashboard?: () => void;
   onOpenAuth?: (mode: 'signup' | 'login') => void;
@@ -11,8 +8,6 @@ interface PageHeaderProps {
 }
 
 export function PageHeader({
-  title,
-  badge,
   onNavigateHome,
   onOpenDashboard,
   onOpenAuth,

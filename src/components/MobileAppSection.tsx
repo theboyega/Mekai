@@ -1,12 +1,7 @@
 import { PhoneMockups } from './PhoneMockup';
 import { ScrollReveal } from './ScrollReveal';
 
-interface MobileAppSectionProps {
-  onAppStoreClick?: () => void;
-  onPlayStoreClick?: () => void;
-}
-
-export function MobileAppSection({ onAppStoreClick, onPlayStoreClick }: MobileAppSectionProps) {
+export function MobileAppSection() {
   return (
     <section id="download-section" className="py-16 sm:py-20 lg:py-24 border-t border-[#1C2121]/60 overflow-visible w-full max-w-full relative">
       <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16">
