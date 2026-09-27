@@ -708,7 +708,7 @@ function AudioMessagePlayer({ url, duration }: { url?: string; duration?: string
   };
 
   return (
-    <div className="flex items-center gap-3 bg-[#151D1B] border border-[#23312C] rounded-2xl px-4 py-3 shadow-md min-w-[220px] sm:min-w-[260px] text-white">
+    <div className="flex items-center justify-center gap-3 bg-[#151D1B] border border-[#23312C] rounded-2xl px-4 py-3 shadow-md min-w-[200px] sm:min-w-[240px] text-white">
       {url && (
         <audio
           ref={audioRef}
@@ -732,28 +732,25 @@ function AudioMessagePlayer({ url, duration }: { url?: string; duration?: string
         )}
       </button>
 
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-1 h-6">
-          {[35, 70, 50, 95, 60, 100, 75, 40, 85, 60, 90, 45, 65, 30, 70, 50].map((h, i) => (
-            <span
-              key={i}
-              className={`w-1 rounded-full transition-all duration-300 ${
-                isPlaying ? 'bg-[#A3B18A] animate-pulse' : 'bg-[#283631]'
-              }`}
-              style={{
-                height: isPlaying ? `${Math.max(25, (h * (0.6 + Math.sin(i * 1.2))) % 100)}%` : `${h}%`,
-              }}
-            />
-          ))}
-        </div>
-        <div className="flex items-center justify-between text-[11px] text-[#8A9A78] mt-1 font-mono">
-          <span className="flex items-center gap-1">
-            <Volume2 className="w-3 h-3 text-[#A3B18A]" />
-            Audio Recording
-          </span>
-          {duration && <span>{duration}</span>}
-        </div>
+      <div className="flex items-center justify-center gap-1 h-6">
+        {[35, 70, 50, 95, 60, 100, 75, 40, 85, 60, 90, 45, 65, 30, 70, 50].map((h, i) => (
+          <span
+            key={i}
+            className={`w-1 rounded-full transition-all duration-300 ${
+              isPlaying ? 'bg-[#A3B18A] animate-pulse' : 'bg-[#283631]'
+            }`}
+            style={{
+              height: isPlaying ? `${Math.max(25, (h * (0.6 + Math.sin(i * 1.2))) % 100)}%` : `${h}%`,
+            }}
+          />
+        ))}
       </div>
+
+      {duration && (
+        <span className="text-[11px] text-[#8A9A78] font-mono leading-none shrink-0">
+          {duration}
+        </span>
+      )}
     </div>
   );
 }
