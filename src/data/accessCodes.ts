@@ -11,9 +11,20 @@ export const VALID_ACCESS_CODES: readonly string[] = [
   'CST-9046-P1F8',
 ] as const;
 
+export const REVOKED_ACCESS_CODES: readonly string[] = [
+  'CST-6312-X7Q3',
+  'CST-1753-L8D5',
+  'CST-9046-P1F8',
+] as const;
+
+export function isRevokedAccessCode(code: string): boolean {
+  const normalized = code.trim().toUpperCase();
+  return REVOKED_ACCESS_CODES.includes(normalized);
+}
+
 export function isValidAccessCode(code: string): boolean {
   const normalized = code.trim().toUpperCase();
-  return VALID_ACCESS_CODES.includes(normalized);
+  return VALID_ACCESS_CODES.includes(normalized) && !REVOKED_ACCESS_CODES.includes(normalized);
 }
 
 export function formatAccessCodeInput(value: string): string {

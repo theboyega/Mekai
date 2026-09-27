@@ -7,6 +7,7 @@ import { WorkflowArchitecture } from './components/WorkflowArchitecture';
 import { FloorValidation } from './components/FloorValidation';
 import { MobileAppSection } from './components/MobileAppSection';
 import { Footer } from './components/Footer';
+import { isValidAccessCode } from './data/accessCodes';
 
 // Lazy-loaded heavy dashboard & dedicated sub-pages for fast initial homepage load
 const AppDashboard = lazy(() =>
@@ -69,7 +70,14 @@ export default function App() {
 
   const [activeAccessCode, setActiveAccessCode] = useState<string | null>(() => {
     try {
-      return localStorage.getItem('mekai_workshop_code') || null;
+      const saved = localStorage.getItem('mekai_workshop_code');
+      if (saved && isValidAccessCode(saved)) {
+        return saved;
+      }
+      if (saved) {
+        localStorage.removeItem('mekai_workshop_code');
+      }
+      return null;
     } catch {
       return null;
     }

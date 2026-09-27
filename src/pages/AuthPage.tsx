@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowRight, CheckCircle2, KeyRound, AlertCircle, User } from 'lucide-react';
 import { MekaiLogo, MekaiSpinner } from '../components/MekaiLogo';
-import { isValidAccessCode, formatAccessCodeInput } from '../data/accessCodes';
+import { isValidAccessCode, isRevokedAccessCode, formatAccessCodeInput } from '../data/accessCodes';
 
 interface AuthPageProps {
   mode?: 'signup' | 'login';
@@ -46,7 +46,11 @@ export function AuthPage({
     const raw = e.target.value;
     const formatted = formatAccessCodeInput(raw);
     setAccessCode(formatted);
-    if (error) setError(null);
+    if (isRevokedAccessCode(formatted)) {
+      setError('Access revoked');
+    } else if (error) {
+      setError(null);
+    }
   };
 
   // Step 1: Validate code first
@@ -56,6 +60,11 @@ export function AuthPage({
 
     if (!cleanCode) {
       setError('Please enter a workshop access code.');
+      return;
+    }
+
+    if (isRevokedAccessCode(cleanCode)) {
+      setError('Access revoked');
       return;
     }
 
