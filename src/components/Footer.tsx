@@ -63,7 +63,7 @@ export function Footer({ onNavigatePage }: FooterProps) {
               <div id="social-links" className="flex items-center gap-4 mt-6 text-[#8F9999]">
                 {/* X / Twitter */}
                 <a
-                  href="https://x.com"
+                  href="https://x.com/mekai_ai?s=11"
                   target="_blank"
                   rel="noreferrer"
                   aria-label="Follow Mekai on X"
@@ -76,7 +76,7 @@ export function Footer({ onNavigatePage }: FooterProps) {
 
                 {/* Instagram */}
                 <a
-                  href="https://instagram.com"
+                  href="https://www.instagram.com/mekai_ai_?stkn=Yzh6c2FkZDN2MGho&utm_source=qr"
                   target="_blank"
                   rel="noreferrer"
                   aria-label="Follow Mekai on Instagram"
@@ -91,7 +91,7 @@ export function Footer({ onNavigatePage }: FooterProps) {
 
                 {/* LinkedIn */}
                 <a
-                  href="https://linkedin.com"
+                  href="https://www.linkedin.com/company/mekai-ai/"
                   target="_blank"
                   rel="noreferrer"
                   aria-label="Connect with Mekai on LinkedIn"
