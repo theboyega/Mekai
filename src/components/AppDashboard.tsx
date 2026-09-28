@@ -2655,6 +2655,10 @@ export function AppDashboard({
                   const isDefaultAudioText = msg.text.startsWith('Acoustic audio sample recorded');
                   const isDefaultDocText = msg.text.startsWith('Diagnostic document attached');
                   const hasCustomCaption = msg.text && !isDefaultImageText && !isDefaultAudioText && !isDefaultDocText;
+                  const isLongMessage = msg.text.trim().length > 38 || msg.text.includes('\n');
+                  const userBubbleShapeClass = isLongMessage
+                    ? 'leading-[1.45] px-5 py-3.5 rounded-[24px]'
+                    : 'leading-normal px-5 py-3 rounded-full';
 
                   return (
                     <div
@@ -2690,7 +2694,7 @@ export function AppDashboard({
                               />
                             </div>
                             {hasCustomCaption && (
-                              <div className="bg-[#A3B18A] text-[#0E1111] text-base leading-normal font-semibold px-5 py-3 rounded-full shadow-md break-words">
+                              <div className={`bg-[#A3B18A] text-[#0E1111] text-base font-semibold shadow-md break-words ${userBubbleShapeClass}`}>
                                 <span>{msg.text}</span>
                               </div>
                             )}
@@ -2746,14 +2750,14 @@ export function AppDashboard({
                               )}
                             </div>
                             {hasCustomCaption && (
-                              <div className="bg-[#A3B18A] text-[#0E1111] text-base leading-normal font-semibold px-5 py-3 rounded-full shadow-md break-words">
+                              <div className={`bg-[#A3B18A] text-[#0E1111] text-base font-semibold shadow-md break-words ${userBubbleShapeClass}`}>
                                 <span>{msg.text}</span>
                               </div>
                             )}
                           </div>
                         ) : (
                           <div
-                            className="bg-[#A3B18A] text-[#0E1111] text-base leading-normal font-semibold px-5 py-3 rounded-full shadow-md max-w-[85%] break-words inline-block cursor-pointer select-none active:scale-[0.98] transition-transform"
+                            className={`bg-[#A3B18A] text-[#0E1111] text-base font-semibold shadow-md max-w-[85%] break-words inline-block cursor-pointer select-none active:scale-[0.98] transition-transform ${userBubbleShapeClass}`}
                             onTouchStart={(e) => handleStartLongPress(e, msg)}
                             onTouchEnd={handleEndLongPress}
                             onTouchCancel={handleEndLongPress}
