@@ -27,7 +27,8 @@ import {
   Edit3,
   Pin,
   HelpCircle,
-  AlertTriangle
+  AlertTriangle,
+  ExternalLink
 } from 'lucide-react';
 import { MekaiLogo, MekaiSpinner } from './MekaiLogo';
 
@@ -402,35 +403,129 @@ async function callMekaiWebhook(
   }
 }
 
-function parseInlineTokens(segment: string, keyPrefix: string) {
-  // Split by inline code (`...`) or standalone OBD-II DTC codes (e.g. P0300, P0171, U0100, C0035, B1200)
-  const tokenRegex = /(`[^`]+`|\b[PCBU][0-3][0-9A-F]{3}\b)/g;
-  const parts = segment.split(tokenRegex);
+function normalizeUrlHref(rawUrl: string): string {
+  const trimmed = rawUrl.trim();
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
+  return `https://${trimmed}`;
+}
 
-  return parts.map((part, idx) => {
-    if (!part) return null;
-    if (part.startsWith('`') && part.endsWith('`') && part.length >= 2) {
-      return (
+function getFriendlyLinkLabel(rawUrl: string, customLabel?: string): string {
+  if (customLabel) {
+    const cleanedLabel = customLabel.replace(/\*\*/g, '').replace(/`/g, '').trim();
+    if (cleanedLabel && !/^(?:https?:\/\/|www\.)/i.test(cleanedLabel)) {
+      return cleanedLabel;
+    }
+  }
+  const href = normalizeUrlHref(rawUrl);
+  try {
+    const parsed = new URL(href);
+    const host = parsed.hostname.replace(/^www\./i, '');
+    if (host === 'youtube.com' || host === 'm.youtube.com' || host === 'youtu.be') {
+      if (
+        parsed.pathname.includes('/watch') ||
+        host === 'youtu.be' ||
+        parsed.pathname.includes('/shorts')
+      ) {
+        return 'Watch on YouTube';
+      }
+      return 'YouTube';
+    }
+    return host || 'Open Link';
+  } catch {
+    return 'Open Link';
+  }
+}
+
+function renderClickableLink(rawUrl: string, key: string, customLabel?: string) {
+  const href = normalizeUrlHref(rawUrl);
+  const label = getFriendlyLinkLabel(rawUrl, customLabel);
+  return (
+    <a
+      key={key}
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={(e) => e.stopPropagation()}
+      className="inline-flex items-center gap-1 text-[#D8E5C4] hover:text-[#ECF4DF] underline decoration-[#A3B18A]/60 hover:decoration-[#ECF4DF] underline-offset-[3px] font-medium transition-colors duration-150 break-words"
+    >
+      <span>{label}</span>
+      <ExternalLink className="w-3.5 h-3.5 shrink-0 opacity-85 inline-block" />
+    </a>
+  );
+}
+
+const INLINE_TOKEN_REGEX =
+  /\[([^\]]+)\]\s*\(((?:[Hh][Tt][Tt][Pp][Ss]?:\/\/|[Ww]{3}\.)(?:[^\s()]|\([^\s()]*\))+)\)|\(\s*((?:[Hh][Tt][Tt][Pp][Ss]?:\/\/|[Ww]{3}\.)(?:[^\s()]|\([^\s()]*\))+)\s*\)|<\s*((?:[Hh][Tt][Tt][Pp][Ss]?:\/\/|[Ww]{3}\.)[^\s<>]+)\s*>|((?:[Hh][Tt][Tt][Pp][Ss]?:\/\/|[Ww]{3}\.)(?:[^\s()]|\([^\s()]*\))+)|(`[^`]+`)|(\b[PCBU][0-3][0-9A-F]{3}\b)/g;
+
+function parseInlineTokens(segment: string, keyPrefix: string) {
+  if (!segment) return null;
+
+  const nodes: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let matchIndex = 0;
+
+  for (const match of segment.matchAll(INLINE_TOKEN_REGEX)) {
+    const fullMatch = match[0];
+    const startIdx = match.index ?? 0;
+
+    if (startIdx > lastIndex) {
+      nodes.push(segment.slice(lastIndex, startIdx));
+    }
+
+    const mdLabel = match[1];
+    const mdUrl = match[2];
+    const parenUrl = match[3];
+    const angleUrl = match[4];
+    const bareUrl = match[5];
+    const inlineCode = match[6];
+    const dtcCode = match[7];
+
+    if (mdLabel && mdUrl) {
+      nodes.push(renderClickableLink(mdUrl, `${keyPrefix}-mdlink-${matchIndex}`, mdLabel));
+    } else if (parenUrl) {
+      nodes.push(renderClickableLink(parenUrl, `${keyPrefix}-plink-${matchIndex}`));
+    } else if (angleUrl) {
+      nodes.push(renderClickableLink(angleUrl, `${keyPrefix}-alink-${matchIndex}`));
+    } else if (bareUrl) {
+      const trailingPunctMatch = bareUrl.match(/([.,;:!?]+)$/);
+      const cleanUrl = trailingPunctMatch
+        ? bareUrl.slice(0, -trailingPunctMatch[1].length)
+        : bareUrl;
+      nodes.push(renderClickableLink(cleanUrl, `${keyPrefix}-url-${matchIndex}`));
+      if (trailingPunctMatch) {
+        nodes.push(trailingPunctMatch[1]);
+      }
+    } else if (inlineCode) {
+      nodes.push(
         <code
-          key={`${keyPrefix}-code-${idx}`}
+          key={`${keyPrefix}-code-${matchIndex}`}
           className="bg-[#151F1C] text-[#D0E0B8] border border-[#263731] px-1.5 py-0.5 rounded-md font-mono text-[13.5px] font-medium mx-0.5"
         >
-          {part.slice(1, -1)}
+          {inlineCode.slice(1, -1)}
         </code>
       );
-    }
-    if (/^[PCBU][0-3][0-9A-F]{3}$/.test(part)) {
-      return (
+    } else if (dtcCode) {
+      nodes.push(
         <span
-          key={`${keyPrefix}-dtc-${idx}`}
+          key={`${keyPrefix}-dtc-${matchIndex}`}
           className="inline-flex items-center bg-[#151F1C] text-[#D4E3BC] border border-[#283A33] px-1.5 py-0.5 rounded-md font-mono text-[13.5px] font-semibold tracking-tight mx-0.5"
         >
-          {part}
+          {dtcCode}
         </span>
       );
     }
-    return part;
-  });
+
+    lastIndex = startIdx + fullMatch.length;
+    matchIndex++;
+  }
+
+  if (lastIndex < segment.length) {
+    nodes.push(segment.slice(lastIndex));
+  }
+
+  return nodes;
 }
 
 function parseFormattedText(line: string) {
@@ -449,9 +544,13 @@ function parseFormattedText(line: string) {
     cleaned += '`';
   }
 
-  const parts = cleaned.split(/(\*\*.*?\*\*)/g);
+  // Match either markdown links first (even if label has ** inside) or **bold** segments
+  const parts = cleaned.split(
+    /(\[[^\]]+\]\s*\((?:[Hh][Tt][Tt][Pp][Ss]?:\/\/|[Ww]{3}\.)(?:[^\s()]|\([^\s()]*\))+\)|\*\*.*?\*\*)/g
+  );
   return parts.map((part, i) => {
-    if (part.startsWith('**') && part.endsWith('**')) {
+    if (!part) return null;
+    if (part.startsWith('**') && part.endsWith('**') && part.length >= 4) {
       const inner = part.slice(2, -2);
       if (!inner) return null;
       return (
@@ -465,7 +564,11 @@ function parseFormattedText(line: string) {
 }
 
 function renderStreamedLineContent(lineText: string, animateTrailing: boolean) {
-  if (!animateTrailing || lineText.length < 10) {
+  if (
+    !animateTrailing ||
+    lineText.length < 10 ||
+    /\[[^\]]*\]\(|https?:\/\/|www\./i.test(lineText)
+  ) {
     return parseFormattedText(lineText);
   }
   const splitMatch = lineText.match(/^(.*?\s)(\S+(?:\s+\S+){0,2}\s*)$/);
@@ -631,8 +734,11 @@ function MekaiResponseView({
       return;
     }
 
-    // Tokenize into natural words/whitespace so streaming never splits words or markdown tokens mid-token
-    const tokens = text.match(/\S+\s*|\n+/g) || [text];
+    // Tokenize into natural words/whitespace while keeping full markdown links and parenthesized URLs atomic so streaming never flashes raw URLs
+    const tokens =
+      text.match(
+        /\[[^\]]+\]\s*\((?:https?:\/\/|www\.)(?:[^\s()]|\([^\s()]*\))+\)\s*|\(\s*(?:https?:\/\/|www\.)(?:[^\s()]|\([^\s()]*\))+\s*\)\s*|\S+\s*|\n+/gi
+      ) || [text];
     const cumulativeLengths: number[] = [];
     let acc = 0;
     for (const tk of tokens) {
@@ -1544,7 +1650,11 @@ export function AppDashboard({
       return;
     }
     window.speechSynthesis.cancel();
-    const cleanText = text.replace(/[*_#`~]/g, '');
+    const cleanText = text
+      .replace(/\[([^\]]+)\]\s*\((?:https?:\/\/|www\.)(?:[^\s()]|\([^\s()]*\))+\)/gi, '$1')
+      .replace(/\(\s*(?:https?:\/\/|www\.)(?:[^\s()]|\([^\s()]*\))+\s*\)/gi, '')
+      .replace(/(?:https?:\/\/|www\.)\S+/gi, '')
+      .replace(/[*_#`~]/g, '');
     const utterance = new SpeechSynthesisUtterance(cleanText);
     utterance.rate = 1.0;
     utterance.pitch = 1.0;
