@@ -814,7 +814,15 @@ function getInitials(name: string): string {
   return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
 }
 
-function AudioMessagePlayer({ url, duration }: { url?: string; duration?: string }) {
+function AudioMessagePlayer({
+  url,
+  duration,
+  isProcessing = false,
+}: {
+  url?: string;
+  duration?: string;
+  isProcessing?: boolean;
+}) {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -833,7 +841,11 @@ function AudioMessagePlayer({ url, duration }: { url?: string; duration?: string
   };
 
   return (
-    <div className="flex items-center justify-center gap-3 bg-[#0E1312] border border-[#23312C] rounded-[26px] sm:rounded-[28px] px-4 py-3 shadow-lg min-w-[200px] sm:min-w-[240px] text-white">
+    <div
+      className={`${
+        isProcessing ? 'mekai-user-bubble-animated' : 'bg-[#0E1312] border border-[#23312C]'
+      } flex items-center justify-center gap-3 rounded-[26px] sm:rounded-[28px] px-4 py-3 shadow-lg min-w-[200px] sm:min-w-[240px] text-white`}
+    >
       {url && (
         <audio
           ref={audioRef}
@@ -2647,7 +2659,7 @@ export function AppDashboard({
                 id="diagnostic-chat-messages"
                 className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 md:px-8 w-full max-w-[480px] sm:max-w-[540px] md:max-w-[620px] lg:max-w-[700px] mx-auto py-4 md:py-6 space-y-5 md:space-y-6 overscroll-contain no-scrollbar"
               >
-                {messages.map((msg) => {
+                {messages.map((msg, msgIdx) => {
                   const isImage = msg.attachment?.type === 'image';
                   const isAudio = msg.attachment?.type === 'audio';
                   const isFile = msg.attachment?.type === 'file';
@@ -2655,8 +2667,15 @@ export function AppDashboard({
                   const isDefaultAudioText = msg.text.startsWith('Acoustic audio sample recorded');
                   const isDefaultDocText = msg.text.startsWith('Diagnostic document attached');
                   const hasCustomCaption = msg.text && !isDefaultImageText && !isDefaultAudioText && !isDefaultDocText;
-                  const userBubbleClass =
-                    'bg-[#0E1312] border border-[#23312C] text-[#A3B18A] text-base font-normal leading-relaxed px-5 py-3 rounded-[26px] sm:rounded-[28px] md:rounded-[30px] shadow-lg break-words';
+                  const nextMsg = messages[msgIdx + 1];
+                  const isActivelyProcessing =
+                    msg.sender === 'engineer' &&
+                    ((isAnalyzing && msgIdx === messages.length - 1) ||
+                      Boolean(nextMsg?.sender === 'mekai' && nextMsg?.isTyping));
+                  const bubbleSurfaceClass = isActivelyProcessing
+                    ? 'mekai-user-bubble-animated'
+                    : 'bg-[#0E1312] border border-[#23312C]';
+                  const userBubbleClass = `${bubbleSurfaceClass} text-[#A3B18A] text-base font-normal leading-relaxed px-5 py-3 rounded-[26px] sm:rounded-[28px] md:rounded-[30px] shadow-lg break-words`;
 
                   return (
                     <div
@@ -2684,7 +2703,13 @@ export function AppDashboard({
                               });
                             }}
                           >
-                            <div className="overflow-hidden rounded-2xl border border-[#23312C] shadow-lg bg-[#0E1312]">
+                            <div
+                              className={`overflow-hidden rounded-2xl shadow-lg ${
+                                isActivelyProcessing && !hasCustomCaption
+                                  ? 'mekai-user-bubble-animated'
+                                  : 'border border-[#23312C] bg-[#0E1312]'
+                              }`}
+                            >
                               <img
                                 src={msg.attachment.url}
                                 alt={msg.attachment.name || 'Inspection image'}
@@ -2718,6 +2743,7 @@ export function AppDashboard({
                             <AudioMessagePlayer
                               url={msg.attachment?.url}
                               duration={msg.attachment?.size}
+                              isProcessing={isActivelyProcessing}
                             />
                           </div>
                         ) : isFile ? (
@@ -2738,7 +2764,7 @@ export function AppDashboard({
                               });
                             }}
                           >
-                            <div className="flex items-center gap-2.5 bg-[#0E1312] border border-[#23312C] px-4 py-2.5 rounded-[26px] text-xs font-mono text-[#A3B18A] shadow-lg">
+                            <div className={`${bubbleSurfaceClass} flex items-center gap-2.5 px-4 py-2.5 rounded-[26px] text-xs font-mono text-[#A3B18A] shadow-lg`}>
                               <FileText className="w-4 h-4 text-[#A3B18A] shrink-0" />
                               <span className="truncate max-w-[200px] text-white font-medium">
                                 {msg.attachment?.name}
