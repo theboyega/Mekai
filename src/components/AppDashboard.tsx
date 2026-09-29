@@ -833,7 +833,7 @@ function AudioMessagePlayer({ url, duration }: { url?: string; duration?: string
   };
 
   return (
-    <div className="flex items-center justify-center gap-3 bg-[#151D1B] border border-[#23312C] rounded-2xl px-4 py-3 shadow-md min-w-[200px] sm:min-w-[240px] text-white">
+    <div className="flex items-center justify-center gap-3 bg-[#0E1312] border border-[#23312C] rounded-[26px] sm:rounded-[28px] px-4 py-3 shadow-lg min-w-[200px] sm:min-w-[240px] text-white">
       {url && (
         <audio
           ref={audioRef}
@@ -2655,10 +2655,8 @@ export function AppDashboard({
                   const isDefaultAudioText = msg.text.startsWith('Acoustic audio sample recorded');
                   const isDefaultDocText = msg.text.startsWith('Diagnostic document attached');
                   const hasCustomCaption = msg.text && !isDefaultImageText && !isDefaultAudioText && !isDefaultDocText;
-                  const isLongMessage = msg.text.trim().length > 38 || msg.text.includes('\n');
-                  const userBubbleShapeClass = isLongMessage
-                    ? 'leading-[1.45] px-5 py-3.5 rounded-[24px]'
-                    : 'leading-normal px-5 py-3 rounded-full';
+                  const userBubbleClass =
+                    'bg-[#0E1312] border border-[#23312C] text-[#A3B18A] text-base font-normal leading-relaxed px-5 py-3 rounded-[26px] sm:rounded-[28px] md:rounded-[30px] shadow-lg break-words';
 
                   return (
                     <div
@@ -2686,7 +2684,7 @@ export function AppDashboard({
                               });
                             }}
                           >
-                            <div className="overflow-hidden rounded-2xl border border-[#23312C] shadow-lg bg-[#141A18]">
+                            <div className="overflow-hidden rounded-2xl border border-[#23312C] shadow-lg bg-[#0E1312]">
                               <img
                                 src={msg.attachment.url}
                                 alt={msg.attachment.name || 'Inspection image'}
@@ -2694,7 +2692,7 @@ export function AppDashboard({
                               />
                             </div>
                             {hasCustomCaption && (
-                              <div className={`bg-[#A3B18A] text-[#0E1111] text-base font-semibold shadow-md break-words ${userBubbleShapeClass}`}>
+                              <div className={userBubbleClass}>
                                 <span>{msg.text}</span>
                               </div>
                             )}
@@ -2740,7 +2738,7 @@ export function AppDashboard({
                               });
                             }}
                           >
-                            <div className="flex items-center gap-2.5 bg-[#151D1B] border border-[#23312C] px-4 py-2.5 rounded-2xl text-xs font-mono text-[#A3B18A] shadow-md">
+                            <div className="flex items-center gap-2.5 bg-[#0E1312] border border-[#23312C] px-4 py-2.5 rounded-[26px] text-xs font-mono text-[#A3B18A] shadow-lg">
                               <FileText className="w-4 h-4 text-[#A3B18A] shrink-0" />
                               <span className="truncate max-w-[200px] text-white font-medium">
                                 {msg.attachment?.name}
@@ -2750,14 +2748,14 @@ export function AppDashboard({
                               )}
                             </div>
                             {hasCustomCaption && (
-                              <div className={`bg-[#A3B18A] text-[#0E1111] text-base font-semibold shadow-md break-words ${userBubbleShapeClass}`}>
+                              <div className={userBubbleClass}>
                                 <span>{msg.text}</span>
                               </div>
                             )}
                           </div>
                         ) : (
                           <div
-                            className={`bg-[#A3B18A] text-[#0E1111] text-base font-semibold shadow-md max-w-[85%] break-words inline-block cursor-pointer select-none active:scale-[0.98] transition-transform ${userBubbleShapeClass}`}
+                            className={`${userBubbleClass} max-w-[85%] inline-block cursor-pointer select-none active:scale-[0.98] transition-transform`}
                             onTouchStart={(e) => handleStartLongPress(e, msg)}
                             onTouchEnd={handleEndLongPress}
                             onTouchCancel={handleEndLongPress}

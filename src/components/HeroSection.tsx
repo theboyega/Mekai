@@ -96,7 +96,7 @@ export function HeroSection({ onGetStarted, onLearnMore, isAuthenticated = false
                 <div id="session-card-messages" className="py-4 sm:py-6 flex flex-col gap-6">
                   {/* User Message Bubble */}
                   <div id="session-user-bubble" className="self-end max-w-[85%]">
-                    <div className="bg-[#A3B18A] text-[#0E1111] text-xs sm:text-sm font-semibold px-5 py-2.5 rounded-full shadow-sm">
+                    <div className="bg-[#0E1312] border border-[#23312C] text-[#A3B18A] text-xs sm:text-sm font-normal px-5 py-2.5 rounded-full shadow-lg">
                       Hey, Mekai.
                     </div>
                   </div>
