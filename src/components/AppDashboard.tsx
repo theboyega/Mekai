@@ -98,19 +98,69 @@ function cleanMakeName(make: string): string {
   return make.charAt(0).toUpperCase() + make.slice(1);
 }
 
-// Pre-compiled regex patterns per vehicle make for fast zero-allocation vehicle extraction
+// Common conversational / diagnostic words that are never part of a vehicle model name
+const NON_MODEL_STOPWORDS = new Set([
+  'got', 'get', 'getting', 'has', 'have', 'had', 'having', 'is', 'was', 'are', 'were',
+  'with', 'without', 'and', 'or', 'but', 'so', 'for', 'from', 'in', 'on', 'at', 'to',
+  'by', 'of', 'the', 'a', 'an', 'this', 'that', 'these', 'those', 'my', 'our', 'your',
+  'his', 'her', 'its', 'their', 'it', 'we', 'i', 'you', 'they', 'he', 'she', 'here',
+  'there', 'where', 'when', 'why', 'how', 'what', 'which', 'who', 'since', 'because',
+  'while', 'after', 'before', 'during', 'about', 'into', 'onto', 'over', 'under',
+  'again', 'then', 'now', 'just', 'only', 'also', 'very', 'too', 'can', 'could',
+  'would', 'should', 'will', 'shall', 'may', 'might', 'must', 'need', 'needs',
+  'needed', 'want', 'wants', 'like', 'good', 'great', 'okay', 'ok', 'alright',
+  'sure', 'thanks', 'thank', 'hello', 'hi', 'hey', 'mekai', 'session', 'logged',
+  'logging', 'diagnostic', 'diagnostics', 'issue', 'issues', 'problem', 'problems',
+  'error', 'code', 'codes', 'fault', 'faults', 'check', 'checking', 'engine',
+  'transmission', 'brake', 'brakes', 'misfire', 'misfiring', 'noise', 'sound',
+  'leaking', 'leak', 'starting', 'start', 'stalling', 'stall', 'shaking', 'rough',
+  'idle', 'idling', 'car', 'truck', 'vehicle', 'suv', 'van', 'sedan', 'coupe',
+  'workshop', 'bay', 'let', 'lets', "let's", 'looking', 'working', 'today'
+]);
+
+function filterModelTokens(rawModel: string): string {
+  const tokens = rawModel.trim().split(/\s+/);
+  const valid: string[] = [];
+  for (const tk of tokens) {
+    const cleaned = tk.replace(/^[^A-Za-z0-9]+|[^A-Za-z0-9]+$/g, '');
+    if (!cleaned) break;
+    if (NON_MODEL_STOPWORDS.has(cleaned.toLowerCase())) break;
+    valid.push(cleaned);
+  }
+  return valid.join(' ');
+}
+
+export function sanitizeSessionTitle(rawTitle: string): string {
+  if (!rawTitle) return '';
+  // If title contains markdown bold **...**, extract the bolded name directly
+  const boldMatch = rawTitle.match(/\*\*([^*\n]+)\*\*/);
+  const base = (boldMatch ? boldMatch[1] : rawTitle)
+    .replace(/[*_`~]/g, '')
+    .replace(/^["'\s]+|["'\s]+$/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  // Strip trailing conversational stop-words (e.g., "Lexus RX 350 Got" -> "Lexus RX 350")
+  const words = base.split(' ');
+  while (words.length > 1 && NON_MODEL_STOPWORDS.has(words[words.length - 1].toLowerCase())) {
+    words.pop();
+  }
+  return words.join(' ').trim();
+}
+
+// Pre-compiled regex patterns per vehicle make for fast zero-allocation vehicle extraction (horizontal whitespace only so it never crosses newlines)
 const COMPILED_VEHICLE_PATTERNS = VEHICLE_MAKES.map((make) => ({
   cleanMake: cleanMakeName(make),
   yearLastRegex: new RegExp(
-    `\\b${make}\\s+([A-Za-z0-9\\-]+(?:\\s+[A-Za-z0-9\\-]+){0,2})\\s+(19\\d\\d|20\\d\\d)\\b`,
+    `\\b${make}[ \\t]+([A-Za-z0-9\\-]+(?:[ \\t]+[A-Za-z0-9\\-]+){0,2})[ \\t]+(19\\d\\d|20\\d\\d)\\b`,
     'i'
   ),
   yearFirstRegex: new RegExp(
-    `\\b(19\\d\\d|20\\d\\d)\\s+${make}\\s+([A-Za-z0-9\\-]+(?:\\s+[A-Za-z0-9\\-]+){0,2})\\b`,
+    `\\b(19\\d\\d|20\\d\\d)[ \\t]+${make}[ \\t]+([A-Za-z0-9\\-]+(?:[ \\t]+[A-Za-z0-9\\-]+){0,2})\\b`,
     'i'
   ),
   makeModelRegex: new RegExp(
-    `\\b${make}\\s+([A-Za-z0-9\\-]+(?:\\s+[A-Za-z0-9\\-]+){0,1})\\b`,
+    `\\b${make}[ \\t]+([A-Za-z0-9\\-]+(?:[ \\t]+[A-Za-z0-9\\-]+){0,1})\\b`,
     'i'
   ),
 }));
@@ -129,33 +179,35 @@ export function extractVehicleDetails(
     // 1. [Make] [Model words] [Year] -> e.g., "Ford Explorer 2014"
     const m1 = combined.match(yearLastRegex);
     if (m1) {
-      const model = m1[1].trim();
+      const model = filterModelTokens(m1[1]);
       const year = m1[2];
-      return `${cleanMake} ${model} ${year}`;
+      if (model) return `${cleanMake} ${model} ${year}`;
     }
 
     // 2. [Year] [Make] [Model words] -> e.g., "2014 Ford Explorer" -> "Ford Explorer 2014"
     const m2 = combined.match(yearFirstRegex);
     if (m2) {
       const year = m2[1];
-      const model = m2[2].trim();
-      return `${cleanMake} ${model} ${year}`;
+      const model = filterModelTokens(m2[2]);
+      if (model) return `${cleanMake} ${model} ${year}`;
     }
 
     // 3. [Make] [Model words]
     const m3 = combined.match(makeModelRegex);
     if (m3) {
-      const model = m3[1].trim();
-      const yearMatch = combined.match(YEAR_REGEX);
-      if (yearMatch) {
-        return `${cleanMake} ${model} ${yearMatch[1]}`;
+      const model = filterModelTokens(m3[1]);
+      if (model) {
+        const yearMatch = combined.match(YEAR_REGEX);
+        if (yearMatch) {
+          return `${cleanMake} ${model} ${yearMatch[1]}`;
+        }
+        return `${cleanMake} ${model}`;
       }
-      return `${cleanMake} ${model}`;
     }
   }
 
   if (currentTitle && !currentTitle.startsWith('Diagnostic') && !currentTitle.startsWith('New Diagnostic')) {
-    return currentTitle;
+    return sanitizeSessionTitle(currentTitle);
   }
 
   return null;
@@ -171,42 +223,51 @@ export function extractMekaiSessionName(
 ): string {
   // 1. Direct explicit metadata from n8n webhook if returned
   if (webhookResult?.title && webhookResult.title.trim()) {
-    return webhookResult.title.trim();
+    return sanitizeSessionTitle(webhookResult.title);
   }
   if (webhookResult?.vehicle && webhookResult.vehicle.trim()) {
-    return webhookResult.vehicle.trim();
+    return sanitizeSessionTitle(webhookResult.vehicle);
   }
 
-  // 2. Mekai's explicit logging pattern from its response (e.g. "logging this session as Ford Explorer 2014")
+  // 2. Mekai's explicit logging pattern from its response (e.g. "logging this session as Lexus RX 350")
+  const boldLoggingMatch = mekaiText.match(
+    /(?:log(?:ging|ged)?(?:\s+(?:this|the))?(?:\s+session)?(?:\s+as)?|session(?:\s+logged|\s+name)?(?:\s+is|\s+as)?|naming(?:\s+(?:this|the))?\s+session(?:\s+as)?|tracking(?:\s+this)?(?:\s+session)?(?:\s+as)?)\s*:?\s*\*\*([^*\n]+)\*\*/i
+  );
+  if (boldLoggingMatch && boldLoggingMatch[1]) {
+    const cleanBoldName = sanitizeSessionTitle(boldLoggingMatch[1]);
+    if (cleanBoldName.length >= 2 && !cleanBoldName.toLowerCase().startsWith('a diagnostic')) {
+      return cleanBoldName;
+    }
+  }
+
   const loggingPatterns = [
-    /log(?:ging|ged)?\s+this\s+session\s+as\s+([^.,\n\?!]+)/i,
-    /log(?:ging|ged)?\s+this\s+as\s+([^.,\n\?!]+)/i,
-    /log(?:ging|ged)?\s+as\s+([^.,\n\?!]+)/i,
-    /session\s+logged\s+as\s+([^.,\n\?!]+)/i,
-    /session\s+name(?:\s+is)?\s+([^.,\n\?!]+)/i,
-    /naming\s+this\s+session\s+([^.,\n\?!]+)/i,
-    /tracking\s+this\s+as\s+([^.,\n\?!]+)/i,
+    /log(?:ging|ged)?\s+(?:this\s+|the\s+)?session(?:\s+as|\s*:)?\s+([^\n.,!?;:—–]+)/i,
+    /log(?:ging|ged)?\s+(?:this\s+)?as\s+([^\n.,!?;:—–]+)/i,
+    /session\s+logged(?:\s+as|\s*:)?\s+([^\n.,!?;:—–]+)/i,
+    /session\s+name(?:\s+is|\s*:)?\s+([^\n.,!?;:—–]+)/i,
+    /naming\s+(?:this\s+|the\s+)?session(?:\s+as|\s*:)?\s+([^\n.,!?;:—–]+)/i,
+    /tracking\s+(?:this\s+)?(?:session\s+)?as\s+([^\n.,!?;:—–]+)/i,
   ];
 
   for (const pattern of loggingPatterns) {
     const match = mekaiText.match(pattern);
     if (match && match[1]) {
-      const cleanName = match[1].trim().replace(/^["']|["']$/g, '');
+      const cleanName = sanitizeSessionTitle(match[1]);
       if (cleanName.length >= 2 && !cleanName.toLowerCase().startsWith('a diagnostic')) {
         return cleanName;
       }
     }
   }
 
-  // 3. Fallback vehicle extractor
-  const detectedVehicle = extractVehicleDetails(userText, mekaiText, currentTitle);
-  if (detectedVehicle) {
-    return detectedVehicle;
+  // 3. Retain previous established title once Mekai has already named the session
+  if (currentTitle && !currentTitle.startsWith('Diagnostic') && !currentTitle.startsWith('New Diagnostic')) {
+    return sanitizeSessionTitle(currentTitle);
   }
 
-  // 4. Retain previous established title
-  if (currentTitle && !currentTitle.startsWith('Diagnostic') && !currentTitle.startsWith('New Diagnostic')) {
-    return currentTitle;
+  // 4. Fallback vehicle extractor
+  const detectedVehicle = extractVehicleDetails(userText, mekaiText, currentTitle);
+  if (detectedVehicle) {
+    return sanitizeSessionTitle(detectedVehicle);
   }
 
   // 5. Code or brief snippet
@@ -957,7 +1018,12 @@ export function AppDashboard({
       const stored = localStorage.getItem('mekai_diagnostic_sessions');
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) return parsed;
+        if (Array.isArray(parsed)) {
+          return parsed.map((s: RecentChatSession) => ({
+            ...s,
+            title: sanitizeSessionTitle(s.title) || s.title,
+          }));
+        }
       }
     } catch {
       // ignore
