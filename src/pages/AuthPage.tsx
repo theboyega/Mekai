@@ -176,13 +176,15 @@ export function AuthPage({
             {step === 'name'
               ? 'What is your name?'
               : currentMode === 'signup'
-              ? 'Activate Workshop Access'
-              : 'Technician Login'}
+              ? 'Sign up'
+              : 'Sign in'}
           </h1>
 
           {step !== 'name' && (
             <p className="text-xs sm:text-sm text-[#8F9999] leading-relaxed text-center max-w-md mx-auto mb-6 sm:mb-8">
-              Enter your 12-character workshop code to begin session.
+              {currentMode === 'signup'
+                ? 'Enter your 12-character workshop code to sign up.'
+                : 'Enter your 12-character workshop code to sign in.'}
             </p>
           )}
 
@@ -261,6 +263,38 @@ export function AuthPage({
             ) : (
               /* ──────── STEP 1: INPUT WORKSHOP ACCESS CODE FIRST ──────── */
               <div className="flex flex-col items-center text-center">
+                {/* Sign up / Sign in mode switcher */}
+                <div className="flex items-center justify-center p-1 bg-[#161B1B] border border-[#232B2B] rounded-full mb-6 w-fit mx-auto">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCurrentMode('signup');
+                      setError(null);
+                    }}
+                    className={`px-5 py-1.5 rounded-full text-xs font-semibold font-heading transition-all cursor-pointer ${
+                      currentMode === 'signup'
+                        ? 'bg-[#A3B18A] text-[#0E1111] shadow-sm'
+                        : 'text-[#8F9999] hover:text-white'
+                    }`}
+                  >
+                    Sign up
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCurrentMode('login');
+                      setError(null);
+                    }}
+                    className={`px-5 py-1.5 rounded-full text-xs font-semibold font-heading transition-all cursor-pointer ${
+                      currentMode === 'login'
+                        ? 'bg-[#A3B18A] text-[#0E1111] shadow-sm'
+                        : 'text-[#8F9999] hover:text-white'
+                    }`}
+                  >
+                    Sign in
+                  </button>
+                </div>
+
                 <div className="w-full mb-6 text-left">
                   <p className="text-xs sm:text-sm text-[#8F9999] leading-relaxed text-left">
                     <span className="font-semibold text-[#A3B18A]">Disclaimer:</span> Beta preview slots share a limited daily test window. If limits are reached, please check back after the reset cycle.
@@ -322,7 +356,7 @@ export function AuthPage({
                     ) : (
                       <>
                         <span>
-                          {currentMode === 'signup' ? 'Validate & authenticate access' : 'Authenticate technician'}
+                          {currentMode === 'signup' ? 'Sign up' : 'Sign in'}
                         </span>
                         <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                       </>
@@ -332,13 +366,16 @@ export function AuthPage({
 
                 <div className="w-full mt-6 pt-5 border-t border-[#1F2525] flex items-center justify-center text-center text-xs text-[#7A8585]">
                   <span>
-                    {currentMode === 'signup' ? 'Existing workshop key? ' : 'New workshop license? '}
+                    {currentMode === 'signup' ? 'Already have an account? ' : 'Need an account? '}
                     <button
                       type="button"
-                      onClick={() => setCurrentMode(currentMode === 'signup' ? 'login' : 'signup')}
+                      onClick={() => {
+                        setCurrentMode(currentMode === 'signup' ? 'login' : 'signup');
+                        setError(null);
+                      }}
                       className="text-[#A3B18A] hover:underline font-semibold ml-1 cursor-pointer"
                     >
-                      {currentMode === 'signup' ? 'Log in' : 'Activate code'}
+                      {currentMode === 'signup' ? 'Sign in' : 'Sign up'}
                     </button>
                   </span>
                 </div>

@@ -34,10 +34,10 @@ const FAQ_ITEMS: FaqItem[] = [
       'Yes. Once an issue is diagnosed, Mekai generates clear, step-by-step repair instructions tailored to the specific fault code or component failure to guide you safely through the fix.',
   },
   {
-    id: 'diagnostic-reports',
-    question: 'Does Mekai generate diagnostic reports?',
+    id: 'documents-generated',
+    question: 'What documents can Mekai generate?',
     answer:
-      'Yes. Mekai automatically compiles comprehensive diagnostic reports combining trouble codes, acoustic inspection data, visual analyses, and repair procedures into structured summaries that can be reviewed, saved, or shared.',
+      'Upon request, Mekai compiles comprehensive technical reports for engineers, vehicle inspection report (MPI) for customers, combining trouble codes, acoustic inspection data, visual analyses, and repair procedures. It can also generate on-demand cost estimates and customer invoices.',
   },
   {
     id: 'internet-connection',
@@ -66,9 +66,7 @@ const FAQ_ITEMS: FaqItem[] = [
 ];
 
 export function FaqSection() {
-  const [openItems, setOpenItems] = useState<Record<string, boolean>>({
-    'what-is-mekai': true,
-  });
+  const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
 
   const toggleItem = (id: string) => {
     setOpenItems((prev) => ({

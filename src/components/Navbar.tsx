@@ -312,7 +312,7 @@ export function Navbar({
                     onClick={() => handleOpenAuth('login')}
                     className="px-5 py-2 rounded-full text-sm font-semibold text-[#A3B18A] border border-[#A3B18A]/50 hover:border-[#A3B18A] hover:bg-[#A3B18A]/10 active:scale-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3B18A] font-heading cursor-pointer"
                   >
-                    Log in
+                    Sign in
                   </button>
                 </>
               )}
@@ -333,14 +333,14 @@ export function Navbar({
           <div className="flex-1 overflow-y-auto px-5 py-6 sm:px-6 md:px-8 md:py-8 flex flex-col justify-between w-full mx-auto">
             {/* 4 Cards Grid - Styled like 'Validated on the shop floor' cards on the homepage */}
             <div>
-              <nav aria-label="Workshop sections" className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8">
+              <nav aria-label="Workshop sections" className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4 mb-8">
                 {/* Card 1: Core Capabilities */}
                 <button
                   type="button"
                   onClick={() => handleScrollToSection('capabilities-section')}
-                  className="w-full rounded-[22px] md:rounded-[26px] bg-[#131616] border border-[#222828] p-7 sm:p-8 md:p-9 flex flex-col justify-between min-h-[260px] md:min-h-[290px] text-left transition-all duration-300 hover:-translate-y-1 hover:border-[#333C3C] hover:bg-[#151919] shadow-lg hover:shadow-xl group cursor-pointer"
+                  className="w-full rounded-[20px] md:rounded-[24px] bg-[#131616] border border-[#222828] p-6 sm:p-7 flex flex-col justify-between h-[195px] min-h-[195px] sm:h-[210px] sm:min-h-[210px] text-left transition-all duration-300 hover:-translate-y-1 hover:border-[#333C3C] hover:bg-[#151919] shadow-lg hover:shadow-xl group cursor-pointer"
                 >
-                  <div className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight font-heading leading-tight">
+                  <div className="text-2xl sm:text-[28px] font-extrabold text-white tracking-tight font-heading leading-tight">
                     Core Capabilities
                   </div>
                   <div className="text-sm md:text-base font-medium text-[#8F9999]">
@@ -348,14 +348,14 @@ export function Navbar({
                   </div>
                 </button>
 
-                {/* Card 2: Diagnostic Workflow */}
+                {/* Card 2: Workflow Architecture */}
                 <button
                   type="button"
                   onClick={() => handleScrollToSection('workflow-section')}
-                  className="w-full rounded-[22px] md:rounded-[26px] bg-[#131616] border border-[#222828] p-7 sm:p-8 md:p-9 flex flex-col justify-between min-h-[260px] md:min-h-[290px] text-left transition-all duration-300 hover:-translate-y-1 hover:border-[#333C3C] hover:bg-[#151919] shadow-lg hover:shadow-xl group cursor-pointer"
+                  className="w-full rounded-[20px] md:rounded-[24px] bg-[#131616] border border-[#222828] p-6 sm:p-7 flex flex-col justify-between h-[195px] min-h-[195px] sm:h-[210px] sm:min-h-[210px] text-left transition-all duration-300 hover:-translate-y-1 hover:border-[#333C3C] hover:bg-[#151919] shadow-lg hover:shadow-xl group cursor-pointer"
                 >
-                  <div className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight font-heading leading-tight">
-                    Diagnostic Workflow
+                  <div className="text-2xl sm:text-[28px] font-extrabold text-white tracking-tight font-heading leading-tight">
+                    Workflow Architecture
                   </div>
                   <div className="text-sm md:text-base font-medium text-[#8F9999]">
                     From data to repair directive
@@ -366,9 +366,9 @@ export function Navbar({
                 <button
                   type="button"
                   onClick={() => handleScrollToSection('validation-section')}
-                  className="w-full rounded-[22px] md:rounded-[26px] bg-[#131616] border border-[#222828] p-7 sm:p-8 md:p-9 flex flex-col justify-between min-h-[260px] md:min-h-[290px] text-left transition-all duration-300 hover:-translate-y-1 hover:border-[#333C3C] hover:bg-[#151919] shadow-lg hover:shadow-xl group cursor-pointer"
+                  className="w-full rounded-[20px] md:rounded-[24px] bg-[#131616] border border-[#222828] p-6 sm:p-7 flex flex-col justify-between h-[195px] min-h-[195px] sm:h-[210px] sm:min-h-[210px] text-left transition-all duration-300 hover:-translate-y-1 hover:border-[#333C3C] hover:bg-[#151919] shadow-lg hover:shadow-xl group cursor-pointer"
                 >
-                  <div className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight font-heading leading-tight">
+                  <div className="text-2xl sm:text-[28px] font-extrabold text-white tracking-tight font-heading leading-tight">
                     Floor Validation
                   </div>
                   <div className="text-sm md:text-base font-medium text-[#8F9999]">
@@ -380,9 +380,9 @@ export function Navbar({
                 <button
                   type="button"
                   onClick={() => handleScrollToSection('download-section')}
-                  className="w-full rounded-[22px] md:rounded-[26px] bg-[#A3B18A] p-7 sm:p-8 md:p-9 flex flex-col justify-between min-h-[260px] md:min-h-[290px] text-left transition-all duration-300 hover:bg-[#94A27B] hover:-translate-y-1 hover:shadow-xl active:scale-[0.98] group shadow-lg text-[#0E1111] cursor-pointer"
+                  className="w-full rounded-[20px] md:rounded-[24px] bg-[#A3B18A] p-6 sm:p-7 flex flex-col justify-between h-[195px] min-h-[195px] sm:h-[210px] sm:min-h-[210px] text-left transition-all duration-300 hover:bg-[#94A27B] hover:-translate-y-1 hover:shadow-xl active:scale-[0.98] group shadow-lg text-[#0E1111] cursor-pointer"
                 >
-                  <div className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#0E1111] leading-tight tracking-tight font-heading">
+                  <div className="text-2xl sm:text-[28px] font-extrabold text-[#0E1111] leading-tight tracking-tight font-heading">
                     Mobile App
                   </div>
                   <div className="text-sm md:text-base font-semibold text-[#1C261C]">
@@ -392,14 +392,14 @@ export function Navbar({
               </nav>
 
               {/* Feature Capabilities List (links to sign up page) */}
-              <div className="space-y-4 sm:space-y-4.5 pl-1 pt-2">
+              <div className="space-y-6 sm:space-y-7 pl-1 pt-4">
                 <a
                   href="/auth?mode=signup"
                   onClick={(e) => {
                     e.preventDefault();
                     handleOpenAuth('signup');
                   }}
-                  className="flex items-center gap-3.5 text-[#A0ABAB] hover:text-white transition-colors cursor-pointer group text-left w-full"
+                  className="flex items-center gap-4 text-[#A0ABAB] hover:text-white transition-colors cursor-pointer group text-left w-full py-0.5"
                 >
                   <Activity className="w-5 h-5 text-[#8E9B9B] group-hover:text-[#A3B18A] transition-colors shrink-0" strokeWidth={1.8} />
                   <span className="text-sm sm:text-base font-normal tracking-wide">Live OBD-II telemetry</span>
@@ -411,7 +411,7 @@ export function Navbar({
                     e.preventDefault();
                     handleOpenAuth('signup');
                   }}
-                  className="flex items-center gap-3.5 text-[#A0ABAB] hover:text-white transition-colors cursor-pointer group text-left w-full"
+                  className="flex items-center gap-4 text-[#A0ABAB] hover:text-white transition-colors cursor-pointer group text-left w-full py-0.5"
                 >
                   <AudioLines className="w-5 h-5 text-[#8E9B9B] group-hover:text-[#A3B18A] transition-colors shrink-0" strokeWidth={1.8} />
                   <span className="text-sm sm:text-base font-normal tracking-wide">Acoustic engine diagnostics</span>
@@ -423,7 +423,7 @@ export function Navbar({
                     e.preventDefault();
                     handleOpenAuth('signup');
                   }}
-                  className="flex items-center gap-3.5 text-[#A0ABAB] hover:text-white transition-colors cursor-pointer group text-left w-full"
+                  className="flex items-center gap-4 text-[#A0ABAB] hover:text-white transition-colors cursor-pointer group text-left w-full py-0.5"
                 >
                   <Search className="w-5 h-5 text-[#8E9B9B] group-hover:text-[#A3B18A] transition-colors shrink-0" strokeWidth={1.8} />
                   <span className="text-sm sm:text-base font-normal tracking-wide">OBD-II fault analysis</span>
@@ -435,7 +435,7 @@ export function Navbar({
                     e.preventDefault();
                     handleOpenAuth('signup');
                   }}
-                  className="flex items-center gap-3.5 text-[#A0ABAB] hover:text-white transition-colors cursor-pointer group text-left w-full"
+                  className="flex items-center gap-4 text-[#A0ABAB] hover:text-white transition-colors cursor-pointer group text-left w-full py-0.5"
                 >
                   <Camera className="w-5 h-5 text-[#8E9B9B] group-hover:text-[#A3B18A] transition-colors shrink-0" strokeWidth={1.8} />
                   <span className="text-sm sm:text-base font-normal tracking-wide">Component image analysis</span>
@@ -447,7 +447,7 @@ export function Navbar({
                     e.preventDefault();
                     handleOpenAuth('signup');
                   }}
-                  className="flex items-center gap-3.5 text-[#A0ABAB] hover:text-white transition-colors cursor-pointer group text-left w-full"
+                  className="flex items-center gap-4 text-[#A0ABAB] hover:text-white transition-colors cursor-pointer group text-left w-full py-0.5"
                 >
                   <Package className="w-5 h-5 text-[#8E9B9B] group-hover:text-[#A3B18A] transition-colors shrink-0" strokeWidth={1.8} />
                   <span className="text-sm sm:text-base font-normal tracking-wide">Part sourcing &amp; procurement</span>
@@ -459,7 +459,7 @@ export function Navbar({
                     e.preventDefault();
                     handleOpenAuth('signup');
                   }}
-                  className="flex items-center gap-3.5 text-[#A0ABAB] hover:text-white transition-colors cursor-pointer group text-left w-full"
+                  className="flex items-center gap-4 text-[#A0ABAB] hover:text-white transition-colors cursor-pointer group text-left w-full py-0.5"
                 >
                   <FileText className="w-5 h-5 text-[#8E9B9B] group-hover:text-[#A3B18A] transition-colors shrink-0" strokeWidth={1.8} />
                   <span className="text-sm sm:text-base font-normal tracking-wide">Generate diagnostic reports</span>
@@ -467,11 +467,11 @@ export function Navbar({
               </div>
 
               {/* LEARN MORE Section */}
-              <div className="mt-8 sm:mt-10 pl-1">
-                <h4 className="text-xs font-bold tracking-[0.16em] uppercase text-[#A3B18A] font-heading mb-3.5 sm:mb-4">
+              <div className="mt-12 sm:mt-14 pl-1">
+                <h4 className="text-xs font-bold tracking-[0.18em] uppercase text-[#A3B18A] font-heading mb-4 sm:mb-5">
                   LEARN MORE
                 </h4>
-                <div className="space-y-3 sm:space-y-3.5">
+                <div className="space-y-4">
                   <a
                     href="/docs"
                     onClick={(e) => {
@@ -516,11 +516,11 @@ export function Navbar({
               </div>
 
               {/* STAY IN TOUCH Section */}
-              <div className="mt-8 sm:mt-10 pl-1 pb-8">
-                <h4 className="text-xs font-bold tracking-[0.16em] uppercase text-[#A3B18A] font-heading mb-3.5 sm:mb-4">
+              <div className="mt-12 sm:mt-14 pl-1 pb-3 sm:pb-4">
+                <h4 className="text-xs font-bold tracking-[0.18em] uppercase text-[#A3B18A] font-heading mb-4 sm:mb-5">
                   STAY IN TOUCH
                 </h4>
-                <div className="flex items-center gap-5 sm:gap-6 text-[#8E9B9B]">
+                <div className="flex items-center gap-6 sm:gap-7 text-[#8E9B9B]">
                   {/* X / Twitter */}
                   <a
                     href="https://x.com/mekai_ai?s=11"
@@ -557,8 +557,8 @@ export function Navbar({
                     aria-label="Connect with Mekai on LinkedIn"
                     className="hover:text-white transition-colors"
                   >
-                    <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z" />
                     </svg>
                   </a>
 
