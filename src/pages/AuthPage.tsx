@@ -2,47 +2,73 @@ import React, { useState, useEffect } from 'react';
 import { ArrowRight, CheckCircle2, KeyRound, AlertCircle, User } from 'lucide-react';
 import { MekaiLogo, MekaiSpinner } from '../components/MekaiLogo';
 import { isValidAccessCode, isRevokedAccessCode, formatAccessCodeInput } from '../data/accessCodes';
+import { useRouter } from '../context/RouterContext';
+import { useAuth } from '../context/AuthContext';
 
 interface AuthPageProps {
   mode?: 'signup' | 'login';
-  onBack: () => void;
-  onAuthenticated: (code: string, name?: string) => void;
+  onBack?: () => void;
+  onAuthenticated?: (code: string, name?: string) => void;
   onCodeVerified?: (code: string) => void;
   activeCode?: string | null;
 }
 
 export function AuthPage({
-  mode: controlledMode = 'signup',
+  mode: controlledMode,
   onBack,
   onAuthenticated,
   onCodeVerified,
-  activeCode = null,
+  activeCode: propActiveCode,
 }: AuthPageProps) {
-  const [currentMode, setCurrentMode] = useState<'signup' | 'login'>(controlledMode);
+  const router = useRouter();
+  const auth = useAuth();
+
+  const queryMode = (router.searchParams.get('mode') as 'signup' | 'login') || 'signup';
+  const resolvedMode = controlledMode || queryMode;
+  const activeCode = propActiveCode !== undefined ? propActiveCode : auth.activeCode;
+
+  const [currentMode, setCurrentMode] = useState<'signup' | 'login'>(resolvedMode);
   // Two-step flow: 'code' first, then 'name' after code is authenticated
   const [step, setStep] = useState<'code' | 'name'>('code');
   const [accessCode, setAccessCode] = useState('');
   const [technicianName, setTechnicianName] = useState(() => {
     try {
-      return localStorage.getItem('mekai_technician_name') || '';
+      return localStorage.getItem('mekai_technician_name') || auth.technicianName || '';
     } catch {
-      return '';
+      return auth.technicianName || '';
     }
   });
   const [error, setError] = useState<string | null>(null);
   const [verifiedCode, setVerifiedCode] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  // If already authenticated and visiting auth page without explicit props, redirect to dashboard
   useEffect(() => {
-    setCurrentMode(controlledMode);
+    if (auth.isAuthenticated && !onAuthenticated) {
+      const prompt = router.searchParams.get('prompt');
+      const target = prompt ? `/dashboard?prompt=${encodeURIComponent(prompt)}` : '/dashboard';
+      router.navigate(target, { replace: true });
+    }
+  }, [auth.isAuthenticated, onAuthenticated, router]);
+
+  useEffect(() => {
+    setCurrentMode(resolvedMode);
     setError(null);
     setStep('code');
-    if (controlledMode === 'login' && activeCode) {
+    if (resolvedMode === 'login' && activeCode) {
       setAccessCode(activeCode);
     } else {
       setAccessCode('');
     }
-  }, [controlledMode, activeCode]);
+  }, [resolvedMode, activeCode]);
+
+  const handleReturnHome = () => {
+    if (onBack) {
+      onBack();
+    } else {
+      router.navigate('/');
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value;
@@ -110,7 +136,14 @@ export function AuthPage({
       setIsLoading(true);
       setTimeout(() => {
         setIsLoading(false);
-        onAuthenticated(code, finalName);
+        if (onAuthenticated) {
+          onAuthenticated(code, finalName);
+        } else {
+          auth.login(code, finalName);
+          const prompt = router.searchParams.get('prompt');
+          const target = prompt ? `/dashboard?prompt=${encodeURIComponent(prompt)}` : '/dashboard';
+          router.navigate(target);
+        }
       }, 350);
     }
   };
@@ -125,7 +158,7 @@ export function AuthPage({
             href="#"
             onClick={(e) => {
               e.preventDefault();
-              onBack();
+              handleReturnHome();
             }}
             className="group inline-flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3B18A] rounded-lg shrink-0 leading-none cursor-pointer mb-6 sm:mb-7"
             aria-label="Mekai Homepage"

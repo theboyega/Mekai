@@ -1,15 +1,5 @@
-import { PageHeader } from './PageHeader';
-import { Footer } from '../components/Footer';
 import { ScrollReveal } from '../components/ScrollReveal';
 import { CheckCircle2, AlertCircle, Radio, Mail } from 'lucide-react';
-
-interface StatusPageProps {
-  onNavigateHome: () => void;
-  onNavigatePage: (page: string) => void;
-  onOpenDashboard?: () => void;
-  onOpenAuth?: (mode: 'signup' | 'login') => void;
-  activeCode?: string | null;
-}
 
 interface ServiceStatusItem {
   name: string;
@@ -18,13 +8,7 @@ interface ServiceStatusItem {
   uptime?: string;
 }
 
-export function StatusPage({
-  onNavigateHome,
-  onNavigatePage,
-  onOpenDashboard,
-  onOpenAuth,
-  activeCode,
-}: StatusPageProps) {
+export function StatusPage() {
   const services: ServiceStatusItem[] = [
     {
       name: 'Conversational assistant',
@@ -71,16 +55,8 @@ export function StatusPage({
   ];
 
   return (
-    <div className="min-h-screen bg-[#0E1111] text-white font-sans flex flex-col selection:bg-[#A3B18A]/30">
-      <PageHeader
-        onNavigateHome={onNavigateHome}
-        onOpenDashboard={onOpenDashboard}
-        onOpenAuth={onOpenAuth}
-        activeCode={activeCode}
-      />
-
-      <main className="flex-1 w-full max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-12 sm:py-16">
-        {/* Document Header */}
+    <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-12 sm:py-16">
+      {/* Document Header */}
         <ScrollReveal animation="fade-up" duration={480} delay={0}>
           <div className="border-b border-[#1E2525] pb-8 mb-10">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -201,9 +177,6 @@ export function StatusPage({
             </a>
           </div>
         </ScrollReveal>
-      </main>
-
-      <Footer onNavigatePage={onNavigatePage} />
     </div>
   );
 }

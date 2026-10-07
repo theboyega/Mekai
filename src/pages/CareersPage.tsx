@@ -1,33 +1,9 @@
-import { PageHeader } from './PageHeader';
-import { Footer } from '../components/Footer';
 import { ScrollReveal } from '../components/ScrollReveal';
 
-interface CareersPageProps {
-  onNavigateHome: () => void;
-  onNavigatePage: (page: string) => void;
-  onOpenDashboard?: () => void;
-  onOpenAuth?: (mode: 'signup' | 'login') => void;
-  activeCode?: string | null;
-}
-
-export function CareersPage({
-  onNavigateHome,
-  onNavigatePage,
-  onOpenDashboard,
-  onOpenAuth,
-  activeCode,
-}: CareersPageProps) {
+export function CareersPage() {
   return (
-    <div className="min-h-screen bg-[#0E1111] text-white font-sans flex flex-col selection:bg-[#A3B18A]/30">
-      <PageHeader
-        onNavigateHome={onNavigateHome}
-        onOpenDashboard={onOpenDashboard}
-        onOpenAuth={onOpenAuth}
-        activeCode={activeCode}
-      />
-
-      <main className="flex-1 w-full max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-12 sm:py-16">
-        {/* Document Header */}
+    <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-12 sm:py-16">
+      {/* Document Header */}
         <ScrollReveal animation="fade-up" duration={480} delay={0}>
           <div className="border-b border-[#1E2525] pb-8 mb-10">
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-[-0.03em] font-heading mb-4">
@@ -96,9 +72,6 @@ export function CareersPage({
             </section>
           </ScrollReveal>
         </div>
-      </main>
-
-      <Footer onNavigatePage={onNavigatePage} />
     </div>
   );
 }

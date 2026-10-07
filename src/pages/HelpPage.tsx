@@ -1,42 +1,23 @@
-import { PageHeader } from './PageHeader';
-import { Footer } from '../components/Footer';
 import { ScrollReveal } from '../components/ScrollReveal';
 import { Mail, Phone, Clock, MessageSquare, Sparkles } from 'lucide-react';
+import { useRouter } from '../context/RouterContext';
+import { useAuth } from '../context/AuthContext';
 
-interface HelpPageProps {
-  onNavigateHome: () => void;
-  onNavigatePage: (page: string) => void;
-  onOpenDashboard?: () => void;
-  onOpenAuth?: (mode: 'signup' | 'login') => void;
-  activeCode?: string | null;
-}
+export function HelpPage() {
+  const router = useRouter();
+  const auth = useAuth();
 
-export function HelpPage({
-  onNavigateHome,
-  onNavigatePage,
-  onOpenDashboard,
-  onOpenAuth,
-  activeCode,
-}: HelpPageProps) {
   const handleAskMekai = () => {
-    if (activeCode && onOpenDashboard) {
-      onOpenDashboard();
-    } else if (onOpenAuth) {
-      onOpenAuth('signup');
+    if (auth.isAuthenticated) {
+      router.navigate('/dashboard');
+    } else {
+      router.navigate('/auth?mode=signup');
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0E1111] text-white font-sans flex flex-col selection:bg-[#A3B18A]/30">
-      <PageHeader
-        onNavigateHome={onNavigateHome}
-        onOpenDashboard={onOpenDashboard}
-        onOpenAuth={onOpenAuth}
-        activeCode={activeCode}
-      />
-
-      <main className="flex-1 w-full max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-12 sm:py-16">
-        {/* Document Header */}
+    <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-12 sm:py-16">
+      {/* Document Header */}
         <ScrollReveal animation="fade-up" duration={480} delay={0}>
           <div className="border-b border-[#1E2525] pb-8 mb-10">
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-[-0.03em] font-heading mb-4">
@@ -67,7 +48,7 @@ export function HelpPage({
                 onClick={handleAskMekai}
                 className="px-5 py-2.5 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] font-heading font-bold text-xs sm:text-sm transition-all shadow-sm cursor-pointer self-start sm:self-auto shrink-0"
               >
-                {activeCode ? 'Open Assistant' : 'Launch In-App'}
+                {auth.isAuthenticated ? 'Open Assistant' : 'Launch In-App'}
               </button>
             </div>
           </div>
@@ -173,9 +154,6 @@ export function HelpPage({
             </ScrollReveal>
           </div>
         </div>
-      </main>
-
-      <Footer onNavigatePage={onNavigatePage} />
     </div>
   );
 }

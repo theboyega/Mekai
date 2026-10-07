@@ -45,40 +45,18 @@ interface AppDashboardProps {
   initialPrompt?: string;
 }
 
-export interface ChatAttachment {
-  type: 'image' | 'file' | 'audio';
-  name: string;
-  url?: string;
-  size?: string;
-  file?: File;
-}
-
-export interface ChatMessage {
-  id: string;
-  sender: 'engineer' | 'mekai';
-  text: string;
-  timestamp: string;
-  attachment?: ChatAttachment;
-  isError?: boolean;
-  isTyping?: boolean;
-}
-
-export interface RecentChatSession {
-  id: string;
-  title: string;
-  vehicle?: string;
-  snippet: string;
-  date: string;
-  messages: ChatMessage[];
-  updatedAt: number;
-  isPinned?: boolean;
-}
-
-export interface WebhookResult {
-  text: string;
-  vehicle?: string;
-  title?: string;
-}
+export type {
+  ChatAttachment,
+  ChatMessage,
+  RecentChatSession,
+  WebhookResult,
+} from '../types/diagnostic';
+import type {
+  ChatAttachment,
+  ChatMessage,
+  RecentChatSession,
+  WebhookResult,
+} from '../types/diagnostic';
 
 const VEHICLE_MAKES = [
   'Acura', 'Alfa Romeo', 'Aston Martin', 'Audi', 'Bentley', 'BMW', 'Buick', 'Cadillac',

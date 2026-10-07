@@ -1,73 +1,50 @@
-import { useState, useEffect, useRef } from 'react';
-import { MekaiLogo, MekaiPageLoader } from './MekaiLogo';
+import { MekaiLogo } from './MekaiLogo';
 import { ScrollReveal } from './ScrollReveal';
+import { useRouter } from '../context/RouterContext';
 
 interface FooterProps {
   onNavigatePage?: (page: string) => void;
 }
 
 export function Footer({ onNavigatePage }: FooterProps) {
-  const [isLoadingPage, setIsLoadingPage] = useState(false);
-  const navTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (navTimerRef.current) {
-        clearTimeout(navTimerRef.current);
-      }
-    };
-  }, []);
+  const router = useRouter();
 
   const companyLinks = [
-    { label: 'Docs', id: 'docs', href: '#docs' },
-    { label: 'Careers', id: 'careers', href: '#careers' },
-    { label: 'Press', id: 'press', href: '#press' },
-    { label: 'Help', id: 'help', href: '#help' },
-    { label: 'Status', id: 'status', href: '#status' },
+    { label: 'Docs', id: 'docs', href: '/docs' },
+    { label: 'Careers', id: 'careers', href: '/careers' },
+    { label: 'Press', id: 'press', href: '/press' },
+    { label: 'Help', id: 'help', href: '/help' },
+    { label: 'Status', id: 'status', href: '/status' },
   ];
 
   const legalLinks = [
-    { label: 'Terms', id: 'terms', href: '#terms' },
-    { label: 'Privacy', id: 'privacy', href: '#privacy' },
-    { label: 'Licenses', id: 'licenses', href: '#licenses' },
+    { label: 'Terms', id: 'terms', href: '/terms' },
+    { label: 'Privacy', id: 'privacy', href: '/privacy' },
+    { label: 'Licenses', id: 'licenses', href: '/licenses' },
   ];
 
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, pageId: string) => {
     e.preventDefault();
-    if (isLoadingPage) return;
-
-    setIsLoadingPage(true);
-    if (navTimerRef.current) {
-      clearTimeout(navTimerRef.current);
+    if (onNavigatePage) {
+      onNavigatePage(pageId);
+    } else {
+      router.navigate(pageId === 'home' ? '/' : `/${pageId}`);
     }
-
-    navTimerRef.current = setTimeout(() => {
-      window.location.hash = pageId;
-      if (onNavigatePage) {
-        onNavigatePage(pageId);
-      }
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      setIsLoadingPage(false);
-    }, 900);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    window.location.hash = '';
     if (onNavigatePage) {
       onNavigatePage('home');
+    } else {
+      router.navigate('/');
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
-    <>
-      {isLoadingPage && (
-        <div className="fixed inset-0 z-[100]">
-          <MekaiPageLoader />
-        </div>
-      )}
-      <footer id="main-footer" className="pt-16 sm:pt-20 pb-12 border-t border-[#1C2121] bg-[#0E1111]">
+    <footer id="main-footer" className="pt-16 sm:pt-20 pb-12 border-t border-[#1C2121] bg-[#0E1111]">
       <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16">
         <ScrollReveal animation="fade-up" duration={480} delay={0}>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-10 md:gap-12 lg:gap-16 pb-16 w-full">
@@ -84,7 +61,7 @@ export function Footer({ onNavigatePage }: FooterProps) {
               </a>
 
               <p className="mt-4 text-sm md:text-base text-[#8F9999] max-w-sm md:max-w-md leading-relaxed font-normal">
-                Diagnostic intelligence for the modern workshop. A product of Cestcore Limited.
+                Intelligent diagnostics powered by acoustic analysis, component imaging, and real-time OBD-II decoding.
               </p>
 
               {/* Social Icons (X, Instagram, LinkedIn, TikTok) */}
@@ -196,7 +173,5 @@ export function Footer({ onNavigatePage }: FooterProps) {
         </div>
       </div>
     </footer>
-    </>
   );
-
 }

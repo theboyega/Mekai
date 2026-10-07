@@ -1,46 +1,36 @@
-import { PageHeader } from './PageHeader';
-import { Footer } from '../components/Footer';
 import { ScrollReveal } from '../components/ScrollReveal';
 
-interface DocsPageProps {
-  onNavigateHome: () => void;
-  onNavigatePage: (page: string) => void;
-  onOpenDashboard?: () => void;
-  onOpenAuth?: (mode: 'signup' | 'login') => void;
-  activeCode?: string | null;
-}
-
-export function DocsPage({
-  onNavigateHome,
-  onNavigatePage,
-  onOpenDashboard,
-  onOpenAuth,
-  activeCode,
-}: DocsPageProps) {
+export function DocsPage() {
   return (
-    <div className="min-h-screen bg-[#0E1111] text-white font-sans flex flex-col selection:bg-[#A3B18A]/30">
-      <PageHeader
-        onNavigateHome={onNavigateHome}
-        onOpenDashboard={onOpenDashboard}
-        onOpenAuth={onOpenAuth}
-        activeCode={activeCode}
-      />
+    <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-12 sm:py-16">
+      {/* Document Header */}
+      <ScrollReveal animation="fade-up" duration={480} delay={0}>
+        <div className="border-b border-[#1E2525] pb-8 mb-10">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-[-0.03em] font-heading mb-4">
+            Documentation
+          </h1>
+          <p className="text-sm sm:text-base text-[#7E8B8B] font-medium font-heading mb-6">
+            Developer &amp; Technical Reference
+          </p>
+          <div className="p-5 rounded-2xl bg-[#121616] border border-[#1E2525] text-[#9EA8A8] text-sm sm:text-base leading-relaxed">
+            Technical architecture, API references, and diagnostic workflow guides for Mekai are currently being finalized for the beta preview release.
+          </div>
+        </div>
+      </ScrollReveal>
 
-      <main className="flex-1 w-full max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-12 sm:py-16">
-        <ScrollReveal animation="fade-up" duration={480} delay={0}>
-          <section className="space-y-4">
-            <h1 className="text-2xl sm:text-3xl font-bold text-white font-heading tracking-tight flex items-center gap-3">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#A3B18A]" />
-              Documentation status
-            </h1>
-            <p className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed pl-5 sm:pl-6 border-l border-[#1E2525] max-w-3xl">
-              Technical architecture, API references, and diagnostic workflow guides for Mekai are currently being finalized for the beta preview release.
+      {/* Notice */}
+      <ScrollReveal animation="fade-up" duration={480} delay={60}>
+        <div className="space-y-6">
+          <div className="p-6 rounded-2xl bg-[#121616]/60 border border-[#1E2525] text-[#8F9999] text-sm leading-relaxed">
+            <h2 className="text-lg font-bold text-white font-heading mb-2">
+              Coming Soon
+            </h2>
+            <p>
+              Detailed integration guides, OBD-II data protocol schemas, acoustic analysis specifications, and webhook documentation will be published here shortly.
             </p>
-          </section>
-        </ScrollReveal>
-      </main>
-
-      <Footer onNavigatePage={onNavigatePage} />
+          </div>
+        </div>
+      </ScrollReveal>
     </div>
   );
 }

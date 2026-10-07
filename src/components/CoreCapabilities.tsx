@@ -1,4 +1,4 @@
-import { Scan, CircleGauge } from 'lucide-react';
+import { Scan, Network } from 'lucide-react';
 import { ScrollReveal } from './ScrollReveal';
 
 export function CoreCapabilities() {
@@ -27,9 +27,9 @@ export function CoreCapabilities() {
               className="h-full rounded-[22px] md:rounded-[26px] bg-[#A3B18A] text-[#0E1111] p-7 sm:p-8 md:p-9 flex flex-col justify-between min-h-[260px] md:min-h-[290px] transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl"
             >
               <div>
-                {/* OBD-II Diagnostic Telemetry / Fault Icon */}
+                {/* OBD-II Diagnostic Telemetry / Node Icon */}
                 <div className="w-11 h-11 md:w-13 md:h-13 mb-6 md:mb-8 flex items-center justify-center text-[#0E1111]" aria-hidden="true">
-                  <CircleGauge className="w-8 h-8 md:w-9 md:h-9 stroke-2" />
+                  <Network className="w-8 h-8 md:w-9 md:h-9 stroke-2" />
                 </div>
 
                 <h3 className="text-xl md:text-2xl font-bold text-[#0E1111] mb-3 tracking-tight font-heading">
