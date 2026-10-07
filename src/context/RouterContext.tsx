@@ -57,7 +57,7 @@ export function RouterProvider({ children }: { children: React.ReactNode }) {
         ogDesc.setAttribute('content', meta.description);
       }
     } else {
-      document.title = 'Mekai — Diagnostic intelligence for the modern workshop';
+      document.title = 'Mekai | Diagnostics intelligence for the modern workshop';
     }
   }, [currentPath]);
 

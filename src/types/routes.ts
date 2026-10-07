@@ -21,8 +21,8 @@ export interface RouteMeta {
 export const ROUTE_REGISTRY: Record<AppRoute, RouteMeta> = {
   '/': {
     path: '/',
-    title: 'Mekai — Diagnostic Intelligence for the Modern Workshop',
-    description: 'Conversational automotive diagnostic intelligence for master technicians and workshops by Cestcore Limited.',
+    title: 'Mekai | Diagnostics intelligence for the modern workshop',
+    description: 'Mekai | Diagnostics intelligence for the modern workshop',
     category: 'main',
   },
   '/dashboard': {

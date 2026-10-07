@@ -1,6 +1,6 @@
 {
   "name": "Mekai",
-  "description": "Diagnostic intelligence for the modern workshop by Cestcore Limited.",
+  "description": "Mekai | Diagnostics intelligence for the modern workshop",
   "requestFramePermissions": [
     "camera",
     "microphone"
