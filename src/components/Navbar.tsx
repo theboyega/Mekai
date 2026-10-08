@@ -446,7 +446,7 @@ export function Navbar({
                       e.preventDefault();
                       handlePageClick('docs');
                     }}
-                    className="text-sm sm:text-base text-[#8E9B9B] hover:text-white transition-colors block cursor-pointer"
+                    className="text-sm sm:text-base text-[#8E9B9B] hover:text-[#A3B18A] transition-colors block cursor-pointer"
                   >
                     Documentation
                   </a>
@@ -456,7 +456,7 @@ export function Navbar({
                       e.preventDefault();
                       handlePageClick('careers');
                     }}
-                    className="text-sm sm:text-base text-[#8E9B9B] hover:text-white transition-colors block cursor-pointer"
+                    className="text-sm sm:text-base text-[#8E9B9B] hover:text-[#A3B18A] transition-colors block cursor-pointer"
                   >
                     Career
                   </a>
@@ -466,7 +466,7 @@ export function Navbar({
                       e.preventDefault();
                       handlePageClick('press');
                     }}
-                    className="text-sm sm:text-base text-[#8E9B9B] hover:text-white transition-colors block cursor-pointer"
+                    className="text-sm sm:text-base text-[#8E9B9B] hover:text-[#A3B18A] transition-colors block cursor-pointer"
                   >
                     Press
                   </a>
@@ -476,7 +476,7 @@ export function Navbar({
                       e.preventDefault();
                       handlePageClick('help');
                     }}
-                    className="text-sm sm:text-base text-[#8E9B9B] hover:text-white transition-colors block cursor-pointer"
+                    className="text-sm sm:text-base text-[#8E9B9B] hover:text-[#A3B18A] transition-colors block cursor-pointer"
                   >
                     Help
                   </a>

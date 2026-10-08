@@ -33,7 +33,7 @@ export function HelpPage() {
             </p>
 
             {/* Quick Assistant Launch Card */}
-            <div className="mt-8 p-5 sm:p-6 rounded-2xl bg-[#121616] border border-[#1E2525] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="mt-8 p-5 sm:p-6 rounded-2xl bg-[#121616] border border-[#1E2525] flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-300 hover:-translate-y-1 hover:border-[#333C3C] hover:bg-[#151919] shadow-lg hover:shadow-xl">
               <div className="flex items-start sm:items-center gap-3.5">
                 <div className="w-10 h-10 rounded-xl bg-[#A3B18A]/10 border border-[#A3B18A]/20 flex items-center justify-center shrink-0">
                   <Sparkles className="w-5 h-5 text-[#A3B18A]" />
@@ -51,7 +51,7 @@ export function HelpPage() {
               <button
                 type="button"
                 onClick={handleAskMekai}
-                className="px-5 py-2.5 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] font-heading font-bold text-xs sm:text-sm transition-all shadow-sm cursor-pointer self-start sm:self-auto shrink-0"
+                className="px-5 py-2.5 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] font-heading font-semibold text-sm transition-all shadow-sm cursor-pointer self-start sm:self-auto shrink-0"
               >
                 {auth.isAuthenticated ? 'Open Assistant' : 'Launch In-App'}
               </button>
@@ -70,7 +70,7 @@ export function HelpPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             {/* Email support */}
             <ScrollReveal animation="fade-up" duration={480} delay={80}>
-              <div className="h-full p-6 rounded-2xl bg-[#121616] border border-[#1E2525] hover:border-[#2C3636] transition-colors space-y-2">
+              <div className="h-full p-6 rounded-2xl bg-[#121616] border border-[#1E2525] transition-all duration-300 hover:-translate-y-1 hover:border-[#333C3C] hover:bg-[#151919] shadow-lg hover:shadow-xl space-y-2">
                 <div className="w-10 h-10 rounded-xl bg-[#1A2121] border border-[#263131] flex items-center justify-center text-[#A3B18A] mb-4">
                   <Mail className="w-5 h-5" />
                 </div>
@@ -93,7 +93,7 @@ export function HelpPage() {
 
             {/* General enquiries */}
             <ScrollReveal animation="fade-up" duration={480} delay={120}>
-              <div className="h-full p-6 rounded-2xl bg-[#121616] border border-[#1E2525] hover:border-[#2C3636] transition-colors space-y-2">
+              <div className="h-full p-6 rounded-2xl bg-[#121616] border border-[#1E2525] transition-all duration-300 hover:-translate-y-1 hover:border-[#333C3C] hover:bg-[#151919] shadow-lg hover:shadow-xl space-y-2">
                 <div className="w-10 h-10 rounded-xl bg-[#1A2121] border border-[#263131] flex items-center justify-center text-[#A3B18A] mb-4">
                   <MessageSquare className="w-5 h-5" />
                 </div>
@@ -116,7 +116,7 @@ export function HelpPage() {
 
             {/* Phone */}
             <ScrollReveal animation="fade-up" duration={480} delay={160}>
-              <div className="h-full p-6 rounded-2xl bg-[#121616] border border-[#1E2525] hover:border-[#2C3636] transition-colors space-y-2">
+              <div className="h-full p-6 rounded-2xl bg-[#121616] border border-[#1E2525] transition-all duration-300 hover:-translate-y-1 hover:border-[#333C3C] hover:bg-[#151919] shadow-lg hover:shadow-xl space-y-2">
                 <div className="w-10 h-10 rounded-xl bg-[#1A2121] border border-[#263131] flex items-center justify-center text-[#A3B18A] mb-4">
                   <Phone className="w-5 h-5" />
                 </div>
@@ -139,7 +139,7 @@ export function HelpPage() {
 
             {/* Operating Hours */}
             <ScrollReveal animation="fade-up" duration={480} delay={200}>
-              <div className="h-full p-6 rounded-2xl bg-[#121616] border border-[#1E2525] hover:border-[#2C3636] transition-colors space-y-2">
+              <div className="h-full p-6 rounded-2xl bg-[#121616] border border-[#1E2525] transition-all duration-300 hover:-translate-y-1 hover:border-[#333C3C] hover:bg-[#151919] shadow-lg hover:shadow-xl space-y-2">
                 <div className="w-10 h-10 rounded-xl bg-[#1A2121] border border-[#263131] flex items-center justify-center text-[#A3B18A] mb-4">
                   <Clock className="w-5 h-5" />
                 </div>

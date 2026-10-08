@@ -13,7 +13,7 @@ export function PrivacyPage() {
           <p className="text-sm sm:text-base text-[#7E8B8B] font-medium font-heading">
             Last updated 23 September 2026
           </p>
-          <div className="mt-6 p-5 rounded-2xl bg-[#121616] border border-[#1E2525] text-[#9EA8A8] text-sm sm:text-base leading-relaxed">
+          <div className="mt-6 p-5 rounded-2xl bg-[#121616] border border-[#1E2525] text-[#9EA8A8] text-sm sm:text-base leading-relaxed transition-all duration-300 hover:-translate-y-1 hover:border-[#333C3C] hover:bg-[#151919] shadow-lg hover:shadow-xl">
             This notice explains how Cestcore Limited (“Mekai”, “we”, “us”) collects, uses, and protects your personal data when you use our app and services. We are the data controller for the information described below.
           </div>
         </div>

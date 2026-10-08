@@ -212,7 +212,7 @@ export function AuthPage({
                   <button
                     type="button"
                     onClick={() => setStep('code')}
-                    className="text-xs text-[#8A9A78] hover:text-white underline transition-colors cursor-pointer"
+                    className="text-xs text-[#8A9A78] hover:text-[#92A177] transition-colors cursor-pointer font-medium"
                   >
                     Change code
                   </button>
@@ -318,7 +318,7 @@ export function AuthPage({
                     id="submit-access-code-btn"
                     type="submit"
                     disabled={isLoading}
-                    className="w-full py-3.5 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-[0.99] disabled:opacity-90 text-[#0E1111] font-bold text-sm font-heading transition-all duration-200 flex items-center justify-center gap-2 group shadow-md cursor-pointer"
+                    className="w-full py-3.5 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 disabled:opacity-90 text-[#0E1111] font-bold text-sm font-heading transition-all duration-200 flex items-center justify-center gap-2 group shadow-md cursor-pointer"
                   >
                     {isLoading ? (
                       <>
@@ -345,7 +345,7 @@ export function AuthPage({
                         setCurrentMode(currentMode === 'signup' ? 'login' : 'signup');
                         setError(null);
                       }}
-                      className="text-[#A3B18A] hover:underline font-semibold ml-1 cursor-pointer"
+                      className="text-[#A3B18A] hover:text-[#92A177] transition-colors font-semibold ml-1 cursor-pointer"
                     >
                       {currentMode === 'signup' ? 'Sign in' : 'Sign up'}
                     </button>

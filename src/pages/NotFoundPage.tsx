@@ -27,7 +27,7 @@ export function NotFoundPage() {
         <button
           type="button"
           onClick={() => navigate('/')}
-          className="px-5 py-2.5 rounded-lg bg-[#A3B18A] hover:bg-[#92A177] text-[#0E1111] font-heading font-bold text-sm transition-all shadow-sm flex items-center gap-2 cursor-pointer"
+          className="px-6 py-3 rounded-full bg-[#A3B18A] hover:bg-[#92A177] active:scale-95 text-[#0E1111] font-heading font-semibold text-sm transition-all duration-200 shadow-sm flex items-center gap-2 cursor-pointer"
         >
           <Home className="w-4 h-4" />
           <span>Return to Homepage</span>
@@ -36,7 +36,7 @@ export function NotFoundPage() {
         <button
           type="button"
           onClick={() => navigate('/dashboard')}
-          className="px-5 py-2.5 rounded-lg bg-[#141818] hover:bg-[#1A2020] text-white border border-[#232B2B] font-heading font-semibold text-sm transition-all flex items-center gap-2 cursor-pointer"
+          className="px-6 py-3 rounded-full bg-transparent border border-[#2E3636] hover:border-[#A3B18A]/60 hover:bg-white/[0.03] active:scale-95 text-white font-heading font-semibold text-sm transition-all duration-200 flex items-center gap-2 cursor-pointer"
         >
           <span>Launch Diagnostic Console</span>
         </button>
@@ -44,11 +44,11 @@ export function NotFoundPage() {
 
       <div className="pt-8 border-t border-[#1C2121] w-full max-w-md">
         <p className="text-xs text-[#7E8B8B] font-mono mb-4">Quick Navigation</p>
-        <div className="grid grid-cols-3 gap-2 text-xs">
+        <div className="grid grid-cols-3 gap-2.5 text-xs">
           <button
             type="button"
             onClick={() => navigate('/docs')}
-            className="p-2.5 rounded-lg bg-[#121616] border border-[#1E2525] hover:border-[#A3B18A]/40 text-[#9EA8A8] hover:text-white transition-colors flex flex-col items-center gap-1.5 cursor-pointer"
+            className="p-3 rounded-2xl bg-[#121616] border border-[#1E2525] transition-all duration-300 hover:-translate-y-1 hover:border-[#333C3C] hover:bg-[#151919] shadow-lg hover:shadow-xl text-[#9EA8A8] hover:text-[#A3B18A] flex flex-col items-center gap-1.5 cursor-pointer"
           >
             <FileText className="w-4 h-4 text-[#A3B18A]" />
             <span>Docs</span>
@@ -56,7 +56,7 @@ export function NotFoundPage() {
           <button
             type="button"
             onClick={() => navigate('/status')}
-            className="p-2.5 rounded-lg bg-[#121616] border border-[#1E2525] hover:border-[#A3B18A]/40 text-[#9EA8A8] hover:text-white transition-colors flex flex-col items-center gap-1.5 cursor-pointer"
+            className="p-3 rounded-2xl bg-[#121616] border border-[#1E2525] transition-all duration-300 hover:-translate-y-1 hover:border-[#333C3C] hover:bg-[#151919] shadow-lg hover:shadow-xl text-[#9EA8A8] hover:text-[#A3B18A] flex flex-col items-center gap-1.5 cursor-pointer"
           >
             <Activity className="w-4 h-4 text-[#A3B18A]" />
             <span>Status</span>
@@ -64,7 +64,7 @@ export function NotFoundPage() {
           <button
             type="button"
             onClick={() => navigate('/help')}
-            className="p-2.5 rounded-lg bg-[#121616] border border-[#1E2525] hover:border-[#A3B18A]/40 text-[#9EA8A8] hover:text-white transition-colors flex flex-col items-center gap-1.5 cursor-pointer"
+            className="p-3 rounded-2xl bg-[#121616] border border-[#1E2525] transition-all duration-300 hover:-translate-y-1 hover:border-[#333C3C] hover:bg-[#151919] shadow-lg hover:shadow-xl text-[#9EA8A8] hover:text-[#A3B18A] flex flex-col items-center gap-1.5 cursor-pointer"
           >
             <HelpCircle className="w-4 h-4 text-[#A3B18A]" />
             <span>Help</span>

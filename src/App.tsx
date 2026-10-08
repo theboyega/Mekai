@@ -76,11 +76,7 @@ function AppRoutes() {
       return <AuthPage />;
 
     case '/docs':
-      return (
-        <AppLayout>
-          <DocsPage />
-        </AppLayout>
-      );
+      return <DocsPage />;
 
     case '/careers':
       return (

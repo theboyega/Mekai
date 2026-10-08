@@ -86,7 +86,7 @@ export function StatusPage() {
             </div>
 
             {/* Operational banner */}
-            <div className="mt-8 p-5 rounded-2xl bg-[#121616] border border-[#1E2525] flex items-center justify-between gap-4">
+            <div className="mt-8 p-5 rounded-2xl bg-[#121616] border border-[#1E2525] flex items-center justify-between gap-4 transition-all duration-300 hover:-translate-y-1 hover:border-[#333C3C] hover:bg-[#151919] shadow-lg hover:shadow-xl">
               <div className="flex items-center gap-3.5">
                 <div className="w-10 h-10 rounded-xl bg-[#A3B18A]/10 border border-[#A3B18A]/20 flex items-center justify-center shrink-0">
                   <Radio className="w-5 h-5 text-[#A3B18A]" />
@@ -117,7 +117,7 @@ export function StatusPage() {
                 delay={index * 45}
               >
                 <div
-                  className="flex items-center justify-between p-4 sm:p-5 rounded-2xl bg-[#121616] border border-[#1E2525] hover:border-[#2C3636] transition-colors gap-4"
+                  className="flex items-center justify-between p-4 sm:p-5 rounded-2xl bg-[#121616] border border-[#1E2525] transition-all duration-300 hover:-translate-y-1 hover:border-[#333C3C] hover:bg-[#151919] shadow-lg hover:shadow-xl gap-4"
                 >
                   <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
                     <div
@@ -159,7 +159,7 @@ export function StatusPage() {
 
         {/* Support Callout */}
         <ScrollReveal animation="fade-up" duration={480} delay={100}>
-          <div className="mt-12 p-6 rounded-2xl bg-[#121616] border border-[#1E2525] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="mt-12 p-6 rounded-2xl bg-[#121616] border border-[#1E2525] flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-300 hover:-translate-y-1 hover:border-[#333C3C] hover:bg-[#151919] shadow-lg hover:shadow-xl">
             <div className="flex items-start sm:items-center gap-3.5">
               <div className="w-10 h-10 rounded-xl bg-[#1A2121] border border-[#263131] flex items-center justify-center shrink-0 text-[#9EA8A8]">
                 <Mail className="w-5 h-5" />
@@ -176,7 +176,7 @@ export function StatusPage() {
 
             <a
               href="mailto:support@mekai.ai"
-              className="px-4 py-2.5 rounded-full bg-[#1A2121] hover:bg-[#242D2D] text-[#A3B18A] hover:text-white border border-[#263131] text-xs sm:text-sm font-semibold font-heading transition-colors inline-flex items-center justify-center shrink-0 cursor-pointer"
+              className="px-5 py-2.5 rounded-full bg-transparent border border-[#2E3636] hover:border-[#A3B18A]/60 hover:bg-white/[0.03] active:scale-95 text-white text-xs sm:text-sm font-semibold font-heading transition-all duration-200 inline-flex items-center justify-center shrink-0 cursor-pointer"
             >
               Contact support@mekai.ai
             </a>

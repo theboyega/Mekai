@@ -20,7 +20,7 @@ export function PressPage() {
             </p>
 
             {/* Media Contact Card */}
-            <div className="mt-8 p-5 sm:p-6 rounded-2xl bg-[#121616] border border-[#1E2525] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="mt-8 p-5 sm:p-6 rounded-2xl bg-[#121616] border border-[#1E2525] flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-300 hover:-translate-y-1 hover:border-[#333C3C] hover:bg-[#151919] shadow-lg hover:shadow-xl">
               <div className="flex items-start sm:items-center gap-3.5">
                 <div className="w-10 h-10 rounded-xl bg-[#A3B18A]/10 border border-[#A3B18A]/20 flex items-center justify-center shrink-0">
                   <Mail className="w-5 h-5 text-[#A3B18A]" />
@@ -40,7 +40,7 @@ export function PressPage() {
 
               <a
                 href="mailto:press@mekai.ai?subject=Media%20Enquiry"
-                className="px-5 py-2.5 rounded-full bg-[#1A2121] hover:bg-[#242D2D] text-[#A3B18A] hover:text-white border border-[#263131] text-xs sm:text-sm font-semibold font-heading transition-colors inline-flex items-center justify-center self-start sm:self-auto shrink-0 cursor-pointer"
+                className="px-5 py-2.5 rounded-full bg-transparent border border-[#2E3636] hover:border-[#A3B18A]/60 hover:bg-white/[0.03] active:scale-95 text-white text-xs sm:text-sm font-semibold font-heading transition-all duration-200 inline-flex items-center justify-center self-start sm:self-auto shrink-0 cursor-pointer"
               >
                 Send Media Enquiry
               </a>
@@ -80,7 +80,7 @@ export function PressPage() {
                   Logos and brand guidelines are available on request. Email{' '}
                   <a
                     href="mailto:press@mekai.ai?subject=Press%20Kit%20Request"
-                    className="text-[#A3B18A] hover:underline font-medium"
+                    className="text-[#A3B18A] hover:text-[#92A177] transition-colors font-medium"
                   >
                     press@mekai.ai
                   </a>{' '}
@@ -89,7 +89,7 @@ export function PressPage() {
                 <div className="pt-2">
                   <a
                     href="mailto:press@mekai.ai?subject=Press%20Kit%20Request"
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#121616] hover:bg-[#1A2121] border border-[#1E2525] text-xs font-semibold text-[#A3B18A] hover:text-white transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-transparent border border-[#2E3636] hover:border-[#A3B18A]/60 hover:bg-white/[0.03] active:scale-95 text-white text-xs sm:text-sm font-semibold font-heading transition-all duration-200 cursor-pointer"
                   >
                     <FolderDown className="w-4 h-4" />
                     <span>Request Press Kit</span>
@@ -107,7 +107,7 @@ export function PressPage() {
                 Company
               </h2>
               <div className="pl-5 sm:pl-6 border-l border-[#1E2525]">
-                <div className="p-4 rounded-xl bg-[#121616] border border-[#1E2525] flex items-center gap-3 text-sm text-[#9EA8A8]">
+                <div className="p-4 rounded-xl bg-[#121616] border border-[#1E2525] flex items-center gap-3 text-sm text-[#9EA8A8] transition-all duration-300 hover:-translate-y-1 hover:border-[#333C3C] hover:bg-[#151919] shadow-lg hover:shadow-xl">
                   <Building2 className="w-5 h-5 text-[#A3B18A] shrink-0" />
                   <span>
                     <strong className="text-white font-semibold">Cestcore Limited</strong> · © 2026 · All rights reserved.

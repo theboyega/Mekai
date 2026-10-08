@@ -87,7 +87,7 @@ export function HeroSection({ onGetStarted, onLearnMore, isAuthenticated = false
                     <span className="w-2 h-2 rounded-full bg-[#4A5555] animate-dot-2" />
                     <span className="w-2 h-2 rounded-full bg-[#4A5555] animate-dot-3" />
                   </div>
-                  <span className="text-xs font-bold tracking-[0.16em] uppercase text-[#A3B18A] font-heading ml-1">
+                  <span className="text-xs font-bold tracking-[0.18em] uppercase text-[#A3B18A] font-heading ml-1">
                     Diagnostic Session
                   </span>
                 </div>
@@ -102,7 +102,7 @@ export function HeroSection({ onGetStarted, onLearnMore, isAuthenticated = false
                   </div>
 
                   {/* Assistant Message Content (Exact text from design) */}
-                  <div id="session-assistant-message" className="self-start max-w-[95%] space-y-3.5 text-[#A3B18A] text-xs sm:text-[13.5px] leading-relaxed">
+                  <div id="session-assistant-message" className="self-start max-w-[95%] space-y-3.5 text-[#A3B18A] text-xs sm:text-sm leading-relaxed">
                     <p>
                       Hello! I am Mekai, your automotive diagnostic assistant from Cestcore Limited.
                     </p>
@@ -122,7 +122,7 @@ export function HeroSection({ onGetStarted, onLearnMore, isAuthenticated = false
                       <span className="w-5 h-5 flex items-center justify-center text-[#8A9A78] shrink-0">
                         <Plus className="w-4 h-4 stroke-[2]" />
                       </span>
-                      <span className="text-[#5A6964] text-[11px] sm:text-xs truncate font-sans font-normal">
+                      <span className="text-[#5A6964] text-xs truncate font-sans font-normal">
                         Ask Mekai (e.g. Ford Explorer 2014)
                       </span>
                     </div>
@@ -138,7 +138,7 @@ export function HeroSection({ onGetStarted, onLearnMore, isAuthenticated = false
                   </div>
 
                   {/* Micro Disclaimer */}
-                  <p id="session-disclaimer" className="text-xs md:text-[13px] text-[#707D7A] text-center mt-2.5 font-normal select-none">
+                  <p id="session-disclaimer" className="text-xs text-[#707D7A] text-center mt-2.5 font-normal select-none">
                     Mekai is AI and can make mistakes.
                   </p>
                 </div>

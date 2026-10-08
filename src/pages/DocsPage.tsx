@@ -17,7 +17,7 @@ export function DocsPage() {
           <p className="text-sm sm:text-base text-[#7E8B8B] font-medium font-heading mb-6">
             Developer &amp; Technical Reference
           </p>
-          <div className="p-5 rounded-2xl bg-[#121616] border border-[#1E2525] text-[#9EA8A8] text-sm sm:text-base leading-relaxed">
+          <div className="p-5 rounded-2xl bg-[#121616] border border-[#1E2525] text-[#9EA8A8] text-sm sm:text-base leading-relaxed transition-all duration-300 hover:-translate-y-1 hover:border-[#333C3C] hover:bg-[#151919] shadow-lg hover:shadow-xl">
             Technical architecture, API references, and diagnostic workflow guides for Mekai are currently being finalized for the beta preview release.
           </div>
         </div>
@@ -26,7 +26,7 @@ export function DocsPage() {
       {/* Notice */}
       <ScrollReveal animation="fade-up" duration={480} delay={60}>
         <div className="space-y-6">
-          <div className="p-6 rounded-2xl bg-[#121616]/60 border border-[#1E2525] text-[#8F9999] text-sm sm:text-base leading-relaxed">
+          <div className="p-6 rounded-2xl bg-[#121616]/60 border border-[#1E2525] text-[#8F9999] text-sm sm:text-base leading-relaxed transition-all duration-300 hover:-translate-y-1 hover:border-[#333C3C] hover:bg-[#151919] shadow-lg hover:shadow-xl">
             <h2 className="text-xl sm:text-2xl font-bold text-white font-heading tracking-tight mb-2">
               Coming Soon
             </h2>
