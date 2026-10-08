@@ -19,7 +19,7 @@ export function MobileAppSection() {
             </ScrollReveal>
 
             <ScrollReveal animation="fade-up" duration={480} delay={80}>
-              <p className="text-sm sm:text-base md:text-lg text-[#8F9999] leading-relaxed mb-8 max-w-xl">
+              <p className="text-base sm:text-lg md:text-xl text-[#8F9999] leading-relaxed mb-8 max-w-xl">
                 Record engine audio, capture components, and pull up repair history from anywhere in the shop.
                 Available on iOS and Android.
               </p>

@@ -124,7 +124,7 @@ export function Footer({ onNavigatePage }: FooterProps) {
 
             {/* Middle Column: Company */}
             <div className="lg:col-span-3">
-              <h4 className="text-xs md:text-sm font-bold tracking-[0.16em] uppercase text-[#A3B18A] font-heading mb-4 md:mb-5">
+              <h4 className="text-xs font-bold tracking-[0.18em] uppercase text-[#A3B18A] font-heading mb-4 md:mb-5">
                 Company
               </h4>
               <ul className="space-y-3 md:space-y-3.5 text-sm md:text-base text-[#8F9999]">
@@ -144,7 +144,7 @@ export function Footer({ onNavigatePage }: FooterProps) {
 
             {/* Right Column: Legal */}
             <div className="lg:col-span-2">
-              <h4 className="text-xs md:text-sm font-bold tracking-[0.16em] uppercase text-[#A3B18A] font-heading mb-4 md:mb-5">
+              <h4 className="text-xs font-bold tracking-[0.18em] uppercase text-[#A3B18A] font-heading mb-4 md:mb-5">
                 Legal
               </h4>
               <ul className="space-y-3 md:space-y-3.5 text-sm md:text-base text-[#8F9999]">

@@ -83,10 +83,10 @@ export function FaqSection() {
           <div className="lg:col-span-5 xl:col-span-5 lg:sticky lg:top-28">
             <ScrollReveal animation="fade-up" duration={480} delay={0}>
               <div id="faq-header" className="max-w-xl">
-                <p className="text-xs md:text-sm font-bold tracking-[0.18em] uppercase text-[#A3B18A] mb-3 font-heading">
+                <p className="text-xs font-bold tracking-[0.18em] uppercase text-[#A3B18A] mb-3 font-heading">
                   FAQ
                 </p>
-                <h2 className="text-3xl sm:text-4xl lg:text-[38px] xl:text-[40px] font-extrabold text-white tracking-[-0.02em] leading-tight font-heading">
+                <h2 className="text-3xl sm:text-4xl lg:text-[40px] font-extrabold text-white tracking-[-0.02em] leading-tight font-heading">
                   <span className="block sm:whitespace-nowrap">Common questions</span>
                   <span className="block sm:whitespace-nowrap">about Mekai.</span>
                 </h2>
