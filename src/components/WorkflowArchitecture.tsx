@@ -49,12 +49,12 @@ export function WorkflowArchitecture() {
             >
               <div
                 id={`workflow-card-${index + 1}`}
-                className="h-full rounded-[22px] md:rounded-[26px] bg-[#131616] border border-[#222828] p-7 sm:p-8 md:p-9 flex flex-col justify-start min-h-[200px] md:min-h-[230px] transition-all duration-300 hover:-translate-y-1 hover:border-[#333C3C] hover:bg-[#151919] shadow-lg hover:shadow-xl"
+                className="h-full rounded-[22px] md:rounded-[26px] bg-[#131616] border border-[#222828] p-6 sm:p-7 md:p-8 lg:p-6 xl:p-8 2xl:p-9 flex flex-col justify-start min-h-[200px] md:min-h-[230px] transition-all duration-300 hover:-translate-y-1 hover:border-[#333C3C] hover:bg-[#151919] shadow-lg hover:shadow-xl"
               >
                 <span className="text-xs font-bold tracking-[0.18em] uppercase text-[#FFFFFF] mb-4 md:mb-5 block font-heading">
                   {item.step}
                 </span>
-                <h3 className="text-xl md:text-2xl font-bold text-[#A3B18A] mb-3 tracking-tight font-heading">
+                <h3 className="text-lg sm:text-xl lg:text-[18px] xl:text-[21px] 2xl:text-2xl font-bold text-[#A3B18A] mb-3 tracking-tight font-heading whitespace-nowrap">
                   {item.title}
                 </h3>
                 <p className="text-sm md:text-base text-[#8F9999] leading-relaxed font-normal">

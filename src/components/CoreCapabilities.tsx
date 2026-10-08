@@ -24,7 +24,7 @@ export function CoreCapabilities() {
           <ScrollReveal animation="fade-up" duration={480} delay={80} className="h-full">
             <div
               id="capability-card-obd"
-              className="h-full rounded-[22px] md:rounded-[26px] bg-[#A3B18A] text-[#0E1111] p-7 sm:p-8 md:p-9 flex flex-col justify-between min-h-[260px] md:min-h-[290px] transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl"
+              className="h-full rounded-[22px] md:rounded-[26px] bg-[#A3B18A] text-[#0E1111] p-6 sm:p-7 md:p-8 lg:p-6 xl:p-8 2xl:p-9 flex flex-col justify-between min-h-[260px] md:min-h-[290px] transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl"
             >
               <div>
                 {/* OBD-II CPU / Chip Diagnostic Icon */}
@@ -32,7 +32,7 @@ export function CoreCapabilities() {
                   <Cpu className="w-8 h-8 md:w-9 md:h-9 stroke-2 shrink-0" />
                 </div>
 
-                <h3 className="text-xl md:text-2xl font-bold text-[#0E1111] mb-3 tracking-tight font-heading">
+                <h3 className="text-lg sm:text-xl lg:text-[18px] xl:text-[21px] 2xl:text-2xl font-bold text-[#0E1111] mb-3 tracking-tight font-heading">
                   OBD-II Fault Analysis
                 </h3>
                 <p className="text-sm md:text-base text-[#202724] leading-relaxed font-medium">
@@ -46,7 +46,7 @@ export function CoreCapabilities() {
           <ScrollReveal animation="fade-up" duration={480} delay={160} className="h-full">
             <div
               id="capability-card-acoustic"
-              className="h-full rounded-[22px] md:rounded-[26px] bg-[#FFFFFF] text-[#0E1111] p-7 sm:p-8 md:p-9 flex flex-col justify-between min-h-[260px] md:min-h-[290px] transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl"
+              className="h-full rounded-[22px] md:rounded-[26px] bg-[#FFFFFF] text-[#0E1111] p-6 sm:p-7 md:p-8 lg:p-6 xl:p-8 2xl:p-9 flex flex-col justify-between min-h-[260px] md:min-h-[290px] transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl"
             >
               <div>
                 {/* Acoustic Soundwave Icon */}
@@ -54,7 +54,7 @@ export function CoreCapabilities() {
                   <AudioLines className="w-8 h-8 md:w-9 md:h-9 stroke-2 shrink-0" />
                 </div>
 
-                <h3 className="text-xl md:text-2xl font-bold text-[#0E1111] mb-3 tracking-tight font-heading">
+                <h3 className="text-lg sm:text-xl lg:text-[18px] xl:text-[21px] 2xl:text-2xl font-bold text-[#0E1111] mb-3 tracking-tight font-heading">
                   Acoustic Engine Diagnostics
                 </h3>
                 <p className="text-sm md:text-base text-[#3E4545] leading-relaxed font-medium">
@@ -68,7 +68,7 @@ export function CoreCapabilities() {
           <ScrollReveal animation="fade-up" duration={480} delay={240} className="h-full">
             <div
               id="capability-card-vision"
-              className="h-full rounded-[22px] md:rounded-[26px] bg-[#131616] border border-[#232828] text-white p-7 sm:p-8 md:p-9 flex flex-col justify-between min-h-[260px] md:min-h-[290px] transition-all duration-300 hover:-translate-y-1 hover:border-[#333C3C] hover:bg-[#151919] shadow-lg hover:shadow-xl"
+              className="h-full rounded-[22px] md:rounded-[26px] bg-[#131616] border border-[#232828] text-white p-6 sm:p-7 md:p-8 lg:p-6 xl:p-8 2xl:p-9 flex flex-col justify-between min-h-[260px] md:min-h-[290px] transition-all duration-300 hover:-translate-y-1 hover:border-[#333C3C] hover:bg-[#151919] shadow-lg hover:shadow-xl"
             >
               <div>
                 {/* Component Scan Icon */}
@@ -76,7 +76,7 @@ export function CoreCapabilities() {
                   <Scan className="w-8 h-8 md:w-9 md:h-9 stroke-2 shrink-0" />
                 </div>
 
-                <h3 className="text-xl md:text-2xl font-bold text-white mb-3 tracking-tight font-heading">
+                <h3 className="text-lg sm:text-xl lg:text-[18px] xl:text-[21px] 2xl:text-2xl font-bold text-white mb-3 tracking-tight font-heading">
                   Component image analysis
                 </h3>
                 <p className="text-sm md:text-base text-[#8F9999] leading-relaxed font-normal">
