@@ -1,9 +1,13 @@
+import { useEffect } from 'react';
 export function LicensesPage() {
+  useEffect(() => {
+    document.title = 'Mekai | Licenses';
+  }, []);
   return (
     <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-12 sm:py-16 animate-fade-in-up">
       {/* Document Header */}
         <div className="border-b border-[#1E2525] pb-8 mb-10">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-[-0.03em] font-heading mb-4">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-[-0.03em] font-heading mb-3">
             Licenses & Disclosures
           </h1>
           <p className="text-sm sm:text-base text-[#7E8B8B] font-medium font-heading">
@@ -22,7 +26,7 @@ export function LicensesPage() {
               <span className="w-2.5 h-2.5 rounded-full bg-[#A3B18A]" />
               Not a repair shop
             </h2>
-            <p className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed pl-5 sm:pl-6 border-l border-[#1E2525]">
+            <p className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed pl-5 sm:pl-6 border-l border-[#1E2525]">
               Mekai is not an auto repair shop, not a licensed mechanic garage, and not a certified vehicle inspection center. Mekai provides AI-powered diagnostic insights and repair guidance. Physical repairs and installations must be performed by certified technicians.
             </p>
           </section>
@@ -33,7 +37,7 @@ export function LicensesPage() {
               <span className="w-2.5 h-2.5 rounded-full bg-[#A3B18A]" />
               Self-custodial data and sessions
             </h2>
-            <p className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed pl-5 sm:pl-6 border-l border-[#1E2525]">
+            <p className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed pl-5 sm:pl-6 border-l border-[#1E2525]">
               Your diagnostic sessions, vehicle garage history, and account settings are structured to maintain your privacy and user control. Mekai processes your entered OBD-II trouble codes and acoustic inputs to deliver real-time automotive analysis.
             </p>
           </section>
@@ -44,8 +48,8 @@ export function LicensesPage() {
               <span className="w-2.5 h-2.5 rounded-full bg-[#A3B18A]" />
               AI-model processing
             </h2>
-            <p className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed pl-5 sm:pl-6 border-l border-[#1E2525]">
-              Diagnostic reasoning and natural language processing are powered by OpenAI. OpenAI is responsible for the foundational AI models processing your assistant queries and diagnostic inputs.
+            <p className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed pl-5 sm:pl-6 border-l border-[#1E2525]">
+              Diagnostic reasoning and natural language processing are powered by high-capacity foundational multimodal AI models trained on engineering and diagnostic telemetry.
             </p>
           </section>
 
@@ -55,7 +59,7 @@ export function LicensesPage() {
               <span className="w-2.5 h-2.5 rounded-full bg-[#A3B18A]" />
               Automotive parts and local partners
             </h2>
-            <p className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed pl-5 sm:pl-6 border-l border-[#1E2525]">
+            <p className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed pl-5 sm:pl-6 border-l border-[#1E2525]">
               Automotive spare parts procurement, merchant lookups, and marketplace integrations (such as Torkara) are provided by independent third parties. Those services are subject to the respective partner's commercial terms, pricing, and operating conditions.
             </p>
           </section>
@@ -66,7 +70,7 @@ export function LicensesPage() {
               <span className="w-2.5 h-2.5 rounded-full bg-[#A3B18A]" />
               Open-source software
             </h2>
-            <p className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed pl-5 sm:pl-6 border-l border-[#1E2525]">
+            <p className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed pl-5 sm:pl-6 border-l border-[#1E2525]">
               Mekai is built with open-source software used under their respective licenses. Attributions are available on request at{' '}
               <a
                 href="mailto:legal@cestcore.com"
@@ -83,7 +87,7 @@ export function LicensesPage() {
               <span className="w-2.5 h-2.5 rounded-full bg-[#A3B18A]" />
               Contact
             </h2>
-            <p className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed pl-5 sm:pl-6 border-l border-[#1E2525]">
+            <p className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed pl-5 sm:pl-6 border-l border-[#1E2525]">
               For licensing or compliance enquiries, email{' '}
               <a
                 href="mailto:compliance@cestcore.com"

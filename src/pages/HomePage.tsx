@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { HeroSection } from '../components/HeroSection';
 import { CoreCapabilities } from '../components/CoreCapabilities';
 import { WorkflowArchitecture } from '../components/WorkflowArchitecture';
@@ -10,6 +11,10 @@ import { useAuth } from '../context/AuthContext';
 export function HomePage() {
   const { navigate } = useRouter();
   const { isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    document.title = 'Mekai | Diagnostics intelligence for the modern workshop';
+  }, []);
 
   const handleGetStarted = (query?: string) => {
     if (isAuthenticated) {

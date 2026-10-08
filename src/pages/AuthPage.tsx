@@ -42,6 +42,10 @@ export function AuthPage({
   const [verifiedCode, setVerifiedCode] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    document.title = 'Mekai | Auth';
+  }, []);
+
   // If already authenticated and visiting auth page without explicit props, redirect to dashboard
   useEffect(() => {
     if (auth.isAuthenticated && !onAuthenticated) {

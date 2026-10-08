@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { ScrollReveal } from '../components/ScrollReveal';
 import { CheckCircle2, AlertCircle, Radio, Mail } from 'lucide-react';
 
@@ -9,6 +10,10 @@ interface ServiceStatusItem {
 }
 
 export function StatusPage() {
+  useEffect(() => {
+    document.title = 'Mekai | Status';
+  }, []);
+
   const services: ServiceStatusItem[] = [
     {
       name: 'Conversational assistant',
@@ -61,10 +66,10 @@ export function StatusPage() {
           <div className="border-b border-[#1E2525] pb-8 mb-10">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-[-0.03em] font-heading mb-2">
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-[-0.03em] font-heading mb-3">
                   System Status Overview
                 </h1>
-                <p className="text-sm text-[#7E8B8B] font-medium font-heading">
+                <p className="text-sm sm:text-base text-[#7E8B8B] font-medium font-heading">
                   Real-time telemetry and component availability for Mekai services
                 </p>
               </div>

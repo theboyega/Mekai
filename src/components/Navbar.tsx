@@ -392,14 +392,14 @@ export function Navbar({
               </nav>
 
               {/* Feature Capabilities List (links to sign up page) */}
-              <div className="space-y-5 sm:space-y-5.5 pl-1 pt-3.5">
+              <div className="space-y-6 sm:space-y-7 pl-1 pt-4">
                 <a
                   href="/auth?mode=signup"
                   onClick={(e) => {
                     e.preventDefault();
                     handleOpenAuth('signup');
                   }}
-                  className="flex items-center gap-4 text-[#A0ABAB] hover:text-white transition-colors cursor-pointer group text-left w-full"
+                  className="flex items-center gap-4 text-[#A0ABAB] hover:text-white transition-colors cursor-pointer group text-left w-full py-0.5"
                 >
                   <Activity className="w-5 h-5 text-[#8E9B9B] group-hover:text-[#A3B18A] transition-colors shrink-0" strokeWidth={1.8} />
                   <span className="text-sm sm:text-base font-normal tracking-wide">Live OBD-II telemetry</span>
@@ -411,7 +411,7 @@ export function Navbar({
                     e.preventDefault();
                     handleOpenAuth('signup');
                   }}
-                  className="flex items-center gap-4 text-[#A0ABAB] hover:text-white transition-colors cursor-pointer group text-left w-full"
+                  className="flex items-center gap-4 text-[#A0ABAB] hover:text-white transition-colors cursor-pointer group text-left w-full py-0.5"
                 >
                   <AudioLines className="w-5 h-5 text-[#8E9B9B] group-hover:text-[#A3B18A] transition-colors shrink-0" strokeWidth={1.8} />
                   <span className="text-sm sm:text-base font-normal tracking-wide">Acoustic engine diagnostics</span>
@@ -423,7 +423,7 @@ export function Navbar({
                     e.preventDefault();
                     handleOpenAuth('signup');
                   }}
-                  className="flex items-center gap-4 text-[#A0ABAB] hover:text-white transition-colors cursor-pointer group text-left w-full"
+                  className="flex items-center gap-4 text-[#A0ABAB] hover:text-white transition-colors cursor-pointer group text-left w-full py-0.5"
                 >
                   <Search className="w-5 h-5 text-[#8E9B9B] group-hover:text-[#A3B18A] transition-colors shrink-0" strokeWidth={1.8} />
                   <span className="text-sm sm:text-base font-normal tracking-wide">OBD-II fault analysis</span>
@@ -435,7 +435,7 @@ export function Navbar({
                     e.preventDefault();
                     handleOpenAuth('signup');
                   }}
-                  className="flex items-center gap-4 text-[#A0ABAB] hover:text-white transition-colors cursor-pointer group text-left w-full"
+                  className="flex items-center gap-4 text-[#A0ABAB] hover:text-white transition-colors cursor-pointer group text-left w-full py-0.5"
                 >
                   <Camera className="w-5 h-5 text-[#8E9B9B] group-hover:text-[#A3B18A] transition-colors shrink-0" strokeWidth={1.8} />
                   <span className="text-sm sm:text-base font-normal tracking-wide">Component image analysis</span>
@@ -447,7 +447,7 @@ export function Navbar({
                     e.preventDefault();
                     handleOpenAuth('signup');
                   }}
-                  className="flex items-center gap-4 text-[#A0ABAB] hover:text-white transition-colors cursor-pointer group text-left w-full"
+                  className="flex items-center gap-4 text-[#A0ABAB] hover:text-white transition-colors cursor-pointer group text-left w-full py-0.5"
                 >
                   <Package className="w-5 h-5 text-[#8E9B9B] group-hover:text-[#A3B18A] transition-colors shrink-0" strokeWidth={1.8} />
                   <span className="text-sm sm:text-base font-normal tracking-wide">Part sourcing &amp; procurement</span>
@@ -459,7 +459,7 @@ export function Navbar({
                     e.preventDefault();
                     handleOpenAuth('signup');
                   }}
-                  className="flex items-center gap-4 text-[#A0ABAB] hover:text-white transition-colors cursor-pointer group text-left w-full"
+                  className="flex items-center gap-4 text-[#A0ABAB] hover:text-white transition-colors cursor-pointer group text-left w-full py-0.5"
                 >
                   <FileText className="w-5 h-5 text-[#8E9B9B] group-hover:text-[#A3B18A] transition-colors shrink-0" strokeWidth={1.8} />
                   <span className="text-sm sm:text-base font-normal tracking-wide">Generate diagnostic reports</span>
@@ -471,7 +471,7 @@ export function Navbar({
                 <h4 className="text-xs font-bold tracking-[0.18em] uppercase text-[#A3B18A] font-heading mb-4 sm:mb-5">
                   LEARN MORE
                 </h4>
-                <div className="space-y-4 sm:space-y-4.5">
+                <div className="space-y-3 sm:space-y-3.5">
                   <a
                     href="/docs"
                     onClick={(e) => {

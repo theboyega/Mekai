@@ -1,4 +1,4 @@
-import { Scan, Cpu } from 'lucide-react';
+import { Scan, Cpu, AudioLines } from 'lucide-react';
 import { ScrollReveal } from './ScrollReveal';
 
 export function CoreCapabilities() {
@@ -28,8 +28,8 @@ export function CoreCapabilities() {
             >
               <div>
                 {/* OBD-II CPU / Chip Diagnostic Icon */}
-                <div className="w-11 h-11 md:w-13 md:h-13 mb-6 md:mb-8 flex items-center justify-center text-[#0E1111]" aria-hidden="true">
-                  <Cpu className="w-8 h-8 md:w-9 md:h-9 stroke-2" />
+                <div className="w-11 h-11 md:w-12 md:h-12 mb-6 md:mb-8 flex items-center justify-center text-[#0E1111]" aria-hidden="true">
+                  <Cpu className="w-8 h-8 md:w-9 md:h-9 stroke-2 shrink-0" />
                 </div>
 
                 <h3 className="text-xl md:text-2xl font-bold text-[#0E1111] mb-3 tracking-tight font-heading">
@@ -50,23 +50,8 @@ export function CoreCapabilities() {
             >
               <div>
                 {/* Acoustic Soundwave Icon */}
-                <div className="w-11 h-11 md:w-13 md:h-13 mb-6 md:mb-8 flex items-center justify-center text-[#0E1111]" aria-hidden="true">
-                  <svg
-                    className="w-8 h-8 md:w-9 md:h-9"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M2 12h2" />
-                    <path d="M6 8v8" />
-                    <path d="M10 4v16" />
-                    <path d="M14 6v12" />
-                    <path d="M18 9v6" />
-                    <path d="M22 12h-2" />
-                  </svg>
+                <div className="w-11 h-11 md:w-12 md:h-12 mb-6 md:mb-8 flex items-center justify-center text-[#0E1111]" aria-hidden="true">
+                  <AudioLines className="w-8 h-8 md:w-9 md:h-9 stroke-2 shrink-0" />
                 </div>
 
                 <h3 className="text-xl md:text-2xl font-bold text-[#0E1111] mb-3 tracking-tight font-heading">
@@ -87,8 +72,8 @@ export function CoreCapabilities() {
             >
               <div>
                 {/* Component Scan Icon */}
-                <div className="w-11 h-11 md:w-13 md:h-13 mb-6 md:mb-8 flex items-center justify-center text-[#6A7676]" aria-hidden="true">
-                  <Scan className="w-8 h-8 md:w-9 md:h-9 stroke-2" />
+                <div className="w-11 h-11 md:w-12 md:h-12 mb-6 md:mb-8 flex items-center justify-center text-[#6A7676]" aria-hidden="true">
+                  <Scan className="w-8 h-8 md:w-9 md:h-9 stroke-2 shrink-0" />
                 </div>
 
                 <h3 className="text-xl md:text-2xl font-bold text-white mb-3 tracking-tight font-heading">

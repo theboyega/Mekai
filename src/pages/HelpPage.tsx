@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { ScrollReveal } from '../components/ScrollReveal';
 import { Mail, Phone, Clock, MessageSquare, Sparkles } from 'lucide-react';
 import { useRouter } from '../context/RouterContext';
@@ -6,6 +7,10 @@ import { useAuth } from '../context/AuthContext';
 export function HelpPage() {
   const router = useRouter();
   const auth = useAuth();
+
+  useEffect(() => {
+    document.title = 'Mekai | Help';
+  }, []);
 
   const handleAskMekai = () => {
     if (auth.isAuthenticated) {
@@ -20,10 +25,10 @@ export function HelpPage() {
       {/* Document Header */}
         <ScrollReveal animation="fade-up" duration={480} delay={0}>
           <div className="border-b border-[#1E2525] pb-8 mb-10">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-[-0.03em] font-heading mb-4">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-[-0.03em] font-heading mb-3">
               Help &amp; Support
             </h1>
-            <p className="text-base sm:text-lg text-[#9EA8A8] max-w-2xl leading-relaxed">
+            <p className="text-sm sm:text-base text-[#7E8B8B] font-medium font-heading mb-6">
               We’re here to help. Reach the team directly, or ask Mekai in-app — the assistant can answer most questions instantly.
             </p>
 

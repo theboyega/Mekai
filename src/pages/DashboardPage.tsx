@@ -9,6 +9,10 @@ export function DashboardPage() {
 
   const initialPrompt = searchParams.get('prompt') || '';
 
+  useEffect(() => {
+    document.title = 'Mekai | Dashboard';
+  }, []);
+
   // Route Guard: redirect unauthenticated users to the auth page
   useEffect(() => {
     if (!isAuthenticated) {

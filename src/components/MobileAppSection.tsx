@@ -10,10 +10,10 @@ export function MobileAppSection() {
           {/* Left Column: Download Narrative & Store Links */}
           <div id="download-content" className="lg:col-span-6 w-full">
             <ScrollReveal animation="fade-up" duration={480} delay={0}>
-              <p className="text-xs md:text-sm font-bold tracking-[0.18em] uppercase text-[#A3B18A] mb-3 font-heading">
+              <p className="text-xs font-bold tracking-[0.18em] uppercase text-[#A3B18A] mb-3 font-heading">
                 Download
               </p>
-              <h2 className="text-3xl sm:text-4xl md:text-[42px] lg:text-[44px] font-extrabold text-white tracking-[-0.02em] leading-tight mb-4 font-heading">
+              <h2 className="text-3xl sm:text-4xl lg:text-[40px] font-extrabold text-white tracking-[-0.02em] leading-tight mb-4 font-heading">
                 Take mekai under<br className="hidden sm:inline" /> the bonnet.
               </h2>
             </ScrollReveal>

@@ -1,9 +1,13 @@
+import { useEffect } from 'react';
 export function PrivacyPage() {
+  useEffect(() => {
+    document.title = 'Mekai | Privacy';
+  }, []);
   return (
     <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-12 sm:py-16 animate-fade-in-up">
       {/* Document Header */}
         <div className="border-b border-[#1E2525] pb-8 mb-10">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-[-0.03em] font-heading mb-4">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-[-0.03em] font-heading mb-3">
             Privacy Notice
           </h1>
           <p className="text-sm sm:text-base text-[#7E8B8B] font-medium font-heading">
@@ -23,16 +27,16 @@ export function PrivacyPage() {
               Information we collect
             </h2>
             <div className="space-y-3 pl-5 sm:pl-6 border-l border-[#1E2525]">
-              <div className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed">
+              <div className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed">
                 <strong className="text-white font-semibold">Account data</strong> — your name, email, phone number, country, and username.
               </div>
-              <div className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed">
+              <div className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed">
                 <strong className="text-white font-semibold">Vehicle garage & diagnostic data</strong> — your vehicle details (year, make, model, mileage, vin etc), entered OBD-II trouble codes, acoustic recordings, and uploaded component images.
               </div>
-              <div className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed">
+              <div className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed">
                 <strong className="text-white font-semibold">Conversation data</strong> — messages and diagnostic queries you send the Mekai assistant, used to fulfil your requests and improve diagnostic reasoning.
               </div>
-              <div className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed">
+              <div className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed">
                 <strong className="text-white font-semibold">Device & usage data</strong> — IP address, device type, and app interactions for security and analytics.
               </div>
             </div>
@@ -44,7 +48,7 @@ export function PrivacyPage() {
               <span className="w-2.5 h-2.5 rounded-full bg-[#A3B18A]" />
               How we use your data
             </h2>
-            <p className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed pl-5 sm:pl-6 border-l border-[#1E2525]">
+            <p className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed pl-5 sm:pl-6 border-l border-[#1E2525]">
               To provide and secure the service, process diagnostic queries, prevent fraudulent vehicle reporting, comply with legal obligations, personalise your automotive workshop experience, and communicate with you about your account.
             </p>
           </section>
@@ -56,23 +60,23 @@ export function PrivacyPage() {
               Service providers we share with
             </h2>
             <div className="space-y-3 pl-5 sm:pl-6 border-l border-[#1E2525]">
-              <p className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed">
+              <p className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed">
                 We share the minimum data necessary with trusted processors, including:
               </p>
               <ul className="space-y-2 mt-2">
-                <li className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed flex items-start gap-2.5">
+                <li className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed flex items-start gap-2.5">
                   <span className="text-[#A3B18A] mt-1 text-xs">•</span>
                   <span><strong className="text-white font-semibold">Supabase</strong> — encrypted database and authentication.</span>
                 </li>
-                <li className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed flex items-start gap-2.5">
+                <li className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed flex items-start gap-2.5">
                   <span className="text-[#A3B18A] mt-1 text-xs">•</span>
                   <span><strong className="text-white font-semibold">OpenAI</strong> — language-model processing of your assistant and diagnostic messages.</span>
                 </li>
-                <li className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed flex items-start gap-2.5">
+                <li className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed flex items-start gap-2.5">
                   <span className="text-[#A3B18A] mt-1 text-xs">•</span>
                   <span><strong className="text-white font-semibold">Upstash</strong> — session memory and rate limiting.</span>
                 </li>
-                <li className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed flex items-start gap-2.5">
+                <li className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed flex items-start gap-2.5">
                   <span className="text-[#A3B18A] mt-1 text-xs">•</span>
                   <span><strong className="text-white font-semibold">Torkara or related automotive spare parts partners</strong> — when you initiate parts procurement or merchant lookups through supported integrations.</span>
                 </li>
@@ -89,7 +93,7 @@ export function PrivacyPage() {
               <span className="w-2.5 h-2.5 rounded-full bg-[#A3B18A]" />
               Data retention
             </h2>
-            <p className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed pl-5 sm:pl-6 border-l border-[#1E2525]">
+            <p className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed pl-5 sm:pl-6 border-l border-[#1E2525]">
               We keep personal data for as long as your account is active and as required to meet legal, tax, and regulatory obligations. Diagnostic conversation history is retained to provide continuity across your workshop sessions and can be cleared on request.
             </p>
           </section>
@@ -100,7 +104,7 @@ export function PrivacyPage() {
               <span className="w-2.5 h-2.5 rounded-full bg-[#A3B18A]" />
               Security
             </h2>
-            <p className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed pl-5 sm:pl-6 border-l border-[#1E2525]">
+            <p className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed pl-5 sm:pl-6 border-l border-[#1E2525]">
               We use encryption in transit and at rest, secure authentication protocols, and access controls. No system is perfectly secure, so please protect your device and credentials.
             </p>
           </section>
@@ -111,7 +115,7 @@ export function PrivacyPage() {
               <span className="w-2.5 h-2.5 rounded-full bg-[#A3B18A]" />
               Your rights
             </h2>
-            <p className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed pl-5 sm:pl-6 border-l border-[#1E2525]">
+            <p className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed pl-5 sm:pl-6 border-l border-[#1E2525]">
               Subject to applicable law, you may request access to, correction of, or deletion of your personal data, and you may object to certain processing. To exercise these rights, contact us below.
             </p>
           </section>
@@ -122,7 +126,7 @@ export function PrivacyPage() {
               <span className="w-2.5 h-2.5 rounded-full bg-[#A3B18A]" />
               Contact
             </h2>
-            <p className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed pl-5 sm:pl-6 border-l border-[#1E2525]">
+            <p className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed pl-5 sm:pl-6 border-l border-[#1E2525]">
               For privacy questions or requests, email{' '}
               <a
                 href="mailto:privacy@mekai.ai"

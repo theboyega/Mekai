@@ -1,16 +1,21 @@
+import { useEffect } from 'react';
 import { ScrollReveal } from '../components/ScrollReveal';
 import { Mail, FolderDown, Building2 } from 'lucide-react';
 
 export function PressPage() {
+  useEffect(() => {
+    document.title = 'Mekai | Press';
+  }, []);
+
   return (
     <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-12 sm:py-16">
       {/* Document Header */}
         <ScrollReveal animation="fade-up" duration={480} delay={0}>
           <div className="border-b border-[#1E2525] pb-8 mb-10">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-[-0.03em] font-heading mb-4">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-[-0.03em] font-heading mb-3">
               Press
             </h1>
-            <p className="text-base sm:text-lg text-[#9EA8A8] max-w-2xl leading-relaxed">
+            <p className="text-sm sm:text-base text-[#7E8B8B] font-medium font-heading mb-6">
               For interviews, quotes, or media enquiries, we’d love to hear from you.
             </p>
 
@@ -52,7 +57,7 @@ export function PressPage() {
                 <span className="w-2.5 h-2.5 rounded-full bg-[#A3B18A]" />
                 About Mekai
               </h2>
-              <div className="space-y-4 pl-5 sm:pl-6 border-l border-[#1E2525] text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed">
+              <div className="space-y-4 pl-5 sm:pl-6 border-l border-[#1E2525] text-sm sm:text-base text-[#9EA8A8] leading-relaxed">
                 <p>
                   Mekai is an AI-powered diagnostic and assistant platform built to transform how users interact with vehicles, machinery, and technical systems. Through a single conversational interface, users can interpret troubleshooting data, analyze acoustic signatures, manage vehicle garages, and coordinate part procurement, all by chat.
                 </p>
@@ -71,7 +76,7 @@ export function PressPage() {
                 Brand assets
               </h2>
               <div className="pl-5 sm:pl-6 border-l border-[#1E2525] space-y-3">
-                <p className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed">
+                <p className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed">
                   Logos and brand guidelines are available on request. Email{' '}
                   <a
                     href="mailto:press@mekai.ai?subject=Press%20Kit%20Request"

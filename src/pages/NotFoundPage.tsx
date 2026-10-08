@@ -1,17 +1,18 @@
+import { useEffect } from 'react';
 import { useRouter } from '../context/RouterContext';
 import { AlertCircle, ArrowLeft, Home, FileText, Activity, HelpCircle } from 'lucide-react';
 
 export function NotFoundPage() {
   const { navigate } = useRouter();
 
+  useEffect(() => {
+    document.title = 'Mekai | Not Found';
+  }, []);
+
   return (
     <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-16 sm:py-24 flex flex-col items-center justify-center text-center">
       <div className="w-16 h-16 rounded-2xl bg-[#D97706]/10 border border-[#D97706]/20 flex items-center justify-center mb-6 text-[#F59E0B]">
         <AlertCircle className="w-8 h-8" />
-      </div>
-
-      <div className="text-xs font-mono text-[#A3B18A] uppercase tracking-wider mb-2">
-        Error 404 · Unknown Endpoint
       </div>
 
       <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight font-heading mb-4">

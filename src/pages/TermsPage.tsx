@@ -1,9 +1,13 @@
+import { useEffect } from 'react';
 export function TermsPage() {
+  useEffect(() => {
+    document.title = 'Mekai | Terms';
+  }, []);
   return (
     <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-12 sm:py-16 animate-fade-in-up">
       {/* Document Header */}
         <div className="border-b border-[#1E2525] pb-8 mb-10">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-[-0.03em] font-heading mb-4">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-[-0.03em] font-heading mb-3">
             Terms of Service
           </h1>
           <p className="text-sm sm:text-base text-[#7E8B8B] font-medium font-heading">
@@ -22,10 +26,10 @@ export function TermsPage() {
               1
             </span>
             <div className="space-y-2 pt-0.5">
-              <h2 className="text-lg sm:text-xl font-bold text-white font-heading tracking-tight">
+              <h2 className="text-xl sm:text-2xl font-bold text-white font-heading tracking-tight">
                 What Mekai is
               </h2>
-              <p className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed">
+              <p className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed">
                 Mekai is an AI-powered automotive diagnostic assistant platform, not an auto repair shop, not a licensed mechanic garage, and not a certified vehicle inspection center. Mekai provides conversational and multimodal analysis of OBD-II trouble codes, acoustic engine signatures, and component images to deliver diagnostic insights and potential repair guidance. We do not perform physical repairs or take physical custody of vehicles.
               </p>
             </div>
@@ -37,10 +41,10 @@ export function TermsPage() {
               2
             </span>
             <div className="space-y-2 pt-0.5">
-              <h2 className="text-lg sm:text-xl font-bold text-white font-heading tracking-tight">
+              <h2 className="text-xl sm:text-2xl font-bold text-white font-heading tracking-tight">
                 Eligibility
               </h2>
-              <p className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed">
+              <p className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed">
                 You must be at least 18 years old and legally able to enter into a contract. You are responsible for complying with the laws of the country you use Mekai from. Access may be restricted in certain jurisdictions.
               </p>
             </div>
@@ -52,10 +56,10 @@ export function TermsPage() {
               3
             </span>
             <div className="space-y-2 pt-0.5">
-              <h2 className="text-lg sm:text-xl font-bold text-white font-heading tracking-tight">
+              <h2 className="text-xl sm:text-2xl font-bold text-white font-heading tracking-tight">
                 Your accounts and data
               </h2>
-              <p className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed">
+              <p className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed">
                 Your account and diagnostic history are secured via your login credentials. You are solely responsible for safeguarding your device and account access. Mekai maintains your saved diagnostic sessions and vehicle garage history to provide seamless continuity across your devices.
               </p>
             </div>
@@ -67,10 +71,10 @@ export function TermsPage() {
               4
             </span>
             <div className="space-y-2 pt-0.5">
-              <h2 className="text-lg sm:text-xl font-bold text-white font-heading tracking-tight">
+              <h2 className="text-xl sm:text-2xl font-bold text-white font-heading tracking-tight">
                 AI diagnostics and vehicle data
               </h2>
-              <p className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed">
+              <p className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed">
                 AI-generated diagnostic outputs are probabilistic and provided for informational and reference purposes only. On-chain or digital logs of your vehicle diagnostics are processed based on the information you provide. Mekai is not responsible for diagnostic inaccuracies resulting from faulty OBD-II data, improper user input, or underlying mechanical failures.
               </p>
             </div>
@@ -82,10 +86,10 @@ export function TermsPage() {
               5
             </span>
             <div className="space-y-2 pt-0.5">
-              <h2 className="text-lg sm:text-xl font-bold text-white font-heading tracking-tight">
+              <h2 className="text-xl sm:text-2xl font-bold text-white font-heading tracking-tight">
                 Third-party parts and local partners
               </h2>
-              <p className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed">
+              <p className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed">
                 Automotive spare parts procurement, merchant listings, or third-party vendor services (such as integration with marketplaces like Torqara) are provided by independent third parties. Those services are subject to the respective partner’s own terms, pricing, and operating conditions.
               </p>
             </div>
@@ -97,10 +101,10 @@ export function TermsPage() {
               6
             </span>
             <div className="space-y-2 pt-0.5">
-              <h2 className="text-lg sm:text-xl font-bold text-white font-heading tracking-tight">
+              <h2 className="text-xl sm:text-2xl font-bold text-white font-heading tracking-tight">
                 Fees
               </h2>
-              <p className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed">
+              <p className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed">
                 Mekai may charge subscription or feature-based fees for advanced diagnostic capabilities, which will be clearly disclosed to you before you confirm any transaction. Third-party parts purchases or external garage services will incur separate costs determined by those providers.
               </p>
             </div>
@@ -112,10 +116,10 @@ export function TermsPage() {
               7
             </span>
             <div className="space-y-2 pt-0.5">
-              <h2 className="text-lg sm:text-xl font-bold text-white font-heading tracking-tight">
+              <h2 className="text-xl sm:text-2xl font-bold text-white font-heading tracking-tight">
                 Acceptable use
               </h2>
-              <p className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed">
+              <p className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed">
                 You agree not to use Mekai for fraudulent vehicle reporting, malicious system manipulation, or any unlawful activity. We may suspend or terminate accounts that violate these Terms or applicable law.
               </p>
             </div>
@@ -127,10 +131,10 @@ export function TermsPage() {
               8
             </span>
             <div className="space-y-2 pt-0.5">
-              <h2 className="text-lg sm:text-xl font-bold text-white font-heading tracking-tight">
+              <h2 className="text-xl sm:text-2xl font-bold text-white font-heading tracking-tight">
                 Disclaimers and liability
               </h2>
-              <p className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed">
+              <p className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed">
                 The service is provided “as is” without warranties of any kind. To the fullest extent permitted by law, Mekai is not liable for indirect, incidental, or consequential damages, or for any vehicle damage, personal injury, or loss arising from your use of AI diagnostic recommendations, self-performed mechanical repairs, or third-party partners.
               </p>
             </div>
@@ -142,10 +146,10 @@ export function TermsPage() {
               9
             </span>
             <div className="space-y-2 pt-0.5">
-              <h2 className="text-lg sm:text-xl font-bold text-white font-heading tracking-tight">
+              <h2 className="text-xl sm:text-2xl font-bold text-white font-heading tracking-tight">
                 Changes
               </h2>
-              <p className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed">
+              <p className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed">
                 We may update these Terms from time to time. Material changes will be communicated in-app or by email. Continued use after changes take effect constitutes acceptance.
               </p>
             </div>
@@ -157,10 +161,10 @@ export function TermsPage() {
               10
             </span>
             <div className="space-y-2 pt-0.5">
-              <h2 className="text-lg sm:text-xl font-bold text-white font-heading tracking-tight">
+              <h2 className="text-xl sm:text-2xl font-bold text-white font-heading tracking-tight">
                 Governing law
               </h2>
-              <p className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed">
+              <p className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed">
                 These Terms are governed by the laws of the Federal Republic of Nigeria, without regard to conflict of law principles.
               </p>
             </div>
@@ -172,10 +176,10 @@ export function TermsPage() {
               11
             </span>
             <div className="space-y-2 pt-0.5">
-              <h2 className="text-lg sm:text-xl font-bold text-white font-heading tracking-tight">
+              <h2 className="text-xl sm:text-2xl font-bold text-white font-heading tracking-tight">
                 Contact
               </h2>
-              <p className="text-sm sm:text-[15px] text-[#9EA8A8] leading-relaxed">
+              <p className="text-sm sm:text-base text-[#9EA8A8] leading-relaxed">
                 Questions about these Terms? Email{' '}
                 <a
                   href="mailto:legal@cestcore.com"
