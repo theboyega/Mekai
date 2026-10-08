@@ -92,13 +92,6 @@ export function Navbar({
     }
   };
 
-  const desktopNavItems = [
-    { label: 'Documentation', path: '/docs' },
-    { label: 'System Status', path: '/status' },
-    { label: 'Help & Support', path: '/help' },
-    { label: 'Careers', path: '/careers' },
-  ];
-
   return (
     <>
       <header
@@ -121,31 +114,6 @@ export function Navbar({
           >
             <MekaiLogo iconSize={32} textSize="text-xl tracking-widest font-heading font-extrabold" />
           </a>
-
-          {/* Center Navigation Links (Desktop) */}
-          <nav aria-label="Main" className="hidden lg:flex items-center gap-7">
-            {desktopNavItems.map((item) => {
-              const isActive = router.currentPath === item.path;
-              return (
-                <a
-                  key={item.path}
-                  href={item.path}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    router.navigate(item.path);
-                  }}
-                  className={`text-sm font-semibold transition-colors font-heading relative py-1 cursor-pointer ${
-                    isActive ? 'text-[#A3B18A]' : 'text-[#8E9B9B] hover:text-white'
-                  }`}
-                >
-                  <span>{item.label}</span>
-                  {isActive && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#A3B18A] rounded-full" />
-                  )}
-                </a>
-              );
-            })}
-          </nav>
 
           {/* Right Navigation Actions */}
           <div id="nav-actions" className="flex items-center gap-4 sm:gap-6 shrink-0">
