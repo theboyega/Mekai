@@ -78,73 +78,77 @@ export function FaqSection() {
   return (
     <section id="faq-section" className="py-16 sm:py-20 lg:py-24 border-t border-[#1C2121]/60">
       <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16">
-        {/* Section Header */}
-        <ScrollReveal animation="fade-up" duration={480} delay={0}>
-          <div id="faq-header" className="mb-10 sm:mb-12 max-w-3xl">
-            <p className="text-xs md:text-sm font-bold tracking-[0.18em] uppercase text-[#A3B18A] mb-3 font-heading">
-              FAQ
-            </p>
-            <h2 className="text-3xl sm:text-4xl lg:text-[40px] font-extrabold text-white tracking-[-0.02em] leading-tight font-heading">
-              Common questions<br className="hidden sm:inline" /> about Mekai.
-            </h2>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 xl:gap-16 items-start">
+          {/* Left Column: Heading & Tag */}
+          <div className="lg:col-span-5 xl:col-span-4 lg:sticky lg:top-28">
+            <ScrollReveal animation="fade-up" duration={480} delay={0}>
+              <div id="faq-header" className="max-w-xl">
+                <p className="text-xs md:text-sm font-bold tracking-[0.18em] uppercase text-[#A3B18A] mb-3 font-heading">
+                  FAQ
+                </p>
+                <h2 className="text-3xl sm:text-4xl lg:text-[40px] font-extrabold text-white tracking-[-0.02em] leading-tight font-heading">
+                  Common questions<br className="hidden sm:inline" /> about Mekai.
+                </h2>
+              </div>
+            </ScrollReveal>
           </div>
-        </ScrollReveal>
 
-        {/* FAQ Accordion List */}
-        <div className="max-w-4xl space-y-3.5 sm:space-y-4">
-          {FAQ_ITEMS.map((item, index) => {
-            const isOpen = Boolean(openItems[item.id]);
+          {/* Right Column: FAQ Cards */}
+          <div className="lg:col-span-7 xl:col-span-8 w-full space-y-3.5 sm:space-y-4">
+            {FAQ_ITEMS.map((item, index) => {
+              const isOpen = Boolean(openItems[item.id]);
 
-            return (
-              <ScrollReveal
-                key={item.id}
-                animation="fade-up"
-                duration={450}
-                delay={Math.min(index * 40, 240)}
-              >
-                <div
-                  className={`rounded-[20px] md:rounded-[24px] bg-[#131616] border transition-all duration-200 overflow-hidden ${
-                    isOpen
-                      ? 'border-[#A3B18A]/35 bg-[#151919] shadow-lg'
-                      : 'border-[#222828] hover:border-[#333C3C]'
-                  }`}
+              return (
+                <ScrollReveal
+                  key={item.id}
+                  animation="fade-up"
+                  duration={450}
+                  delay={Math.min(index * 40, 240)}
                 >
-                  <button
-                    type="button"
-                    onClick={() => toggleItem(item.id)}
-                    aria-expanded={isOpen}
-                    aria-controls={`faq-answer-${item.id}`}
-                    id={`faq-btn-${item.id}`}
-                    className="w-full p-5 sm:p-6 md:p-7 flex items-center justify-between text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3B18A]/50 gap-4"
+                  <div
+                    className={`rounded-[20px] md:rounded-[24px] bg-[#131616] border transition-all duration-200 overflow-hidden ${
+                      isOpen
+                        ? 'border-[#A3B18A]/35 bg-[#151919] shadow-lg'
+                        : 'border-[#222828] hover:border-[#333C3C]'
+                    }`}
                   >
-                    <span className="font-heading font-bold text-base sm:text-lg md:text-xl text-white tracking-tight leading-snug">
-                      {item.question}
-                    </span>
-                    <div
-                      className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 transition-transform duration-200 ${
-                        isOpen
-                          ? 'bg-[#A3B18A] text-[#0E1111] rotate-180'
-                          : 'bg-[#1C2222] text-[#8F9999]'
-                      }`}
+                    <button
+                      type="button"
+                      onClick={() => toggleItem(item.id)}
+                      aria-expanded={isOpen}
+                      aria-controls={`faq-answer-${item.id}`}
+                      id={`faq-btn-${item.id}`}
+                      className="w-full p-5 sm:p-6 md:p-7 flex items-center justify-between text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3B18A]/50 gap-4"
                     >
-                      <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.2]" />
-                    </div>
-                  </button>
+                      <span className="font-heading font-bold text-base sm:text-lg md:text-xl text-white tracking-tight leading-snug">
+                        {item.question}
+                      </span>
+                      <div
+                        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 transition-transform duration-200 ${
+                          isOpen
+                            ? 'bg-[#A3B18A] text-[#0E1111] rotate-180'
+                            : 'bg-[#1C2222] text-[#8F9999]'
+                        }`}
+                      >
+                        <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.2]" />
+                      </div>
+                    </button>
 
-                  {isOpen && (
-                    <div
-                      id={`faq-answer-${item.id}`}
-                      role="region"
-                      aria-labelledby={`faq-btn-${item.id}`}
-                      className="px-5 pb-5 sm:px-6 sm:pb-6 md:px-7 md:pb-7 pt-0 text-sm sm:text-base text-[#9EA8A8] leading-relaxed border-t border-[#1F2525]/80 mt-1"
-                    >
-                      <p className="pt-4">{item.answer}</p>
-                    </div>
-                  )}
-                </div>
-              </ScrollReveal>
-            );
-          })}
+                    {isOpen && (
+                      <div
+                        id={`faq-answer-${item.id}`}
+                        role="region"
+                        aria-labelledby={`faq-btn-${item.id}`}
+                        className="px-5 pb-5 sm:px-6 sm:pb-6 md:px-7 md:pb-7 pt-0 text-sm sm:text-base text-[#9EA8A8] leading-relaxed border-t border-[#1F2525]/80 mt-1"
+                      >
+                        <p className="pt-4">{item.answer}</p>
+                      </div>
+                    )}
+                  </div>
+                </ScrollReveal>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>
