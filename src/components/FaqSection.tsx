@@ -80,21 +80,22 @@ export function FaqSection() {
       <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 xl:gap-16 items-start">
           {/* Left Column: Heading & Tag */}
-          <div className="lg:col-span-5 xl:col-span-4 lg:sticky lg:top-28">
+          <div className="lg:col-span-5 xl:col-span-5 lg:sticky lg:top-28">
             <ScrollReveal animation="fade-up" duration={480} delay={0}>
               <div id="faq-header" className="max-w-xl">
                 <p className="text-xs md:text-sm font-bold tracking-[0.18em] uppercase text-[#A3B18A] mb-3 font-heading">
                   FAQ
                 </p>
-                <h2 className="text-3xl sm:text-4xl lg:text-[40px] font-extrabold text-white tracking-[-0.02em] leading-tight font-heading">
-                  Common questions<br className="hidden sm:inline" /> about Mekai.
+                <h2 className="text-3xl sm:text-4xl lg:text-[38px] xl:text-[40px] font-extrabold text-white tracking-[-0.02em] leading-tight font-heading">
+                  <span className="block sm:whitespace-nowrap">Common questions</span>
+                  <span className="block sm:whitespace-nowrap">about Mekai.</span>
                 </h2>
               </div>
             </ScrollReveal>
           </div>
 
           {/* Right Column: FAQ Cards */}
-          <div className="lg:col-span-7 xl:col-span-8 w-full space-y-3.5 sm:space-y-4">
+          <div className="lg:col-span-7 xl:col-span-7 w-full max-w-3xl lg:max-w-none xl:max-w-[760px] space-y-3.5 sm:space-y-4">
             {FAQ_ITEMS.map((item, index) => {
               const isOpen = Boolean(openItems[item.id]);
 
